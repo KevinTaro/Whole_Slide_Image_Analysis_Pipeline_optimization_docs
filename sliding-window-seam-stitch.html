@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大 Patch Sliding-Window 分割 + 接縫縫合 — 改動說明</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', sans-serif;
+    background: #F1F5F9; color: #1E293B; padding: 52px 24px 80px; line-height: 1.7;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .page-header .tag {
+    display: inline-block; background: #DBEAFE; color: #1D4ED8; font-size: 0.78rem;
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 20px; margin-bottom: 18px;
+  }
+  .page-header h1 { font-size: 2.2rem; font-weight: 800; color: #0F172A; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .page-header p { color: #64748B; font-size: 1.02rem; }
+  .card {
+    background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+    padding: 28px 32px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  }
+  .card h2 { font-size: 1.35rem; font-weight: 800; color: #0F172A; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .card h2 .n {
+    flex: none; width: 30px; height: 30px; border-radius: 9px; background: #1D4ED8; color: #fff;
+    font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .card h3 { font-size: 1.02rem; font-weight: 700; color: #334155; margin: 18px 0 8px; }
+  p, li { color: #334155; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin-bottom: 6px; }
+  code { font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace; font-size: 0.88em; background: #F1F5F9; color: #BE185D; padding: 1px 6px; border-radius: 5px; }
+  pre {
+    background: #0F172A; color: #E2E8F0; border-radius: 12px; padding: 18px 20px;
+    overflow-x: auto; font-family: 'SF Mono','Cascadia Code',Consolas,monospace; font-size: 0.84rem; line-height: 1.6; margin: 12px 0;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  .pill { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 9px; border-radius: 12px; }
+  .pill.add { background:#DCFCE7; color:#15803D; }
+  .pill.mod { background:#FEF9C3; color:#A16207; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E2E8F0; vertical-align: top; }
+  th { background: #F8FAFC; font-weight: 700; color: #475569; }
+  td code { white-space: nowrap; }
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:14px 0; }
+  .step { background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; border-radius:10px; padding:8px 12px; font-size:.86rem; font-weight:600; }
+  .step.win { background:#FCE7F3; border-color:#FBCFE8; color:#9D174B; }
+  .step.same { background:#F1F5F9; border-color:#E2E8F0; color:#475569; }
+  .arrow { color:#94A3B8; font-weight:800; }
+  .note { background:#FFFBEB; border-left:4px solid #F59E0B; border-radius:8px; padding:12px 16px; margin:14px 0; font-size:.92rem; }
+  .ok { background:#F0FDF4; border-left:4px solid #22C55E; border-radius:8px; padding:12px 16px; margin:14px 0; font-size:.92rem; }
+  .metrics { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin:14px 0; }
+  .metric { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:16px; text-align:center; }
+  .metric .v { font-size:1.6rem; font-weight:800; color:#1D4ED8; }
+  .metric .l { font-size:.8rem; color:#64748B; margin-top:4px; }
+  footer { text-align:center; color:#94A3B8; font-size:.82rem; margin-top:32px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-header">
+    <span class="tag">cell_mask / hybrid · 2026-06-15</span>
+    <h1>大 Patch Sliding-Window 分割 + 接縫縫合</h1>
+    <p>把整圖一次跑的 pipeline 改成「1k 視窗逐塊分割 → 接縫縫合 → 整顆細胞下游分析」，並驗證邊緣細胞計算問題。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">1</span>問題</h2>
+    <p>現實任務中，醫師手切的 WSI patch 是<strong>正方形、解析度 ≥ 1k（可能 2k / 4k / 8k…）</strong>。整張載入記憶體跑分割不可行，產線只能以 <strong>1k 視窗</strong>逐塊推論。但這樣會在視窗邊界把細胞 / DISH 核切成數塊：</p>
+    <ul>
+      <li>被切一半的細胞無法正確計數。</li>
+      <li>紅 / 黑點（CEP17 / HER2）若被接縫砍成非圓形，會在後續偵測中漏掉。</li>
+    </ul>
+    <p>核心觀察：這個「被切」問題<strong>只發生在兩個 Cellpose 分割步驟</strong>（M2 細胞、M3b DISH 核）。M1 UNet 早已內建 sliding-window 並回傳整圖 mask；點位偵測本就是<strong>逐細胞</strong>且 <code>joblib</code> 平行——只要細胞先被縫合成完整 instance，點就永遠不會被切。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">2</span>解法總覽</h2>
+    <p>只把<strong>分割</strong>視窗化並縫合，下游（彈性匹配 / 點偵測 / 匯出 / per-cell crop）原封不動地跑在縫合好的全域 canvas 上。</p>
+    <div class="flow">
+      <span class="step same">M1 UNet 核心遮罩<br><small>(原本就 sliding-window)</small></span>
+      <span class="arrow">→</span>
+      <span class="step win">M2 視窗化分割 + 接縫縫合</span>
+      <span class="arrow">→</span>
+      <span class="step win">M3b DISH 核 視窗化分割 + 縫合</span>
+      <span class="arrow">→</span>
+      <span class="step same">彈性匹配 / 點偵測 / 匯出<br><small>(整顆細胞，無改動)</small></span>
+    </div>
+    <p>切窗 / 縫合策略採 <strong>鄰接視窗 + 並查集（DisjointSet）接縫合併</strong>——對應「用 set + 查看上下左右」的直覺：</p>
+    <ol>
+      <li><strong>逐視窗推論</strong>：1k 無重疊視窗各跑 Cellpose，每視窗 label 加累積偏移避免撞號，寫入全域 <code>int32</code> canvas。</li>
+      <li><strong>接縫聯集</strong>：對每條內部接縫（<code>x = k·1024</code> / <code>y = k·1024</code>），檢查「上下左右」跨縫相鄰且雙方皆非零的 label pair，接觸像素數 ≥ 門檻就 <code>DisjointSet.merge()</code> 成同一顆。</li>
+      <li><strong>relabel</strong>：依聯集根把全域 canvas 重新編成 <code>1..N</code> 連續整數。</li>
+      <li><strong>清邊只清外緣</strong>：縫合<em>之後</em>才 <code>clear_border</code>，因此只移除碰觸 patch 真實外緣的細胞，內部接縫細胞已縫合不受影響。</li>
+    </ol>
+    <pre><code>for each interior seam line (x=k·tile / y=k·tile):
+    a = canvas[..seam-1];  b = canvas[..seam]
+    pairs = unique( (a,b) where a&gt;0 and b&gt;0 ), with counts
+    for (la, lb), n in pairs:
+        if n &gt;= min_seam_contact_px:  ds.merge(la, lb)   # 上下左右
+relabel canvas by DisjointSet roots → 1..N</code></pre>
+    <div class="note"><strong>為何不用更簡單的「整圖丟 Cellpose 內部 tiling」？</strong> 那雖幾乎零新增 code，但沒有真正接縫可驗證，也無法外推到真正無法整載的超大 patch。本方案在 4k 上跑出真實接縫，正好用來驗證邊緣細胞縫合是否正確（task2 的目的）。</p></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">3</span>程式碼變更</h2>
+    <table>
+      <tr><th>檔案</th><th>變更</th></tr>
+      <tr>
+        <td><code>m2_segmentation.py</code></td>
+        <td>
+          <span class="pill add">新增</span> <code>segment_windowed()</code>：視窗化推論 + 接縫縫合主函式。<br>
+          <span class="pill add">新增</span> <code>_window_coords()</code> / <code>_union_seam()</code> / <code>_relabel_by_subsets()</code> 輔助函式（用 <code>scipy.cluster.hierarchy.DisjointSet</code>，不手刻 union-find）。<br>
+          <span class="pill mod">修改</span> <code>segment_masked_dish()</code>：改走 <code>segment_windowed</code>，新增 <code>tile_size</code> / <code>min_seam_contact_px</code> 參數；<code>clear_border</code> 改在縫合後的全域 mask 上執行。
+        </td>
+      </tr>
+      <tr>
+        <td><code>hybrid_pipeline.py</code></td>
+        <td>
+          <span class="pill add">新增</span> <code>_validate_patch_shape()</code>：IHC/DISH 同尺寸、邊長 ≥ 1k；<strong>小於 1k 直接拋 <code>ValueError</code></strong>，非正方形僅警告。<br>
+          <span class="pill mod">修改</span> <code>process_single_tile()</code>：影像於 <code>try</code> 前載入並驗證（real-task 直呼端會中止）；M2 與 M3b DISH 核都改走 <code>segment_windowed</code>；尾端蓋虛線格。<br>
+          <span class="pill mod">修改</span> <code>run_batch()</code>：以 <code>try/except</code> 包住單 tile 呼叫，規格不符記錄後跳過、批次續跑。
+        </td>
+      </tr>
+      <tr>
+        <td><code>m4_export.py</code></td>
+        <td>
+          <span class="pill add">新增</span> <code>draw_dashed_grid()</code>：就地畫 1k 內部接縫虛線格（青色 <code>(255,255,0)</code>，與既有標記色不衝突）。<br>
+          <span class="pill add">新增</span> <code>stamp_grid_on_overlays()</code>：以檔名為準（<code>*_overlay.png</code>）統一蓋格線，保證不漏。
+        </td>
+      </tr>
+      <tr>
+        <td><code>config.py</code> / <code>config_example.py</code></td>
+        <td>
+          <span class="pill add">新增</span> <code>window_seam_min_contact_px</code>（接縫聯集接觸門檻，預設 <code>1</code>）<br>
+          <span class="pill add">新增</span> <code>draw_window_grid</code>（是否蓋虛線格，預設 <code>True</code>，驗證階段開）
+        </td>
+      </tr>
+    </table>
+    <div class="note"><strong>虛線格範圍：</strong>蓋在所有檔名符合 <code>*_overlay.png</code> 的疊圖（本測試共 4 張：<code>_overlay</code>、<code>_ihc_dish_overlay</code>、<code>_dish_mask_overlay</code>、<code>_m2_input_overlay</code>）。<code>_ihc_dish_overlay_raw.png</code> 結尾為 <code>_raw.png</code>、不符 pattern，故保留乾淨無格——剛好可當重跑用的乾淨 M2 輸入。</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">4</span>驗證結果</h2>
+    <h3>單元測試（無 GPU）</h3>
+    <ul>
+      <li>跨接縫細胞 → 縫合成<strong>同一 id</strong>；內部細胞維持<strong>獨立 id</strong>。</li>
+      <li>接觸門檻調高 → <strong>不</strong>縫合（拆回 2 塊），門檻機制有效。</li>
+      <li>單一 1k 影像 → 只跑一塊、無接縫，行為與直接 <code>predict</code> 相同（向後相容）。</li>
+      <li><code>&lt;1k</code> 與 IHC/DISH 尺寸不一致 → 正確拋 <code>ValueError</code>。</li>
+    </ul>
+    <h3>端到端（4096×4096 真實測試圖，GPU + Cellpose 4.1.1）</h3>
+    <div class="metrics">
+      <div class="metric"><div class="v">16</div><div class="l">1k 視窗 / 圖</div></div>
+      <div class="metric"><div class="v">481→461</div><div class="l">M2 碎塊→縫合<br>(合併 20)</div></div>
+      <div class="metric"><div class="v">1607→1570</div><div class="l">DISH 核 碎塊→縫合<br>(合併 37)</div></div>
+      <div class="metric"><div class="v">440</div><div class="l">最終有效細胞</div></div>
+    </div>
+    <div class="ok"><strong>真實資料縫合驗證：</strong>在乾淨輸入上重跑 M2，找到 <strong>19 顆細胞的同一 id 同時出現在接縫兩側</strong>，且 bbox 明確跨越接縫線（如 <code>#135 y[956..1084]</code> 跨 <code>y=1024</code>、<code>#295 y[2980..3090]</code> 跨 <code>y=3072</code>）。縫合前兩半各自帶不同偏移 id，縫合後共用一 id ⇒ 真正被縫回。</div>
+    <p>虛線格亦確認蓋在三條接縫（<code>x=1024/2048/3072</code>）上，每條約 2,850 個青色像素。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">5</span>如何執行</h2>
+    <pre><code># 單張大 patch（≥1k 正方形；&lt;1k 會拋 ValueError）
+python hybrid_pipeline.py --ihc PATCH.tiff --dish PATCH.tiff
+
+# 批次（test_picture 內的 4k 驗證圖）
+python hybrid_pipeline.py --batch --test</code></pre>
+    <p>輸出命名沿用原邏輯（<code>{tile_id}_report.csv</code>、<code>{tile_id}_overlay.png</code>、<code>cells/cell_{id}.png</code> …），差別是 <code>*_overlay.png</code> 多了 1k 視窗虛線格。</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">6</span>已知限制與後續</h2>
+    <ul>
+      <li><strong>誤併風險</strong>：密集組織中兩顆不同細胞剛好貼著接縫，可能被誤併成一顆。DISH 核多為圓形且分離，風險低；若實測出現可調高 <code>window_seam_min_contact_px</code>（接觸像素門檻）。</li>
+      <li><strong>更穩的升級路徑</strong>：若鄰接縫合的切細胞 artifact 影響精度，可改成「重疊 halo 視窗 + IoU 去重」（細胞永不被切），程式較多但更穩。</li>
+      <li><strong>真正串流（未來）</strong>：目前下游仍在記憶體全域 canvas 上跑（4k/8k 足夠）。若要處理真正無法整載的超大 patch，需把 <code>dish_mask_overlay</code> 與點偵測也改成逐區塊串流——本次架構（分割視窗化 + 縫合）已是其墊腳石。</li>
+    </ul>
+  </div>
+
+  <footer>cell_mask/hybrid · sliding-window + DisjointSet seam-stitch · 自動產出於 2026-06-15</footer>
+</div>
+</body>
+</html>

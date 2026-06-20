@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DISH 核配對與計數 — 以核為中心（v3）</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e8eaf0; --muted:#9aa3b2;
+    --green:#22c55e; --orange:#ff9f1c; --pink:#ff2da0; --blue:#3b82f6;
+    --red:#ef4444; --line:#2b303d; --good:#16a34a; --bad:#dc2626;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","Noto Sans TC",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.7;padding:32px 18px 80px}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:20px;margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:20px 0 8px;color:#cbd3e1}
+  .sub{color:var(--muted);margin:0 0 8px}
+  .banner{background:linear-gradient(90deg,#172554,#1e3a8a);border:1px solid #2c4f8f;
+    border-radius:12px;padding:16px 18px;margin:18px 0;font-size:17px}
+  .banner b{color:#fde68a}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#222634;color:#cbd3e1}
+  code{background:#0c0e14;border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font-family:"JetBrains Mono",Consolas,monospace;font-size:13px;color:#a5d6ff}
+  pre{background:#0c0e14;border:1px solid var(--line);border-radius:10px;padding:14px 16px;
+    overflow-x:auto;font-family:"JetBrains Mono",Consolas,monospace;font-size:13px;color:#d4dbe8}
+  pre .k{color:#ff7b9c}pre .c{color:#6b7689;font-style:italic}pre .g{color:#7ee787}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .old{border-left:4px solid var(--red)} .new{border-left:4px solid var(--green)}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:20px;margin-bottom:6px}
+  .tag.bad{background:#3a1216;color:#ff9aa6;border:1px solid #6b2229}
+  .tag.good{background:#0f2a18;color:#86efac;border:1px solid #1f5733}
+  .oc{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:12px 0}
+  @media(max-width:760px){.oc{grid-template-columns:1fr 1fr}}
+  .o{border-radius:10px;padding:12px;border:1px solid var(--line);background:#13161f}
+  .o .h{font-weight:700;margin-bottom:4px}
+  .o.valid{border-top:3px solid var(--green)} .o.multi{border-top:3px solid var(--pink)}
+  .o.drop{border-top:3px solid var(--bad)} .o.keep{border-top:3px solid var(--blue)}
+  .o small{color:var(--muted)}
+  .leg{font-size:13px;color:var(--muted);margin-top:6px}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:middle;margin:0 3px}
+  svg{background:#0c0e14;border:1px solid var(--line);border-radius:10px;display:block;margin:8px 0}
+  .foot{color:var(--muted);font-size:13px;margin-top:14px}
+  b.green{color:var(--green)} b.orange{color:var(--orange)} b.pink{color:var(--pink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>DISH 核配對與計數 — 以核為中心 (v3)</h1>
+  <p class="sub">cell_mask/hybrid · m3_elastic_matching.py + m3_dot_detection.py</p>
+
+  <div class="banner">
+    一句話原則：<b>每顆 DISH 核屬於離它最近的那顆細胞；紅黑點只在那顆核裡計算，全部記給它的擁有者。</b>
+  </div>
+
+  <h2>0. 你回報的兩個問題</h2>
+  <table>
+    <tr><th>你看到的</th><th>根因</th><th>屬於</th></tr>
+    <tr>
+      <td><b>#392</b> 旁邊有橘色核卻沒配到，反而被遠處的 <b>#388</b> 搶走</td>
+      <td><b>配對</b>用「細胞向外膨脹去壓核」，大細胞膨脹得遠 → 跨界搶核；
+          真正最近的小細胞膨脹搆不到，連候選都排不上</td>
+      <td>Part A</td>
+    </tr>
+    <tr>
+      <td><b>#296</b> 已搶到核，<b>#279</b> 卻還算 2/2</td>
+      <td><b>計數</b>用「細胞領地」切點，一顆核跨在 296 / 279 兩顆的領地上，
+          落在 279 那半邊的點就被記給 279</td>
+      <td>Part B</td>
+    </tr>
+  </table>
+  <p class="sub">兩者其實是同一個原則的兩半：配對與計數都改成<b>以核為中心</b>。</p>
+
+  <!-- ============ PART A ============ -->
+  <h2>Part A — 配對：每顆核配給「最近的細胞」</h2>
+
+  <div class="grid2">
+    <div class="card old">
+      <span class="tag bad">舊：細胞膨脹搶核</span>
+      <p>每顆<b>細胞</b>依面積向外等向膨脹 <code>r ≈ 0.13·√面積</code>，壓到哪顆核就收為候選。</p>
+      <p><b style="color:#ff9aa6">不對稱：</b>大細胞膨脹得遠、搆得到遠核；小細胞膨脹得近、搆不到。
+         於是夾在中間的核被<b>較大的 388</b> 搶走，最近的<b>小 392</b> 反而不是候選。</p>
+    </div>
+    <div class="card new">
+      <span class="tag good">新：核找最近細胞</span>
+      <p>每顆<b>核</b>量自己中心到附近各細胞<b>邊界</b>的距離（核中心落在細胞內 = 0），
+         在容忍值 <code>max_dist_px</code> 內<b>最近者必勝</b>。</p>
+      <p><b class="green">對稱：</b>不管細胞大小，核一定歸給離它最近的那顆。392 最近 → 拿到核；388 較遠 → 搶不走。</p>
+    </div>
+  </div>
+
+  <h3>同一個場景，兩種結果</h3>
+  <svg viewBox="0 0 920 230" width="100%" height="230">
+    <ellipse cx="300" cy="95" rx="26" ry="20" fill="#7a3b00" stroke="#ff9f1c" stroke-width="2"/>
+    <text x="300" y="99" fill="#ffd9a0" font-size="12" text-anchor="middle">核 N</text>
+    <rect x="248" y="20" width="60" height="42" rx="6" fill="#0f2a18" stroke="#22c55e" stroke-width="2"/>
+    <text x="278" y="46" fill="#86efac" font-size="12" text-anchor="middle">392 (近·小)</text>
+    <rect x="360" y="130" width="200" height="80" rx="8" fill="#13233f" stroke="#3b82f6" stroke-width="2"/>
+    <text x="460" y="174" fill="#9ec5ff" font-size="12" text-anchor="middle">388 (遠·大)</text>
+    <line x1="312" y1="108" x2="386" y2="150" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#ar)"/>
+    <text x="330" y="146" fill="#ff9aa6" font-size="12">舊：膨脹搶 → 388 ✗</text>
+    <line x1="296" y1="76" x2="282" y2="62" stroke="#22c55e" stroke-width="3" marker-end="url(#ag)"/>
+    <text x="120" y="60" fill="#86efac" font-size="12">新：最近者 → 392 ✓</text>
+    <text x="120" y="100" fill="#9aa3b2" font-size="12">核到 392 邊界 ≈ 4px</text>
+    <text x="120" y="120" fill="#9aa3b2" font-size="12">核到 388 邊界 ≈ 7px</text>
+    <text x="120" y="140" fill="#cbd3e1" font-size="12">→ 4 &lt; 7，核歸 392</text>
+    <defs>
+      <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ef4444"/></marker>
+      <marker id="ag" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#22c55e"/></marker>
+    </defs>
+  </svg>
+
+  <h3>程式邏輯（m3_elastic_matching.py）</h3>
+<pre><span class="c"># 對每顆 DISH 核：</span>
+for did in dish_ids:
+    cy, cx = 核 N 的 centroid
+    win = strict_instance_mask[ 以 (cy,cx) 為心、半徑 tol 的小視窗 ]
+    每個出現在視窗內的細胞 → 取「到核中心的最近 pixel 距離」= 邊界距離
+    cand = { 細胞 : 邊界距離 }  其中 距離 &lt;= tol          <span class="c"># 容忍值內才算候選</span>
+    had_feasible |= cand.keys()                          <span class="c"># 記錄「曾是某核候選」</span>
+    winner = <span class="g">min(cand, key=距離)</span>                          <span class="c"># ★ 最近者必勝</span>
+    result[winner].append(did)
+</pre>
+
+  <!-- ============ PART B ============ -->
+  <h2>Part B — 計數：ROI = 配對到的核區域</h2>
+
+  <div class="grid2">
+    <div class="card old">
+      <span class="tag bad">舊：細胞領地計數</span>
+      <p>計數遮罩 = IHC strict 領地 ∪ 核補位。一顆核如果<b>跨在 296 與 279 兩顆的 strict 領地上</b>，
+         核落在 279 領地的那半邊仍算 279。</p>
+      <p>於是同一顆核裡的紅黑點被<b style="color:#ff9aa6">沿細胞邊界切兩半</b>：一半 → 296，一半 → 279。
+         這就是 279 偷算到 2/2 的來源。</p>
+    </div>
+    <div class="card new">
+      <span class="tag good">新：核區域計數</span>
+      <p>計數遮罩 = 把<b>整顆配對核</b>標成它的擁有者 id（<code>nucleus_owner_mask</code>），其餘為 0。</p>
+      <p>整顆核的點<b class="green">全記給贏家 296</b>，不管核壓到誰的領地。沒配到核的細胞（279）在遮罩中<b>沒有任何 pixel → 計 0 點</b>。</p>
+    </div>
+  </div>
+
+  <h3>同一顆核，兩種計數</h3>
+  <svg viewBox="0 0 920 210" width="100%" height="210">
+    <rect x="120" y="20" width="150" height="70" fill="#101a12" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="195" y="16" fill="#86efac" font-size="12" text-anchor="middle">296 領地</text>
+    <rect x="120" y="90" width="150" height="70" fill="#101a12" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="195" y="178" fill="#86efac" font-size="12" text-anchor="middle">279 領地</text>
+    <ellipse cx="195" cy="90" rx="34" ry="40" fill="#7a3b00" stroke="#ff9f1c" stroke-width="2" opacity="0.9"/>
+    <circle cx="183" cy="72" r="5" fill="#ef4444"/><circle cx="207" cy="74" r="5" fill="#111" stroke="#bbb"/>
+    <circle cx="185" cy="108" r="5" fill="#ef4444"/><circle cx="208" cy="106" r="5" fill="#111" stroke="#bbb"/>
+    <text x="195" y="200" fill="#9aa3b2" font-size="11" text-anchor="middle">核橫跨邊界，內含 2 紅 2 黑</text>
+    <text x="330" y="55" fill="#ff9aa6" font-size="13">舊：沿邊界切</text>
+    <text x="330" y="78" fill="#cbd3e1" font-size="13">296 = 上半 (記一部分)</text>
+    <text x="330" y="100" fill="#cbd3e1" font-size="13">279 = 下半 → <tspan fill="#ef4444">偷算 2/2 ✗</tspan></text>
+    <text x="620" y="55" fill="#86efac" font-size="13">新：整顆歸擁有者</text>
+    <text x="620" y="78" fill="#cbd3e1" font-size="13">296 = <tspan fill="#22c55e">整顆核 2 紅 2 黑 ✓</tspan></text>
+    <text x="620" y="100" fill="#cbd3e1" font-size="13">279 = 沒核 → <tspan fill="#3b82f6">0/0</tspan></text>
+  </svg>
+
+  <h3>程式邏輯（m3_dot_detection.py）</h3>
+<pre><span class="c"># 計數 ROI：每個 matched 核 pixel → 擁有者 IHC id，其餘為 0</span>
+count_mask = _build_nucleus_owner_mask(dish_nucleus_mask, dish_ids_by_cell)
+
+for cid in <span class="g">所有 IHC 細胞</span>:                <span class="c"># 連沒核的也建結果 → 維持 0/0 計入</span>
+    per_cell[cid] = CellDotResult(cid)
+for cid, 核bbox in 有核的細胞:
+    ROI = (count_mask == cid)            <span class="c"># 只在「自己贏得的核」內偵測紅黑點</span>
+    偵測紅/黑點 → per_cell[cid]
+</pre>
+
+  <!-- ============ OUTCOMES ============ -->
+  <h2>四種結局（核數 → 怎麼算）</h2>
+  <div class="oc">
+    <div class="o valid"><div class="h">核數 1 · valid</div>
+      <small>正常細胞。在那顆核內計紅黑點、算 HER2/CEP17。</small></div>
+    <div class="o multi"><div class="h">核數 ≥2 · 多核</div>
+      <small>被 ≥2 顆核選中 → 排除、打 X、不計入（<code>multi_nucleus</code>）。</small></div>
+    <div class="o drop"><div class="h">核數 0 · drop-out</div>
+      <small>曾是某核候選（在 tol 內）卻競爭落敗、無備援核 → 排除、打 X（<code>drop_out</code>）。</small></div>
+    <div class="o keep"><div class="h">核數 0 · 無候選</div>
+      <small>從頭就不在任何核的 tol 內 → 沒核可算 → 顯示 <b>0/0</b>、<b>照常計入</b>。</small></div>
+  </div>
+  <p class="leg">
+    <span class="dot" style="background:#ff9f1c"></span>橘色 = 沒被任何細胞配到的核（孤兒）
+    <span class="dot" style="background:#ff2da0"></span>粉色 = 已配對的核
+    <span class="dot" style="background:#dc2626"></span>紅 X = 被排除（多核 / drop-out）
+  </p>
+
+  <!-- ============ PARAMS ============ -->
+  <h2>參數</h2>
+  <table>
+    <tr><th>參數</th><th>意義</th><th>預設</th></tr>
+    <tr><td><code>dish_elastic_max_dist_px</code></td>
+        <td>核中心到細胞<b>邊界</b>的最大容忍距離（px）。≤ 此值才可能配給該細胞，最近者勝。
+            以核為中心配對的<b>唯一</b>距離閘值。</td><td>50</td></tr>
+    <tr><td><code>dish_elastic_exclude_zero</code></td>
+        <td>是否把 drop-out（競爭落敗無備援）細胞打 X 排除。
+            <b>不影響</b>「無候選 0/0」細胞——那種一律計入。</td><td>True</td></tr>
+    <tr><td><code>dot_blue_exclude_threshold</code></td>
+        <td>核數 ≥ 此值 → 多核排除。</td><td>2</td></tr>
+    <tr><td style="text-decoration:line-through;color:#777"><code>dish_elastic_expand_factor</code></td>
+        <td><b style="color:#ff9aa6">已棄用</b>：舊「細胞膨脹搶核」法的面積倍數，新版不再膨脹細胞，此參數無作用。</td><td>—</td></tr>
+  </table>
+
+  <h2>改了哪些檔案</h2>
+  <table>
+    <tr><th>檔案</th><th>改動</th></tr>
+    <tr><td><code>m3_elastic_matching.py</code></td><td>整支重寫成以核為中心配最近細胞（移除細胞膨脹、union-find、linear_sum_assignment）。</td></tr>
+    <tr><td><code>m3_dot_detection.py</code></td><td>計數 ROI 改為 <code>_build_nucleus_owner_mask</code>（核區域）；所有 IHC 細胞都建結果（無核 → 0/0 計入）。</td></tr>
+    <tr><td><code>config.py / config_example.py</code></td><td><code>max_dist_px</code> 改為邊界距離語意；<code>expand_factor</code> 標記已棄用。</td></tr>
+    <tr><td><code>m4_export.py</code></td><td>per-cell crop 註解更新（計數 ROI 已與粉色核形狀一致、無核外漏算）。</td></tr>
+  </table>
+
+  <p class="foot">驗證：/tmp/test_nucleus_centric.py（配對最近者勝 + 計數不漏給鄰居）、
+     /tmp/test_detect_wiring.py（全細胞建結果、無核 0/0 計入）皆通過。
+     建議重跑 <code>python hybrid_pipeline.py --batch --test</code> 目視確認 392 拿到核、279 變 0/0。</p>
+
+</div>
+</body>
+</html>
