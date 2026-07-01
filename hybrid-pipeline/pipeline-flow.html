@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hybrid Pipeline 流程與迴圈全景 — 交接視覺化</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans TC', 'PingFang TC', sans-serif;
+    background: #F1F5F9; color: #1E293B; padding: 52px 24px 80px; line-height: 1.7;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  .page-header { text-align: center; margin-bottom: 40px; }
+  .page-header .tag {
+    display: inline-block; background: #DBEAFE; color: #1D4ED8; font-size: 0.78rem;
+    font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 20px; margin-bottom: 18px;
+  }
+  .page-header h1 { font-size: 2.1rem; font-weight: 800; color: #0F172A; margin-bottom: 12px; letter-spacing: -0.02em; }
+  .page-header p { color: #64748B; font-size: 1.0rem; max-width: 720px; margin: 0 auto; }
+  .card {
+    background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+    padding: 26px 30px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(15,23,42,.04);
+  }
+  .card h2 { font-size: 1.3rem; font-weight: 800; color: #0F172A; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .card h2 .n {
+    flex: none; width: 30px; height: 30px; border-radius: 9px; background: #1D4ED8; color: #fff;
+    font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center;
+  }
+  .card h3 { font-size: 1.0rem; font-weight: 700; color: #334155; margin: 18px 0 8px; }
+  p, li { color: #334155; }
+  code { font-family: 'SF Mono', 'Cascadia Code', Consolas, monospace; font-size: 0.86em; background: #F1F5F9; color: #BE185D; padding: 1px 6px; border-radius: 5px; }
+  .sub { color:#64748B; font-size:.9rem; }
+
+  /* 頂層 flow ribbon */
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:8px 0 4px; }
+  .step { border-radius:10px; padding:9px 14px; font-size:.9rem; font-weight:700; border:1px solid; }
+  .step.m0 { background:#F1F5F9; border-color:#CBD5E1; color:#475569; }
+  .step.m1 { background:#EFF6FF; border-color:#BFDBFE; color:#1E40AF; }
+  .step.m2 { background:#FCE7F3; border-color:#FBCFE8; color:#9D174B; }
+  .step.m3 { background:#ECFDF5; border-color:#A7F3D0; color:#047857; }
+  .step.m4 { background:#FFF7ED; border-color:#FED7AA; color:#C2410C; }
+  .arrow { color:#94A3B8; font-weight:800; font-size:1.1rem; }
+
+  /* 每階段 I/O 卡 */
+  .stagegrid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:16px 0 4px; }
+  .stage { border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; background:#fff; }
+  .stage .hd { font-weight:800; font-size:.9rem; padding:8px 12px; color:#fff; }
+  .stage.m0 .hd { background:#64748B; } .stage.m1 .hd { background:#2563EB; }
+  .stage.m2 .hd { background:#DB2777; } .stage.m3 .hd { background:#059669; }
+  .stage.m4 .hd { background:#EA580C; }
+  .stage .bd { padding:10px 12px; font-size:.8rem; }
+  .io { display:flex; gap:6px; margin:5px 0; align-items:baseline; }
+  .io .k { flex:none; font-size:.68rem; font-weight:800; color:#94A3B8; width:26px; }
+  .io .v { font-family:'SF Mono',Consolas,monospace; font-size:.74rem; color:#334155; }
+  .stage .fn { font-family:'SF Mono',Consolas,monospace; font-size:.72rem; color:#BE185D; margin-top:6px; display:block; }
+
+  /* 巢狀迴圈盒 */
+  .loop { border-radius:12px; padding:14px 16px; margin:0; border:2px solid; }
+  .loop .lh { font-weight:800; font-size:.9rem; margin-bottom:8px; font-family:'SF Mono',Consolas,monospace; }
+  .loop.batch { border-color:#94A3B8; background:#F8FAFC; }
+  .loop.batch .lh { color:#475569; }
+  .loop.tile { border-color:#60A5FA; background:#EFF6FF; margin:10px 0; }
+  .loop.tile .lh { color:#1E40AF; }
+  .loop.chunk { border-color:#34D399; background:#ECFDF5; margin:10px 0; }
+  .loop.chunk .lh { color:#047857; }
+  .loop .once { display:inline-block; font-size:.72rem; font-weight:700; background:#DCFCE7; color:#15803D; padding:2px 8px; border-radius:10px; margin-left:8px;}
+  .loop .after { font-size:.82rem; color:#475569; margin-top:8px; }
+
+  .metrics { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin:6px 0; }
+  .metric { background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:16px; text-align:center; }
+  .metric .v { font-size:1.5rem; font-weight:800; color:#1D4ED8; }
+  .metric .v.warn { color:#DB2777; }
+  .metric .l { font-size:.78rem; color:#64748B; margin-top:4px; }
+  .note { background:#FFFBEB; border-left:4px solid #F59E0B; border-radius:8px; padding:12px 16px; margin:14px 0; font-size:.9rem; }
+  .ok { background:#F0FDF4; border-left:4px solid #22C55E; border-radius:8px; padding:12px 16px; margin:14px 0; font-size:.9rem; }
+  svg { display:block; width:100%; height:auto; background:#fff; border:1px solid #E2E8F0; border-radius:12px; margin:10px 0; }
+  .lg { font-size:.82rem; color:#64748B; margin-top:6px; }
+  .swatch { display:inline-block; width:11px; height:11px; border-radius:3px; vertical-align:middle; margin:0 4px 0 8px; }
+  footer { text-align:center; color:#94A3B8; font-size:.82rem; margin-top:32px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-header">
+    <span class="tag">cell_mask / hybrid · 交接視覺化</span>
+    <h1>Hybrid Pipeline 流程與迴圈全景</h1>
+    <p>IHC(Her2)＋DISH 雙染色 WSI 分析管線。這頁把 M0 的「分塊讀取 → per-chunk 處理 → 增量縫合」複雜迴圈關係畫清楚，配合 <code>README.md</code> 導覽表閱讀。</p>
+  </div>
+
+  <!-- 關鍵數字 -->
+  <div class="card">
+    <h2><span class="n">◆</span>先看數字（perf_report.html · 2026-06-29 · 3 tiles 4096²）</h2>
+    <div class="metrics">
+      <div class="metric"><div class="v">39.3s</div><div class="l">平均 / tile</div></div>
+      <div class="metric"><div class="v warn">29%</div><div class="l">GPU 平均利用率（峰值 99%）</div></div>
+      <div class="metric"><div class="v">4.7 / 32 GB</div><div class="l">VRAM 用量（僅 15%）</div></div>
+      <div class="metric"><div class="v">~57%</div><div class="l">時間在 Cellpose ViT-SAM 前向</div></div>
+      <div class="metric"><div class="v">8h 43m</div><div class="l">WSI 全圖估算（70% 組織）</div></div>
+    </div>
+    <p class="sub">GPU 平均只有 29% 但峰值 99% + VRAM 只用 15% → 不是算力不足，是<strong>單 tile 序列、GPU 被餓著</strong>。多 tile 平行是最大結構性機會。</p>
+  </div>
+
+  <!-- 主流程 -->
+  <div class="card">
+    <h2><span class="n">1</span>主流程 M0→M1→M2→M3→M0→M4</h2>
+    <div class="flow">
+      <span class="step m0">M0 讀取</span><span class="arrow">→</span>
+      <span class="step m1">M1 疊合</span><span class="arrow">→</span>
+      <span class="step m2">M2 分割</span><span class="arrow">→</span>
+      <span class="step m3">M3 細胞/點位</span><span class="arrow">→</span>
+      <span class="step m0">M0 縫合</span><span class="arrow">→</span>
+      <span class="step m4">M4 匯出</span>
+    </div>
+    <p class="sub">M0 出現兩次：<strong>讀（reader）在最前、縫（stitch）在 M3 之後</strong> —— 它是包在 M1–M3 外的「分塊殼」，不是單一階段。</p>
+
+    <div class="stagegrid">
+      <div class="stage m0"><div class="hd">M0 讀取</div><div class="bd">
+        <div class="io"><span class="k">IN</span><span class="v">IHC/DISH 路徑（tile/ROI/WSI）</span></div>
+        <div class="io"><span class="k">OUT</span><span class="v">Chunk(ihc,dish, abs_x,abs_y)<br>(1024,1024,3) uint8</span></div>
+        <span class="fn">iter_paired_chunks()</span>
+      </div></div>
+      <div class="stage m1"><div class="hd">M1 疊合</div><div class="bd">
+        <div class="io"><span class="k">IN</span><span class="v">ihc/dish (H,W,3) uint8</span></div>
+        <div class="io"><span class="k">OUT</span><span class="v">overlay (H,W,3) uint8<br>core_mask (H,W){0,1}</span></div>
+        <span class="fn">generate_ihc_core_mask()</span>
+      </div></div>
+      <div class="stage m2"><div class="hd">M2 分割</div><div class="bd">
+        <div class="io"><span class="k">IN</span><span class="v">overlay (H,W,3) uint8</span></div>
+        <div class="io"><span class="k">OUT</span><span class="v">instance_mask (H,W) int32<br>0=bg, 1..N=cell</span></div>
+        <span class="fn">segment_masked_dish()</span>
+      </div></div>
+      <div class="stage m3"><div class="hd">M3 細胞/點位</div><div class="bd">
+        <div class="io"><span class="k">IN</span><span class="v">instance_mask + dish overlay + core_mask</span></div>
+        <div class="io"><span class="k">OUT</span><span class="v">results / all_dots<br>per_cell_dots / nucleus_mask</span></div>
+        <span class="fn">detect_all_dots()</span>
+      </div></div>
+      <div class="stage m0"><div class="hd">M0 縫合</div><div class="bd">
+        <div class="io"><span class="k">IN</span><span class="v">逐塊 ChunkResult（局部座標）</span></div>
+        <div class="io"><span class="k">OUT</span><span class="v">StitchedTile（slide-level 整圖 + 全域 ID）</span></div>
+        <span class="fn">StitchAccumulator.add/finalize</span>
+      </div></div>
+      <div class="stage m4"><div class="hd">M4 匯出</div><div class="bd">
+        <div class="io"><span class="k">IN</span><span class="v">StitchedTile</span></div>
+        <div class="io"><span class="k">OUT</span><span class="v">CSV + overlay PNG<br>+ 逐細胞 crop</span></div>
+        <span class="fn">export_cell_dot_annotations()</span>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- 巢狀迴圈 -->
+  <div class="card">
+    <h2><span class="n">2</span>巢狀迴圈：batch 外圈 × chunk 內圈</h2>
+    <div class="loop batch">
+      <div class="lh">run_batch()　for tile in paired_tiles<span class="once">模型只載一次（UNet + 2× Cellpose，重用整個 batch）</span></div>
+      <div class="loop tile">
+        <div class="lh">process_single_tile()　read_size → chunk_offsets → 建 StitchAccumulator</div>
+        <div class="loop chunk">
+          <div class="lh">for chunk in iter_paired_chunks():</div>
+          <div class="flow">
+            <span class="step m1">M1</span><span class="arrow">→</span>
+            <span class="step m2">M2</span><span class="arrow">→</span>
+            <span class="step m3">M3</span><span class="arrow">→</span>
+            <span class="step m0">cr = ChunkResult</span><span class="arrow">→</span>
+            <span class="step m0">acc.add(cr)</span>
+          </div>
+          <div class="after">↳ <code>cr</code> 隨即出作用域 → 該塊所有 numpy <strong>立即可 GC</strong></div>
+        </div>
+        <div class="after">stitched = acc.finalize() → <span class="step m4" style="display:inline-block">M4 匯出</span></div>
+      </div>
+      <div class="after">每 tile 結束：<code>torch.cuda.empty_cache()</code> + <code>gc.collect()</code>（防長 batch 記憶體單調成長）</div>
+    </div>
+    <div class="ok"><strong>三層記憶體防線：</strong>模型（batch 級，載一次）→ 整圖畫布（tile 級，一張）→ chunk 中間產物（chunk 級，用完即 GC）。峰值恆定在「單塊處理 + 單張整圖畫布」。</div>
+  </div>
+
+  <!-- StitchAccumulator 去重 -->
+  <div class="card">
+    <h2><span class="n">3</span>StitchAccumulator 核心區與去重（core-ownership）</h2>
+    <p class="sub">相鄰 chunk 沿 <code>overlap/2</code> 切出互不重疊的「核心區」；一顆細胞只算在「其<strong>質心</strong>落在哪塊核心區」的那一塊 → 跨塊重複自動消除，<strong>不需 IoMin 的 O(n²) 兩兩比對</strong>。</p>
+    <svg viewBox="0 0 660 280" role="img" aria-label="core-ownership 去重示意">
+      <!-- Chunk A -->
+      <rect x="70" y="55" width="300" height="160" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+      <text x="120" y="45" fill="#1E40AF" font-size="13" font-weight="700">Chunk A（讀入）</text>
+      <!-- Chunk B -->
+      <rect x="290" y="55" width="300" height="160" fill="#FCE7F3" stroke="#DB2777" stroke-width="2" fill-opacity="0.5"/>
+      <text x="470" y="45" fill="#9D174B" font-size="13" font-weight="700" text-anchor="middle">Chunk B（讀入）</text>
+      <!-- overlap band -->
+      <rect x="290" y="55" width="80" height="160" fill="#94A3B8" fill-opacity="0.18"/>
+      <text x="330" y="232" fill="#475569" font-size="11" text-anchor="middle">overlap 帶</text>
+      <!-- cut line at overlap/2 -->
+      <line x1="330" y1="48" x2="330" y2="222" stroke="#0F172A" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="330" y="255" fill="#0F172A" font-size="11.5" text-anchor="middle" font-weight="700">切線＝重疊中點 (overlap/2)</text>
+      <!-- core labels -->
+      <text x="180" y="140" fill="#2563EB" font-size="12" text-anchor="middle" font-weight="700">A 核心區</text>
+      <text x="475" y="140" fill="#DB2777" font-size="12" text-anchor="middle" font-weight="700">B 核心區</text>
+      <!-- cell 1: centroid left of cut -> A -->
+      <circle cx="313" cy="105" r="15" fill="#F59E0B" stroke="#B45309" stroke-width="2"/>
+      <circle cx="313" cy="105" r="2.5" fill="#0F172A"/>
+      <text x="150" y="95" fill="#334155" font-size="11.5">細胞①質心在切線左 → <tspan fill="#2563EB" font-weight="700">記給 A</tspan></text>
+      <line x1="220" y1="98" x2="300" y2="104" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a)"/>
+      <!-- cell 2: centroid right of cut -> B -->
+      <circle cx="350" cy="170" r="15" fill="#F59E0B" stroke="#B45309" stroke-width="2"/>
+      <circle cx="350" cy="170" r="2.5" fill="#0F172A"/>
+      <text x="385" y="185" fill="#334155" font-size="11.5">細胞②質心在切線右 → <tspan fill="#DB2777" font-weight="700">記給 B</tspan></text>
+      <line x1="470" y1="180" x2="366" y2="172" stroke="#94A3B8" stroke-width="1.5" marker-end="url(#a)"/>
+      <defs>
+        <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#94A3B8"/></marker>
+      </defs>
+    </svg>
+    <p class="lg">兩塊都會各自偵測到重疊帶裡的橘核（重複偵測），但<strong>只有質心所在核心區的那一塊認領它</strong> —— 去重從 O(n²) 降到 O(n) 的單一判斷（<code>bisect_right(cuts, 質心)</code>）。貼圖時每塊也只貼自己核心區範圍，互不重疊。</p>
+  </div>
+
+  <!-- 記憶體生命週期 -->
+  <div class="card">
+    <h2><span class="n">4</span>記憶體生命週期（鋸齒循環）</h2>
+    <p class="sub">每個 chunk：讀入 + M1/M2/M3 中間產物 → 峰值；<code>acc.add</code> 後 <code>cr</code> 出作用域 → GC 谷底。整圖畫布是常駐基線（隨 WSI 大小）。</p>
+    <svg viewBox="0 0 820 260" role="img" aria-label="記憶體生命週期鋸齒圖">
+      <!-- axes -->
+      <line x1="55" y1="30" x2="55" y2="210" stroke="#CBD5E1" stroke-width="1.5"/>
+      <line x1="55" y1="210" x2="795" y2="210" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="20" y="40" fill="#64748B" font-size="11">記憶體</text>
+      <text x="740" y="228" fill="#64748B" font-size="11">chunk / 時間 →</text>
+      <!-- canvas baseline band (constant) -->
+      <rect x="55" y="178" width="740" height="32" fill="#DBEAFE"/>
+      <text x="63" y="198" fill="#1E40AF" font-size="11">整圖畫布（常駐基線，隨 WSI 大小）</text>
+      <!-- sawtooth: chunk transient above baseline -->
+      <polyline points="55,178 150,70 245,178 340,70 435,178 530,70 625,178 720,70 795,178"
+        fill="none" stroke="#DB2777" stroke-width="2.5"/>
+      <!-- fill under sawtooth for peaks -->
+      <polygon points="55,178 150,70 245,178" fill="#FCE7F3" fill-opacity="0.7"/>
+      <polygon points="245,178 340,70 435,178" fill="#FCE7F3" fill-opacity="0.7"/>
+      <polygon points="435,178 530,70 625,178" fill="#FCE7F3" fill-opacity="0.7"/>
+      <polygon points="625,178 720,70 795,178" fill="#FCE7F3" fill-opacity="0.7"/>
+      <!-- peak / valley annotations -->
+      <circle cx="150" cy="70" r="4" fill="#DB2777"/>
+      <text x="150" y="60" fill="#9D174B" font-size="10.5" text-anchor="middle">讀入+M1/M2/M3 峰值</text>
+      <circle cx="245" cy="178" r="4" fill="#059669"/>
+      <text x="245" y="170" fill="#047857" font-size="10.5" text-anchor="middle">cr GC 谷底</text>
+      <text x="150" y="248" fill="#64748B" font-size="10.5" text-anchor="middle">chunk 1</text>
+      <text x="340" y="248" fill="#64748B" font-size="10.5" text-anchor="middle">chunk 2</text>
+      <text x="530" y="248" fill="#64748B" font-size="10.5" text-anchor="middle">chunk 3</text>
+      <text x="720" y="248" fill="#64748B" font-size="10.5" text-anchor="middle">chunk 4</text>
+    </svg>
+    <p class="lg">
+      <span class="swatch" style="background:#DBEAFE"></span>常駐畫布（不隨 chunk 數成長）
+      <span class="swatch" style="background:#FCE7F3"></span>單塊 transient（用完即釋放）
+      <span class="swatch" style="background:#DB2777"></span>峰值＝讀入+處理
+      <span class="swatch" style="background:#059669"></span>谷底＝GC
+    </p>
+    <div class="note"><strong>WSI 的真正天花板在「常駐畫布」而非 chunk transient。</strong>對 156k×134k 的 slide，<code>StitchAccumulator</code> 一次 allocate 6 張 full-size numpy（輸出端） —— 換讀取端 reader 省不了這塊，解法是 ROI-only / 停止整片縫合（見 04-optimization-roadmap L2）。</div>
+  </div>
+
+  <footer>cell_mask/hybrid · 交接視覺化 · 事實來源：perf_report.html / CLAUDE.md / 現行 code（2026-07-02 整理）</footer>
+
+</div>
+</body>
+</html>
