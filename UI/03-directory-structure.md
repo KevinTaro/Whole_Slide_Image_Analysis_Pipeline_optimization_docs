@@ -27,7 +27,6 @@ tsgh/
 │   └── unet_mask/                ⚠ 未對應（獨立於 hybrid）
 │
 ├── scripts/                      ← CLI / 工具，【保留，不進 UI】
-│   ├── tiff_preview_server.py（Flask 預覽，丟棄式，見 06/08）
 │   ├── tile_generator.py         ⚠ 與 module5_tile_generator.py 疑似重複
 │   ├── tiff to png.py  check_tiff_size.py  cuda_test.py
 │

@@ -64,5 +64,4 @@ uv run python backend/launcher.py   # pywebview 啟 backend + 開視窗
 
 ## 除錯備註
 
-- **`scripts/tiff_preview_server.py` 是什麼**：一支小小的 **Flask** BigTIFF 本機預覽工具（`pyvips` 讀圖、render 成 HTML 頁）。它是**丟棄式除錯工具**，**不是** UI 的雛型。看 BigTIFF 尺寸/內容時很方便，但**不要把它擴充成正式 UI**——正式 UI 走 FastAPI + React（[01](01-architecture.md)、陷阱見 [08](08-pitfalls-open-decisions.md)）。
 - **WSI 記憶體問題結論**（已驗證，別再走冤枉路）：那個 ~400GB 的爆量是 **`m0_stitch` 的縫合輸出畫布**（輸出端），**不是 reader 讀太多**。所以**換 WSI reader 省不了**——2026-07 實測把 warped 檔轉 JPEG(comp=7) 後 cuCIM 理論上可當 reader，但瓶頸在輸出端。真正的解是 **ROI 化 + 停止「整片縫合」**，只縫需要的區域。這也是 [05](05-dataflow-api-contract.md) 為什麼強調「以 ROI / tile 為單位」的實務根據。

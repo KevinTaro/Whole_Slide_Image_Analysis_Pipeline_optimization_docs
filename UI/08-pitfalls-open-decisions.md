@@ -6,15 +6,14 @@
 
 | # | 陷阱 | 說明 / 怎麼避 |
 |---|---|---|
-| 1 | **把 `tiff_preview_server.py` 擴充成正式 UI** | 它是 `scripts/` 下的 **Flask** 丟棄式預覽工具（[06](06-dev-setup.md)）。方便看 BigTIFF，但正式 UI 走 FastAPI + React。要做 UI 從 Phase 1 開，別在這支上疊。 |
-| 2 | **把 PyQt6 當成我們的框架** | `requirements.txt` 有 `PyQt6 6.10.1`，那是 cellpose / napari 桌面 GUI 相依帶進來的（連 `superqt`/`pyqtgraph`/`QtPy`）。我們做 **pywebview + web**，**不是 Qt app**（[01](01-architecture.md)、[02](02-tech-stack-versions.md)）。 |
-| 3 | **讓 numpy array 跨 API 傳** | 演算法回傳 array 給 endpoint、或 endpoint 直接吞 array＝序列化又大又慢。邊界一律「檔案路徑 + JSON」（護欄 7，[04](04-guardrails-red-lines.md)）。 |
-| 4 | **記憶體爆掉時亂換 WSI reader** | ~400GB 爆量來自 `m0_stitch` 的**縫合輸出畫布**（輸出端），不是 reader 讀太多。**換 reader 省不了**；解法是 ROI 化 + 停止整片縫合（[06](06-dev-setup.md) 除錯備註）。症狀診斷：先確認是「輸出畫布」還是「讀取」在漲。 |
-| 5 | **以為 `config.py` 在 git 裡** | `config.py` 被 `.gitignore` 忽略（root 與 `cell_mask/` 各一條），git 裡只有 `config_example.py`。第一次要 `cp config_example.py config.py`。搬檔 / 對接 Pydantic schema 時記得它不在版控。 |
-| 6 | **照 `requirements.txt` 裝套件 / 讀版本** | 它是 drift 的舊快照（`pyvips 3.1.1`、`numpy 2.2.6` 都對不上實際 venv，後者還違反 `numpy<2`）。查版本一律 `uv.lock` / venv（[02](02-tech-stack-versions.md)）。 |
-| 7 | **Phase 1 搬檔時「順手」重構** | 搬檔階段只改 import path，函式內容不動（護欄 6）。順手改＝兩個變因混一起，出錯無法二分，且「輸出 bit-identical」驗收失效。 |
-| 8 | **viewport 座標與 pixel 座標混用** | 前端只認 DeepZoom viewport 座標，演算法只認 full-res pixel，換算**只在 `api/roi.py`**（護欄 4）。散落各處＝off-by-one / 縮放錯位重災區（[05](05-dataflow-api-contract.md)）。 |
-| 9 | **為了方便把本機限制放寬** | 別把 FastAPI 綁 `0.0.0.0`、別讓前端直接讀本機路徑「省事」。影像不得離開本機是**硬性約束**；一放寬就違反臨床資料規範（[01](01-architecture.md) 護欄 2）。 |
+| 1 | **把 PyQt6 當成我們的框架** | `requirements.txt` 有 `PyQt6 6.10.1`，那是 cellpose / napari 桌面 GUI 相依帶進來的（連 `superqt`/`pyqtgraph`/`QtPy`）。我們做 **pywebview + web**，**不是 Qt app**（[01](01-architecture.md)、[02](02-tech-stack-versions.md)）。 |
+| 2 | **讓 numpy array 跨 API 傳** | 演算法回傳 array 給 endpoint、或 endpoint 直接吞 array＝序列化又大又慢。邊界一律「檔案路徑 + JSON」（護欄 7，[04](04-guardrails-red-lines.md)）。 |
+| 3 | **記憶體爆掉時亂換 WSI reader** | ~400GB 爆量來自 `m0_stitch` 的**縫合輸出畫布**（輸出端），不是 reader 讀太多。**換 reader 省不了**；解法是 ROI 化 + 停止整片縫合（[06](06-dev-setup.md) 除錯備註）。症狀診斷：先確認是「輸出畫布」還是「讀取」在漲。 |
+| 4 | **以為 `config.py` 在 git 裡** | `config.py` 被 `.gitignore` 忽略（root 與 `cell_mask/` 各一條），git 裡只有 `config_example.py`。第一次要 `cp config_example.py config.py`。搬檔 / 對接 Pydantic schema 時記得它不在版控。 |
+| 5 | **照 `requirements.txt` 裝套件 / 讀版本** | 它是 drift 的舊快照（`pyvips 3.1.1`、`numpy 2.2.6` 都對不上實際 venv，後者還違反 `numpy<2`）。查版本一律 `uv.lock` / venv（[02](02-tech-stack-versions.md)）。 |
+| 6 | **Phase 1 搬檔時「順手」重構** | 搬檔階段只改 import path，函式內容不動（護欄 6）。順手改＝兩個變因混一起，出錯無法二分，且「輸出 bit-identical」驗收失效。 |
+| 7 | **viewport 座標與 pixel 座標混用** | 前端只認 DeepZoom viewport 座標，演算法只認 full-res pixel，換算**只在 `api/roi.py`**（護欄 4）。散落各處＝off-by-one / 縮放錯位重災區（[05](05-dataflow-api-contract.md)）。 |
+| 8 | **為了方便把本機限制放寬** | 別把 FastAPI 綁 `0.0.0.0`、別讓前端直接讀本機路徑「省事」。影像不得離開本機是**硬性約束**；一放寬就違反臨床資料規範（[01](01-architecture.md) 護欄 2）。 |
 
 ---
 

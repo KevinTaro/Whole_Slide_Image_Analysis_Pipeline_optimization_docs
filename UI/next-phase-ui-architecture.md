@@ -2,9 +2,11 @@
 
 > **狀態**：預先規劃（pre-planning）。本文件只處理「殼」的長期結構，不處理演算法內容 — 演算法層仍在迭代中，待醫師驗證後才會定版。
 >
-> **建立日期**：2026-04-23
-> **作者**：diadia0000 + Claude Opus 4.7 協作討論
+> **建立日期**：2026-04-23　**最後更新**：2026-07-04
+> **作者**：diadia0000 + Claude 協作討論
 > **適用範圍**：`thriple_image_layer/` 與 `cell_mask/hybrid/` 在醫師驗證通過後，要走向可長期維護、可給醫師在自己電腦操作的階段
+>
+> **與 `docs/UI/01-08.md` 的關係**：那批檔案是本文件較早版本的拆分擴寫，內容更細（含護欄 checklist、陷阱列表）。本次更新是直接刷新本檔內容以反映目前 repo 實況，兩者未重新同步，如有出入以**本檔**與**實際 repo 狀態**為準。
 
 ---
 
@@ -96,6 +98,10 @@ doctor-pc (雙擊 .exe)
 | 金字塔切片 | **openslide-python DeepZoomGenerator** 或 **pyvips dzsave** | 不手刻 tiling |
 | 現有演算法 | **保持原狀** | VALIS、`module1-4`、`cell_mask/hybrid` 不重寫 |
 
+> **更新（2026-07）**：`cell_mask/hybrid/m0_reader.py` + `m0_stitch.py` 已經實作了 chunked 讀取 + 縫合（`pyvips.Image.new_from_file(access="random")` 分塊讀、`StitchAccumulator` 以 centroid core-ownership 去重）。Phase 2 的 `/api/tiles` DeepZoom 服務**應該包裝這一層**，不要在 `backend/io/wsi_reader.py` 重新手刻一套讀取邏輯 — 否則違反「不手搓輪子」原則，也會跟既有 CLI 路徑分岔。
+>
+> **已知陷阱**：大 ROI/WSI 曾經爆到 ~400GB 記憶體，根因是 `m0_stitch` 的**縫合輸出畫布**（輸出端一次性攤開整張結果圖），不是 reader 讀太多。**換 reader 解不了這個問題**；正確方向是 ROI 化輸出 + 避免整片縫合成單一畫布。Phase 3/4 設計 ROI 重算與疊合圖顯示時要以此為前提。
+
 ### 3.2 前端
 
 | 類別 | 工具 | 為什麼 |
@@ -143,9 +149,9 @@ tsgh/
 │   │   ├── preprocess/           ← 原 thriple_image_layer/module1_preprocess.py
 │   │   ├── alignment/            ← 原 module2_alignment.py + VALIS wrapper
 │   │   ├── thumbnail/            ← 原 module4_thumbnail.py
-│   │   └── hybrid/               ← 原 cell_mask/hybrid/
+│   │   └── hybrid/               ← 原 cell_mask/hybrid/（含既有 m0_reader.py/m0_stitch.py，整包搬入、介面不變）
 │   ├── io/
-│   │   ├── wsi_reader.py
+│   │   ├── wsi_reader.py         ← 包裝 hybrid/m0_reader.py，非重寫
 │   │   └── pyramid.py
 │   ├── schemas/                  ← Pydantic models（API 合約）
 │   ├── main.py                   ← FastAPI app entrypoint
@@ -270,6 +276,6 @@ Pipeline 一跑可能數十分鐘。不用 WebSocket 自己刻，用：
 
 ## 9. 下一步（本文件之後的動作）
 
-1. **不動手寫 code**。本文件只是共識，等演算法驗證完再啟動 Phase 1。
-2. 演算法迭代期間：維持現有結構，任何新模組**放在對的位置**（preprocess 類放 `thriple_image_layer/`，後續會一起搬），減少 Phase 1 遷移工作量。
-3. Phase 1 啟動時機：醫師驗證通過 + 演算法進入維護期（bugfix 為主、無大改）。
+1. **不動手寫 code**。本文件只是共識，等演算法驗證完再啟動 Phase 1。repo 目前仍是 Phase 0：沒有 `backend/`、`frontend/` 資料夾。
+2. 演算法迭代期間：維持現有結構，任何新模組**放在對的位置**（preprocess 類放 `thriple_image_layer/`，後續會一起搬），減少 Phase 1 遷移工作量。`cell_mask/hybrid/` 近期新增的 `m0_reader.py`/`m0_stitch.py`（chunked I/O）也照這個原則保留在原位，Phase 1 整包搬入即可，不用先動。
+3. Phase 1 啟動時機：**醫師驗證通過 + 演算法進入維護期**（bugfix 為主、無大改）— 這是唯一觸發條件，不因團隊內部排程（如暑期進度規劃）提前啟動，避免演算法與 UI 兩個變因混在一起。
