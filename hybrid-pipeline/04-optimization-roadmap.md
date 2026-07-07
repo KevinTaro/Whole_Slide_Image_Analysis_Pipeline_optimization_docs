@@ -2,6 +2,15 @@
 
 > 依「投報比 + 風險」排序。數字引自 [03](./03-benchmarks-bottlenecks.md) 的 perf_report.html。
 > 先讀底部「設計決策的深層原因」再動 M0，很多看似可優化的點是刻意設計。
+>
+> **⚠️ 本文件數字是 pre-refactor（`m0_reader`/`m0_stitch` 改成 precut-to-folder 架構之前）量的，
+> 已知與目前 HEAD 不符**——最新一輪實測見 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md)。
+> **M1 節（`ProcessPoolExecutor` 跨 tile 平行）尤其不能直接採用**：目前 `run_batch()` 明確寫死
+> 序列迴圈，且原始碼註解與 `backend/algorithms/hybrid/CLAUDE.md` 都說明三個 GPU 模型共用同一個
+> CUDA context，跨 tile 用 process 平行是不安全的（fork-under-CUDA）。針對①（GPU 序列/閒置）的
+> 下一步方案，改看 [10-gpu-serial-pipeline-plan.md](./10-gpu-serial-pipeline-plan.md)（單 process
+> 內 pipeline/overlap，不觸碰這個限制）。M2（換非 SAM Cellpose backbone）與 L1（GPU daemon 常駐）
+> 兩項長期提案不受此限制影響，仍是有效方向，見該文件第 3.(c) 節的定位。
 
 ## 短期（perf_report 已建議，可直接採納）
 
@@ -23,7 +32,7 @@
 
 ## 中期
 
-### M1. 多 tile 平行（ProcessPoolExecutor）— 理論 4× 加速
+### M1. 多 tile 平行（ProcessPoolExecutor）— 理論 4× 加速 ⚠️ **已知不可行，見文件頂部說明**
 - **依據**：GPU 平均利用率僅 29%、VRAM 只用 15% → 卡是被餓著的，不是滿載（見 [03](./03-benchmarks-bottlenecks.md)）。
 - **做法**：每 tile 是獨立 Python process，用 `concurrent.futures.ProcessPoolExecutor(max_workers=4)` 並行掃不同 tile；模型 weight 用 shared memory 避免每 process 重載 ~582MB。
 - **估算**：並行 4 → WSI 2h10m；配合 S1 關 PNG → 1h42m。
