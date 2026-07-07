@@ -16,7 +16,9 @@
 | 搞懂整條流水線怎麼跑、資料怎麼流 | [01-architecture-dataflow.md](./01-architecture-dataflow.md) | M0→M1→M2→M3→M0→M4；batch 迴圈 vs chunk 迴圈的巢狀；記憶體生命週期 |
 | 查某個模塊的輸入輸出/函式/瓶頸 | [02-module-reference.md](./02-module-reference.md) | 逐檔詳解 + I/O shape/dtype + 關鍵演算法 + 實測套件版本 |
 | 看實測效能數字、找瓶頸排名 | [03-benchmarks-bottlenecks.md](./03-benchmarks-bottlenecks.md) | perf_report.html 的 cProfile Top、GPU/CPU/VRAM 利用率 |
-| 決定優先改哪裡、投報比 | [04-optimization-roadmap.md](./04-optimization-roadmap.md) | 短/中/長期優化 + 設計決策的深層原因 + 已棄用嘗試 |
+| 決定優先改哪裡、投報比（**舊數字，pre-refactor**） | [04-optimization-roadmap.md](./04-optimization-roadmap.md) | 短/中/長期優化 + 設計決策的深層原因 + 已棄用嘗試 |
+| 看目前 HEAD 的實測瓶頸排名（**最新一輪，取代 03/04 的舊數字**） | [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) | RTX 5090 實測，25/121/441-tile 真實 WSI，只分類不提解法 |
+| 針對 GPU 序列瓶頸（①）的下一步方案設計 | [10-gpu-serial-pipeline-plan.md](./10-gpu-serial-pipeline-plan.md) | 承接 bottleneck-list.md①，playbook Analyze→Plan→Choose，含驗收標準 |
 | 在本地把它跑起來、驗證沒改壞 | [05-dev-testing-guide.md](./05-dev-testing-guide.md) | `cp config_example.py config.py` → 編 config → CLI 跑；回歸基準 |
 | 動依賴前確認相容性 | [06-versions-dependencies.md](./06-versions-dependencies.md) | venv 實測版本 vs requirements vs pyproject 三方衝突；Blackwell 限制 |
 | 踩到怪坑（config 跑不動、幻影檔案…） | [07-gotchas-appendix.md](./07-gotchas-appendix.md) | codegraph 過期、config gitignore、未接線參數、失聯 spec docs |
