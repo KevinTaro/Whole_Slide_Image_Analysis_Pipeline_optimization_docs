@@ -1,0 +1,15 @@
+# Environment stamp
+date_utc: 2026-07-06T18:22:02Z
+date_local: 2026-07-07 02:22:02 CST
+git_commit: 96a28ba55687bef13b00c8cdada32c1d34a490a2
+git_branch: main
+git_status_clean: no
+hostname: sec312-Z890-AORUS-ELITE
+cpu_model: Intel(R) Core(TM) Ultra 7 265K
+cpu_cores_logical: 20
+ram_total_gb: 62
+gpu: RTX 5090 (from nvidia-smi)
+nvidia_driver: 580.159.03
+cuda_version: 13.0
+python: Python 3.11.15
+venv_path: /data/taro_Projects/tsgh/.venv
