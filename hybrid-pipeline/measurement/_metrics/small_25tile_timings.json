@@ -1,0 +1,132 @@
+{
+  "label": "small_25tile",
+  "n_tiles": 25,
+  "grid": {
+    "cols": 5,
+    "rows": 5
+  },
+  "wall": {
+    "end_to_end_total_s": 54.251,
+    "phaseA_precut_s": 1.445,
+    "runbatch_BCD_s": 52.806
+  },
+  "disk_bytes": {
+    "precut_scratch": 59243654,
+    "analysis_output": 303144443
+  },
+  "stats": {
+    "success": 22,
+    "skipped": 3
+  },
+  "timings": {
+    "init_unet": {
+      "n": 1,
+      "t": 1.1645736088976264
+    },
+    "init_cellpose_m2": {
+      "n": 1,
+      "t": 1.1402295674197376
+    },
+    "init_cellpose_m3b": {
+      "n": 1,
+      "t": 0.8644051998853683
+    },
+    "B2r_tile_read": {
+      "n": 50,
+      "t": 0.37945321621373296
+    },
+    "B1_unet_coremask": {
+      "n": 25,
+      "t": 1.99991161422804
+    },
+    "BM1_apply_mask": {
+      "n": 24,
+      "t": 0.2648921790532768
+    },
+    "BM1_overlay_dish": {
+      "n": 24,
+      "t": 0.22005217103287578
+    },
+    "BM1_fuse": {
+      "n": 24,
+      "t": 0.19619616074487567
+    },
+    "B1_m2_cellpose": {
+      "n": 24,
+      "t": 11.851189631968737
+    },
+    "Bs_clear_edge": {
+      "n": 24,
+      "t": 0.21057089883834124
+    },
+    "B3_build_results": {
+      "n": 24,
+      "t": 0.3923996496014297
+    },
+    "B3_enlarge_cells": {
+      "n": 24,
+      "t": 0.9428502097725868
+    },
+    "B1_m3b_cellpose": {
+      "n": 24,
+      "t": 11.088577029295266
+    },
+    "B3_detect_dots": {
+      "n": 24,
+      "t": 14.56548036960885
+    },
+    "B3_merge_dots": {
+      "n": 24,
+      "t": 0.0005699270404875278
+    },
+    "Bs_filter_absolutize": {
+      "n": 24,
+      "t": 0.004707352723926306
+    },
+    "B2_png_encode": {
+      "n": 75,
+      "t": 4.135854264255613,
+      "bytes": 25389698
+    },
+    "B2_tiff_encode": {
+      "n": 75,
+      "t": 0.062366269528865814,
+      "bytes": 260067248
+    },
+    "B2_render_overlay": {
+      "n": 24,
+      "t": 0.4886840167455375
+    },
+    "B2_percell_crops": {
+      "n": 24,
+      "t": 0.2290920433588326
+    },
+    "B_process_precut_tile_TOTAL": {
+      "n": 25,
+      "t": 47.0628637666814
+    },
+    "B4_empty_cache": {
+      "n": 25,
+      "t": 0.15600508637726307
+    },
+    "B4_gc_collect": {
+      "n": 25,
+      "t": 2.0237699863500893
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.0006741788238286972
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.00014048907905817032
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 0.38579873694106936
+    }
+  },
+  "config_hash": "db2b7e6a",
+  "peak_cuda_reserved_gb": 4.675,
+  "peak_rss_gb": 2.815
+}

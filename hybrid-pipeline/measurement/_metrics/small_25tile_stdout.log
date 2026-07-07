@@ -1,0 +1,389 @@
+2026-07-07 02:31:32,153 - hybrid_pipeline - INFO - 批次處理開始 — run_id=3396fc8e, config_hash=db2b7e6a
+2026-07-07 02:31:32,154 - m1_overlay - INFO - 配對完成: 25 對 tile
+2026-07-07 02:31:33,303 - unet_inference - INFO - 成功載入權重: /data/taro_Projects/tsgh/backend/algorithms/hybrid/models/unet/b4/best_model_unet_b4.pth
+2026-07-07 02:31:33,318 - unet_inference - INFO - 模型載入完成，設備: cuda
+2026-07-07 02:31:33,568 - cellpose.core - INFO - ** TORCH CUDA version installed and working. **
+2026-07-07 02:31:33,568 - cellpose.core - INFO - >>>> using GPU (CUDA)
+2026-07-07 02:31:34,358 - cellpose.models - INFO - >>>> loading model /data/taro_Projects/tsgh/backend/algorithms/hybrid/models/cellpose/cellpose_ihc_dish_best
+2026-07-07 02:31:34,458 - m2_segmentation - INFO - Cellpose 模型載入完成: cellpose_ihc_dish_best (diameter=None)
+2026-07-07 02:31:34,459 - cellpose.core - INFO - ** TORCH CUDA version installed and working. **
+2026-07-07 02:31:34,459 - cellpose.core - INFO - >>>> using GPU (CUDA)
+2026-07-07 02:31:35,238 - cellpose.models - INFO - >>>> loading model /data/taro_Projects/tsgh/backend/algorithms/hybrid/models/cellpose/cellpose_dish_best
+2026-07-07 02:31:35,323 - m2_segmentation - INFO - Cellpose 模型載入完成: cellpose_dish_best (diameter=None)
+2026-07-07 02:31:35,323 - hybrid_pipeline - INFO - [1/25] 處理 tile: tile_x0_y0
+2026-07-07 02:31:36,721 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:37,664 - m2_segmentation - INFO - Cellpose 分割完成: 104 個有效細胞
+2026-07-07 02:31:37,697 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 96 個細胞
+2026-07-07 02:31:37,747 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 96 顆細胞, factor=1.50(面積), 中位半徑=29.6px, 外擴=6.6px
+2026-07-07 02:31:37,748 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:38,241 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=96, DISH=82, matched(1核)=57 (其中重疊=57), drop-out(競爭落敗)=16, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-07 02:31:39,426 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=74, 黑點=170, 涉及細胞=96
+2026-07-07 02:31:39,813 - m4_module.cell_crops - INFO - 匯出 78 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x0_y0/cells
+2026-07-07 02:31:39,813 - hybrid_pipeline - INFO - Tile tile_x0_y0 完成: 核心擁有 78 細胞 (78 陽性), 4.49 秒
+2026-07-07 02:31:39,901 - hybrid_pipeline - INFO - [2/25] 處理 tile: tile_x0_y1536
+2026-07-07 02:31:39,973 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:40,453 - m2_segmentation - INFO - Cellpose 分割完成: 40 個有效細胞
+2026-07-07 02:31:40,476 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 40 個細胞
+2026-07-07 02:31:40,516 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 40 顆細胞, factor=1.50(面積), 中位半徑=28.7px, 外擴=6.5px
+2026-07-07 02:31:40,517 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:41,001 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=40, DISH=33, matched(1核)=21 (其中重疊=21), drop-out(競爭落敗)=4, 無候選(計入)=15, factor=1.50, min_reach=20.0
+2026-07-07 02:31:41,455 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=21, 黑點=50, 涉及細胞=40
+2026-07-07 02:31:41,639 - m4_module.cell_crops - INFO - 匯出 23 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x0_y1536/cells
+2026-07-07 02:31:41,639 - hybrid_pipeline - INFO - Tile tile_x0_y1536 完成: 核心擁有 23 細胞 (23 陽性), 1.74 秒
+2026-07-07 02:31:41,731 - hybrid_pipeline - INFO - [3/25] 處理 tile: tile_x0_y2304
+2026-07-07 02:31:41,804 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:42,266 - m2_segmentation - INFO - Cellpose 分割完成: 78 個有效細胞
+2026-07-07 02:31:42,294 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 78 個細胞
+2026-07-07 02:31:42,332 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 78 顆細胞, factor=1.50(面積), 中位半徑=22.7px, 外擴=5.1px
+2026-07-07 02:31:42,332 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:42,815 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=78, DISH=53, matched(1核)=40 (其中重疊=40), drop-out(競爭落敗)=14, 無候選(計入)=24, factor=1.50, min_reach=20.0
+2026-07-07 02:31:43,550 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=38, 黑點=107, 涉及細胞=78
+2026-07-07 02:31:43,775 - m4_module.cell_crops - INFO - 匯出 44 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x0_y2304/cells
+2026-07-07 02:31:43,775 - hybrid_pipeline - INFO - Tile tile_x0_y2304 完成: 核心擁有 44 細胞 (44 陽性), 2.04 秒
+2026-07-07 02:31:43,860 - hybrid_pipeline - INFO - [4/25] 處理 tile: tile_x0_y3072
+2026-07-07 02:31:43,928 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:44,365 - m2_segmentation - INFO - Cellpose 分割完成: 22 個有效細胞
+2026-07-07 02:31:44,386 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 22 個細胞
+2026-07-07 02:31:44,415 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 22 顆細胞, factor=1.50(面積), 中位半徑=22.2px, 外擴=5.0px
+2026-07-07 02:31:44,416 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:44,889 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=22, DISH=22, matched(1核)=17 (其中重疊=17), drop-out(競爭落敗)=3, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-07 02:31:45,269 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=16, 黑點=44, 涉及細胞=22
+2026-07-07 02:31:45,358 - m4_module.cell_crops - INFO - 匯出 5 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x0_y3072/cells
+2026-07-07 02:31:45,358 - hybrid_pipeline - INFO - Tile tile_x0_y3072 完成: 核心擁有 5 細胞 (5 陽性), 1.50 秒
+2026-07-07 02:31:45,444 - hybrid_pipeline - INFO - [5/25] 處理 tile: tile_x0_y768
+2026-07-07 02:31:45,519 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:45,982 - m2_segmentation - INFO - Cellpose 分割完成: 32 個有效細胞
+2026-07-07 02:31:46,004 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 32 個細胞
+2026-07-07 02:31:46,044 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 32 顆細胞, factor=1.50(面積), 中位半徑=25.2px, 外擴=5.7px
+2026-07-07 02:31:46,044 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:46,522 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=32, DISH=24, matched(1核)=17 (其中重疊=17), drop-out(競爭落敗)=6, 無候選(計入)=9, factor=1.50, min_reach=20.0
+2026-07-07 02:31:46,863 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=18, 黑點=29, 涉及細胞=32
+2026-07-07 02:31:47,047 - m4_module.cell_crops - INFO - 匯出 20 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x0_y768/cells
+2026-07-07 02:31:47,047 - hybrid_pipeline - INFO - Tile tile_x0_y768 完成: 核心擁有 20 細胞 (20 陽性), 1.60 秒
+2026-07-07 02:31:47,133 - hybrid_pipeline - INFO - [6/25] 處理 tile: tile_x1536_y0
+2026-07-07 02:31:47,207 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:47,686 - m2_segmentation - INFO - Cellpose 分割完成: 71 個有效細胞
+2026-07-07 02:31:47,714 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 71 個細胞
+2026-07-07 02:31:47,764 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 71 顆細胞, factor=1.50(面積), 中位半徑=25.0px, 外擴=5.6px
+2026-07-07 02:31:47,764 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:48,239 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=71, DISH=49, matched(1核)=36 (其中重疊=35), drop-out(競爭落敗)=12, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-07 02:31:48,835 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=27, 黑點=55, 涉及細胞=71
+2026-07-07 02:31:49,037 - m4_module.cell_crops - INFO - 匯出 35 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x1536_y0/cells
+2026-07-07 02:31:49,037 - hybrid_pipeline - INFO - Tile tile_x1536_y0 完成: 核心擁有 35 細胞 (35 陽性), 1.90 秒
+2026-07-07 02:31:49,123 - hybrid_pipeline - INFO - [7/25] 處理 tile: tile_x1536_y1536
+2026-07-07 02:31:49,198 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:49,665 - m2_segmentation - INFO - Cellpose 分割完成: 68 個有效細胞
+2026-07-07 02:31:49,692 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 68 個細胞
+2026-07-07 02:31:49,735 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 68 顆細胞, factor=1.50(面積), 中位半徑=23.4px, 外擴=5.3px
+2026-07-07 02:31:49,735 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:50,223 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=68, DISH=45, matched(1核)=30 (其中重疊=30), drop-out(競爭落敗)=13, 無候選(計入)=25, factor=1.50, min_reach=20.0
+2026-07-07 02:31:50,818 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=25, 黑點=71, 涉及細胞=68
+2026-07-07 02:31:51,040 - m4_module.cell_crops - INFO - 匯出 29 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x1536_y1536/cells
+2026-07-07 02:31:51,040 - hybrid_pipeline - INFO - Tile tile_x1536_y1536 完成: 核心擁有 29 細胞 (29 陽性), 1.92 秒
+2026-07-07 02:31:51,129 - hybrid_pipeline - INFO - [8/25] 處理 tile: tile_x1536_y2304
+2026-07-07 02:31:51,208 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:51,647 - m2_segmentation - INFO - Cellpose 分割完成: 13 個有效細胞
+2026-07-07 02:31:51,666 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 13 個細胞
+2026-07-07 02:31:51,696 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 13 顆細胞, factor=1.50(面積), 中位半徑=26.6px, 外擴=6.0px
+2026-07-07 02:31:51,697 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:52,180 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=13, DISH=16, matched(1核)=7 (其中重疊=7), drop-out(競爭落敗)=4, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-07 02:31:52,364 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=5, 黑點=8, 涉及細胞=13
+2026-07-07 02:31:52,470 - m4_module.cell_crops - INFO - 匯出 5 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x1536_y2304/cells
+2026-07-07 02:31:52,470 - hybrid_pipeline - INFO - Tile tile_x1536_y2304 完成: 核心擁有 5 細胞 (5 陽性), 1.34 秒
+2026-07-07 02:31:52,558 - hybrid_pipeline - INFO - [9/25] 處理 tile: tile_x1536_y3072
+2026-07-07 02:31:52,625 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:53,070 - m2_segmentation - INFO - Cellpose 分割完成: 21 個有效細胞
+2026-07-07 02:31:53,090 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 21 個細胞
+2026-07-07 02:31:53,122 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 21 顆細胞, factor=1.50(面積), 中位半徑=20.2px, 外擴=4.5px
+2026-07-07 02:31:53,122 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:53,603 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=21, DISH=37, matched(1核)=15 (其中重疊=15), drop-out(競爭落敗)=1, 無候選(計入)=5, factor=1.50, min_reach=20.0
+2026-07-07 02:31:53,943 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=23, 黑點=43, 涉及細胞=21
+2026-07-07 02:31:54,067 - m4_module.cell_crops - INFO - 匯出 15 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x1536_y3072/cells
+2026-07-07 02:31:54,067 - hybrid_pipeline - INFO - Tile tile_x1536_y3072 完成: 核心擁有 15 細胞 (15 陽性), 1.51 秒
+2026-07-07 02:31:54,153 - hybrid_pipeline - INFO - [10/25] 處理 tile: tile_x1536_y768
+2026-07-07 02:31:54,220 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:54,794 - m2_segmentation - INFO - Cellpose 分割完成: 139 個有效細胞
+2026-07-07 02:31:54,830 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 139 個細胞
+2026-07-07 02:31:54,882 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 139 顆細胞, factor=1.50(面積), 中位半徑=28.0px, 外擴=6.3px
+2026-07-07 02:31:54,882 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:55,366 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=139, DISH=81, matched(1核)=65 (其中重疊=64), drop-out(競爭落敗)=25, 無候選(計入)=49, factor=1.50, min_reach=20.0
+2026-07-07 02:31:56,687 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=61, 黑點=166, 涉及細胞=139
+2026-07-07 02:31:57,108 - m4_module.cell_crops - INFO - 匯出 83 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x1536_y768/cells
+2026-07-07 02:31:57,108 - hybrid_pipeline - INFO - Tile tile_x1536_y768 完成: 核心擁有 83 細胞 (83 陽性), 2.95 秒
+2026-07-07 02:31:57,195 - hybrid_pipeline - INFO - [11/25] 處理 tile: tile_x2304_y0
+2026-07-07 02:31:57,274 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:57,747 - m2_segmentation - INFO - Cellpose 分割完成: 44 個有效細胞
+2026-07-07 02:31:57,771 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 44 個細胞
+2026-07-07 02:31:57,815 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 44 顆細胞, factor=1.50(面積), 中位半徑=22.9px, 外擴=5.2px
+2026-07-07 02:31:57,815 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:58,284 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=44, DISH=30, matched(1核)=15 (其中重疊=15), drop-out(競爭落敗)=3, 無候選(計入)=26, factor=1.50, min_reach=20.0
+2026-07-07 02:31:58,552 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=26, 涉及細胞=44
+2026-07-07 02:31:58,738 - m4_module.cell_crops - INFO - 匯出 18 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x2304_y0/cells
+2026-07-07 02:31:58,738 - hybrid_pipeline - INFO - Tile tile_x2304_y0 完成: 核心擁有 18 細胞 (18 陽性), 1.54 秒
+2026-07-07 02:31:58,824 - hybrid_pipeline - INFO - [12/25] 處理 tile: tile_x2304_y1536
+2026-07-07 02:31:58,897 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:59,421 - m2_segmentation - INFO - Cellpose 分割完成: 83 個有效細胞
+2026-07-07 02:31:59,450 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 83 個細胞
+2026-07-07 02:31:59,496 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 83 顆細胞, factor=1.50(面積), 中位半徑=28.9px, 外擴=6.5px
+2026-07-07 02:31:59,496 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:31:59,975 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=83, DISH=58, matched(1核)=51 (其中重疊=51), drop-out(競爭落敗)=10, 無候選(計入)=22, factor=1.50, min_reach=20.0
+2026-07-07 02:32:01,190 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=74, 黑點=171, 涉及細胞=83
+2026-07-07 02:32:01,507 - m4_module.cell_crops - INFO - 匯出 56 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x2304_y1536/cells
+2026-07-07 02:32:01,507 - hybrid_pipeline - INFO - Tile tile_x2304_y1536 完成: 核心擁有 56 細胞 (56 陽性), 2.68 秒
+2026-07-07 02:32:01,598 - hybrid_pipeline - INFO - [13/25] 處理 tile: tile_x2304_y2304
+2026-07-07 02:32:01,664 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:02,112 - m2_segmentation - INFO - Cellpose 分割完成: 20 個有效細胞
+2026-07-07 02:32:02,132 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 20 個細胞
+2026-07-07 02:32:02,165 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 20 顆細胞, factor=1.50(面積), 中位半徑=27.0px, 外擴=6.1px
+2026-07-07 02:32:02,165 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:02,635 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=20, DISH=16, matched(1核)=11 (其中重疊=11), drop-out(競爭落敗)=4, 無候選(計入)=5, factor=1.50, min_reach=20.0
+2026-07-07 02:32:02,860 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=16, 黑點=28, 涉及細胞=20
+2026-07-07 02:32:02,971 - m4_module.cell_crops - INFO - 匯出 11 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x2304_y2304/cells
+2026-07-07 02:32:02,971 - hybrid_pipeline - INFO - Tile tile_x2304_y2304 完成: 核心擁有 11 細胞 (11 陽性), 1.37 秒
+2026-07-07 02:32:03,057 - hybrid_pipeline - INFO - [14/25] 處理 tile: tile_x2304_y3072
+2026-07-07 02:32:03,115 - hybrid_pipeline - INFO - Tile tile_x2304_y3072: 核心遮罩全空 → 空白 placeholder
+2026-07-07 02:32:03,199 - hybrid_pipeline - INFO - [15/25] 處理 tile: tile_x2304_y768
+2026-07-07 02:32:03,266 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:03,816 - m2_segmentation - INFO - Cellpose 分割完成: 125 個有效細胞
+2026-07-07 02:32:03,851 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 125 個細胞
+2026-07-07 02:32:03,901 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 125 顆細胞, factor=1.50(面積), 中位半徑=26.2px, 外擴=5.9px
+2026-07-07 02:32:03,902 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:04,386 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=125, DISH=85, matched(1核)=65 (其中重疊=65), drop-out(競爭落敗)=21, 無候選(計入)=39, factor=1.50, min_reach=20.0
+2026-07-07 02:32:05,617 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=67, 黑點=146, 涉及細胞=125
+2026-07-07 02:32:05,991 - m4_module.cell_crops - INFO - 匯出 71 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x2304_y768/cells
+2026-07-07 02:32:05,991 - hybrid_pipeline - INFO - Tile tile_x2304_y768 完成: 核心擁有 71 細胞 (71 陽性), 2.79 秒
+2026-07-07 02:32:06,079 - hybrid_pipeline - INFO - [16/25] 處理 tile: tile_x3072_y0
+2026-07-07 02:32:06,151 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:06,579 - m2_segmentation - INFO - Cellpose 分割完成: 3 個有效細胞
+2026-07-07 02:32:06,597 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 3 個細胞
+2026-07-07 02:32:06,622 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 3 顆細胞, factor=1.50(面積), 中位半徑=21.5px, 外擴=4.8px
+2026-07-07 02:32:06,623 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:07,105 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=3, DISH=1, matched(1核)=0 (其中重疊=0), drop-out(競爭落敗)=0, 無候選(計入)=3, factor=1.50, min_reach=20.0
+2026-07-07 02:32:07,211 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=3
+2026-07-07 02:32:07,253 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x3072_y0/cells
+2026-07-07 02:32:07,253 - hybrid_pipeline - INFO - Tile tile_x3072_y0 完成: 核心擁有 0 細胞 (0 陽性), 1.17 秒
+2026-07-07 02:32:07,339 - hybrid_pipeline - INFO - [17/25] 處理 tile: tile_x3072_y1536
+2026-07-07 02:32:07,407 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:07,852 - m2_segmentation - INFO - Cellpose 分割完成: 8 個有效細胞
+2026-07-07 02:32:07,871 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 7 個細胞
+2026-07-07 02:32:07,896 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 7 顆細胞, factor=1.50(面積), 中位半徑=39.3px, 外擴=8.8px
+2026-07-07 02:32:07,896 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:08,373 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=7, DISH=5, matched(1核)=5 (其中重疊=5), drop-out(競爭落敗)=1, 無候選(計入)=1, factor=1.50, min_reach=20.0
+2026-07-07 02:32:08,535 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=6, 黑點=19, 涉及細胞=7
+2026-07-07 02:32:08,617 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x3072_y1536/cells
+2026-07-07 02:32:08,617 - hybrid_pipeline - INFO - Tile tile_x3072_y1536 完成: 核心擁有 0 細胞 (0 陽性), 1.28 秒
+2026-07-07 02:32:08,703 - hybrid_pipeline - INFO - [18/25] 處理 tile: tile_x3072_y2304
+2026-07-07 02:32:08,772 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:09,203 - m2_segmentation - INFO - Cellpose 分割完成: 3 個有效細胞
+2026-07-07 02:32:09,221 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 3 個細胞
+2026-07-07 02:32:09,244 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 3 顆細胞, factor=1.50(面積), 中位半徑=14.6px, 外擴=3.3px
+2026-07-07 02:32:09,245 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:09,810 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=3
+2026-07-07 02:32:09,848 - m4_module.cell_crops - INFO - 匯出 2 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x3072_y2304/cells
+2026-07-07 02:32:09,848 - hybrid_pipeline - INFO - Tile tile_x3072_y2304 完成: 核心擁有 2 細胞 (2 陽性), 1.15 秒
+2026-07-07 02:32:09,936 - hybrid_pipeline - INFO - [19/25] 處理 tile: tile_x3072_y3072
+2026-07-07 02:32:10,005 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:10,441 - m2_segmentation - INFO - Cellpose 分割完成: 3 個有效細胞
+2026-07-07 02:32:10,460 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 3 個細胞
+2026-07-07 02:32:10,486 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 3 顆細胞, factor=1.50(面積), 中位半徑=24.1px, 外擴=5.4px
+2026-07-07 02:32:10,486 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:10,966 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=3, DISH=1, matched(1核)=1 (其中重疊=1), drop-out(競爭落敗)=0, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-07 02:32:11,087 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=3
+2026-07-07 02:32:11,143 - m4_module.cell_crops - INFO - 匯出 3 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x3072_y3072/cells
+2026-07-07 02:32:11,143 - hybrid_pipeline - INFO - Tile tile_x3072_y3072 完成: 核心擁有 3 細胞 (3 陽性), 1.21 秒
+2026-07-07 02:32:11,230 - hybrid_pipeline - INFO - [20/25] 處理 tile: tile_x3072_y768
+2026-07-07 02:32:11,297 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:11,745 - m2_segmentation - INFO - Cellpose 分割完成: 23 個有效細胞
+2026-07-07 02:32:11,766 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 23 個細胞
+2026-07-07 02:32:11,795 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 23 顆細胞, factor=1.50(面積), 中位半徑=23.8px, 外擴=5.3px
+2026-07-07 02:32:11,795 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:12,267 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=23, DISH=19, matched(1核)=14 (其中重疊=14), drop-out(競爭落敗)=2, 無候選(計入)=7, factor=1.50, min_reach=20.0
+2026-07-07 02:32:12,570 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=21, 黑點=50, 涉及細胞=23
+2026-07-07 02:32:12,683 - m4_module.cell_crops - INFO - 匯出 4 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x3072_y768/cells
+2026-07-07 02:32:12,683 - hybrid_pipeline - INFO - Tile tile_x3072_y768 完成: 核心擁有 4 細胞 (4 陽性), 1.45 秒
+2026-07-07 02:32:12,772 - hybrid_pipeline - INFO - [21/25] 處理 tile: tile_x768_y0
+2026-07-07 02:32:12,842 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:13,367 - m2_segmentation - INFO - Cellpose 分割完成: 98 個有效細胞
+2026-07-07 02:32:13,399 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 97 個細胞
+2026-07-07 02:32:13,449 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 97 顆細胞, factor=1.50(面積), 中位半徑=27.0px, 外擴=6.1px
+2026-07-07 02:32:13,449 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:13,933 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=97, DISH=84, matched(1核)=59 (其中重疊=59), drop-out(競爭落敗)=16, 無候選(計入)=22, factor=1.50, min_reach=20.0
+2026-07-07 02:32:15,036 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=57, 黑點=157, 涉及細胞=97
+2026-07-07 02:32:15,407 - m4_module.cell_crops - INFO - 匯出 57 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x768_y0/cells
+2026-07-07 02:32:15,407 - hybrid_pipeline - INFO - Tile tile_x768_y0 完成: 核心擁有 57 細胞 (57 陽性), 2.63 秒
+2026-07-07 02:32:15,495 - hybrid_pipeline - INFO - [22/25] 處理 tile: tile_x768_y1536
+2026-07-07 02:32:15,569 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:16,034 - m2_segmentation - INFO - Cellpose 分割完成: 63 個有效細胞
+2026-07-07 02:32:16,061 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 63 個細胞
+2026-07-07 02:32:16,109 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 63 顆細胞, factor=1.50(面積), 中位半徑=22.9px, 外擴=5.2px
+2026-07-07 02:32:16,110 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:16,590 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=63, DISH=51, matched(1核)=31 (其中重疊=31), drop-out(競爭落敗)=9, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-07 02:32:17,168 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=26, 黑點=79, 涉及細胞=63
+2026-07-07 02:32:17,410 - m4_module.cell_crops - INFO - 匯出 27 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x768_y1536/cells
+2026-07-07 02:32:17,410 - hybrid_pipeline - INFO - Tile tile_x768_y1536 完成: 核心擁有 27 細胞 (27 陽性), 1.92 秒
+2026-07-07 02:32:17,496 - hybrid_pipeline - INFO - [23/25] 處理 tile: tile_x768_y2304
+2026-07-07 02:32:17,566 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:18,076 - m2_segmentation - INFO - Cellpose 分割完成: 118 個有效細胞
+2026-07-07 02:32:18,110 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 118 個細胞
+2026-07-07 02:32:18,159 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 118 顆細胞, factor=1.50(面積), 中位半徑=23.5px, 外擴=5.3px
+2026-07-07 02:32:18,160 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:18,645 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=118, DISH=82, matched(1核)=57 (其中重疊=56), drop-out(競爭落敗)=28, 無候選(計入)=33, factor=1.50, min_reach=20.0
+2026-07-07 02:32:19,678 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=52, 黑點=172, 涉及細胞=118
+2026-07-07 02:32:20,018 - m4_module.cell_crops - INFO - 匯出 72 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x768_y2304/cells
+2026-07-07 02:32:20,018 - hybrid_pipeline - INFO - Tile tile_x768_y2304 完成: 核心擁有 72 細胞 (72 陽性), 2.52 秒
+2026-07-07 02:32:20,105 - hybrid_pipeline - INFO - [24/25] 處理 tile: tile_x768_y3072
+2026-07-07 02:32:20,181 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:20,659 - m2_segmentation - INFO - Cellpose 分割完成: 76 個有效細胞
+2026-07-07 02:32:20,687 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 76 個細胞
+2026-07-07 02:32:20,732 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 76 顆細胞, factor=1.50(面積), 中位半徑=22.5px, 外擴=5.1px
+2026-07-07 02:32:20,732 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:21,220 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=76, DISH=93, matched(1核)=52 (其中重疊=52), drop-out(競爭落敗)=10, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-07 02:32:22,164 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=63, 黑點=139, 涉及細胞=76
+2026-07-07 02:32:22,416 - m4_module.cell_crops - INFO - 匯出 52 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x768_y3072/cells
+2026-07-07 02:32:22,416 - hybrid_pipeline - INFO - Tile tile_x768_y3072 完成: 核心擁有 52 細胞 (52 陽性), 2.31 秒
+2026-07-07 02:32:22,507 - hybrid_pipeline - INFO - [25/25] 處理 tile: tile_x768_y768
+2026-07-07 02:32:22,581 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:23,070 - m2_segmentation - INFO - Cellpose 分割完成: 64 個有效細胞
+2026-07-07 02:32:23,096 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 64 個細胞
+2026-07-07 02:32:23,139 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 64 顆細胞, factor=1.50(面積), 中位半徑=26.3px, 外擴=5.9px
+2026-07-07 02:32:23,140 - cellpose.transforms - INFO - processing image with (1024, 1024) HW, and 3 channels
+2026-07-07 02:32:23,612 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=64, DISH=48, matched(1核)=34 (其中重疊=34), drop-out(競爭落敗)=11, 無候選(計入)=19, factor=1.50, min_reach=20.0
+2026-07-07 02:32:24,223 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=43, 黑點=90, 涉及細胞=64
+2026-07-07 02:32:24,481 - m4_module.cell_crops - INFO - 匯出 27 張 per-cell 影像至 docs/hybrid-pipeline/measurement/runs/small/cell_crops/tile_x768_y768/cells
+2026-07-07 02:32:24,481 - hybrid_pipeline - INFO - Tile tile_x768_y768 完成: 核心擁有 27 細胞 (27 陽性), 1.97 秒
+2026-07-07 02:32:24,571 - m4_module.csv - INFO - CSV 匯出完成: report.csv (737 列)
+2026-07-07 02:32:24,571 - m4_module.csv - INFO - Summary 報告輸出: summary.txt (133 valid cells)
+2026-07-07 02:32:24,955 - hybrid_pipeline - INFO - overlay_slide.tiff 縫合完成: 4096×4096 px
+2026-07-07 02:32:24,957 - hybrid_pipeline - INFO - 批次完成 — run_id=3396fc8e | 總計=25 | 成功=22 | 跳過=3
+{
+  "label": "small_25tile",
+  "n_tiles": 25,
+  "grid": {
+    "cols": 5,
+    "rows": 5
+  },
+  "wall": {
+    "end_to_end_total_s": 54.251,
+    "phaseA_precut_s": 1.445,
+    "runbatch_BCD_s": 52.806
+  },
+  "disk_bytes": {
+    "precut_scratch": 59243654,
+    "analysis_output": 303144443
+  },
+  "stats": {
+    "success": 22,
+    "skipped": 3
+  },
+  "timings": {
+    "init_unet": {
+      "n": 1,
+      "t": 1.1645736088976264
+    },
+    "init_cellpose_m2": {
+      "n": 1,
+      "t": 1.1402295674197376
+    },
+    "init_cellpose_m3b": {
+      "n": 1,
+      "t": 0.8644051998853683
+    },
+    "B2r_tile_read": {
+      "n": 50,
+      "t": 0.37945321621373296
+    },
+    "B1_unet_coremask": {
+      "n": 25,
+      "t": 1.99991161422804
+    },
+    "BM1_apply_mask": {
+      "n": 24,
+      "t": 0.2648921790532768
+    },
+    "BM1_overlay_dish": {
+      "n": 24,
+      "t": 0.22005217103287578
+    },
+    "BM1_fuse": {
+      "n": 24,
+      "t": 0.19619616074487567
+    },
+    "B1_m2_cellpose": {
+      "n": 24,
+      "t": 11.851189631968737
+    },
+    "Bs_clear_edge": {
+      "n": 24,
+      "t": 0.21057089883834124
+    },
+    "B3_build_results": {
+      "n": 24,
+      "t": 0.3923996496014297
+    },
+    "B3_enlarge_cells": {
+      "n": 24,
+      "t": 0.9428502097725868
+    },
+    "B1_m3b_cellpose": {
+      "n": 24,
+      "t": 11.088577029295266
+    },
+    "B3_detect_dots": {
+      "n": 24,
+      "t": 14.56548036960885
+    },
+    "B3_merge_dots": {
+      "n": 24,
+      "t": 0.0005699270404875278
+    },
+    "Bs_filter_absolutize": {
+      "n": 24,
+      "t": 0.004707352723926306
+    },
+    "B2_png_encode": {
+      "n": 75,
+      "t": 4.135854264255613,
+      "bytes": 25389698
+    },
+    "B2_tiff_encode": {
+      "n": 75,
+      "t": 0.062366269528865814,
+      "bytes": 260067248
+    },
+    "B2_render_overlay": {
+      "n": 24,
+      "t": 0.4886840167455375
+    },
+    "B2_percell_crops": {
+      "n": 24,
+      "t": 0.2290920433588326
+    },
+    "B_process_precut_tile_TOTAL": {
+      "n": 25,
+      "t": 47.0628637666814
+    },
+    "B4_empty_cache": {
+      "n": 25,
+      "t": 0.15600508637726307
+    },
+    "B4_gc_collect": {
+      "n": 25,
+      "t": 2.0237699863500893
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.0006741788238286972
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.00014048907905817032
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 0.38579873694106936
+    }
+  },
+  "config_hash": "db2b7e6a",
+  "peak_cuda_reserved_gb": 4.675,
+  "peak_rss_gb": 2.815
+}

@@ -1,0 +1,22 @@
+{
+  "label": "small_25tile_CPROFILE",
+  "gpu": {
+    "samples_1s": 1608,
+    "sm_mean_pct": 24.1,
+    "sm_median_pct": 0,
+    "sm_p90_pct": 91,
+    "sm_idle_frac": 0.546,
+    "sm_busy_ge50_frac": 0.22,
+    "memctrl_mean_pct": 15.5,
+    "vram_peak_mb": 5159,
+    "vram_mean_mb": 4011
+  },
+  "mem": {
+    "samples": 96,
+    "rss_peak_gb": 2.837,
+    "rss_start_gb": 0.649,
+    "rss_end_gb": 2.768,
+    "cuda_alloc_peak_gb": 8.398,
+    "cuda_reserved_peak_gb": 8.535
+  }
+}
