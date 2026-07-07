@@ -95,3 +95,13 @@ candidates are therefore only #1–#3; #4–#7 are logged for completeness.
 | 5 I/O & storage | ③ PNG encode; ⑤ precut & stitch |
 | 6 architecture/framework | ① no cross-tile batching; ⑥ init; ⑦ API layer |
 | 7 config/dead-code | `cellpose_batch_size` dead (G-B) — must fix before any batch-size sweep is meaningful |
+
+---
+
+## Next stage (solution design, out of scope here)
+
+Per plan §5.2/§6, this document classifies only. The solution-design follow-up for
+**① (PRIMARY)** — the largest lever — lives in
+[`../10-gpu-serial-pipeline-plan.md`](../10-gpu-serial-pipeline-plan.md). It also explains why
+② and ③ are not independently actioned this round (their wall-clock cost overlaps almost exactly
+with ①'s measured idle window and may be resolved for free if ①'s fix lands).
