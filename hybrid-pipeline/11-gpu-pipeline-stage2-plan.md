@@ -104,6 +104,30 @@ pipeline-overlap-result.md 已診斷根因：`detect_all_dots`（`m3_dot_detecti
 
 ---
 
+## ✅ (a) 已執行 — 結果收斂本節決策樹（2026-07-08）
+
+方案 (a) 診斷已完成，完整量測見
+[measurement/gil-contention-diag.md](./measurement/gil-contention-diag.md)。**一句話結論：本文件 §1
+的原始假設被數據推翻**——拖住 GIL 的 **81% 是主執行緒自己**（`gc.collect` 33.6% + Cellpose/UNet
+Python mask 重建 41%），背景 `detect_all_dots` 只佔 18.6%。故：
+
+- **(b)（detect_all_dots 換 process 後端）判定不做**：背景只佔 10% wall、且大多已與 GPU 前向重疊；
+  釋放它動不到 GPU idle（idle 來自主執行緒 29% 的 GIL-held Python）。落在 §4(a) 預留的逃生出口。
+  → §7.1 spawn-safety 腳本 / §7.2 memmap 量測**不再需要**（都是 (b) 的前提）。
+- **診斷浮現一個 (a)/(b)/(c) 都沒列到的候選槓桿：tile 邊界 `gc.collect()`（`hybrid_pipeline.py:805`）**
+  ——單一最大 GIL 持有者（33.6%）、3.7% wall。就是 bottleneck-list.md ④。**已依 §6 做 gc 重定位
+  （→背景執行緒）ablation，結果為負向、已還原**（wall 217.1 vs 218.0 持平、idle 0.221 vs 0.183 反
+  微升、記憶體/正確性 OK；見 gil-contention-diag.md「方案 (d) ablation 結果」）。原因：depth-1 管線
+  的重疊是**背景 CPU 綁定**，把 gc 搬到背景那一極只會讓它更長。
+- 其餘 ~19% wall 的 Cellpose/UNet 內在 Python 重建 → §4(c) 架構級，本輪不碰。
+- **本輪 Choose 結論 = 停損**：(b) 與 (d) 都證實對 GPU idle 無效；殘餘 idle 主因（背景 CPU 綁定
+  + 主執行緒模型內在 Python）非單點便宜可解，剩餘 Amdahl 天花板 ~1.18x。**保持方案 (b) 現狀不再
+  改動**，跨 tile batching（§4(a)）/ 換 backbone（§4(c)）需另立案 + 精度取捨，本輪不做。
+
+下面 §5–§7 為 (a) 執行前的原始計畫，保留作為對照（其 (b) 分支已被數據否決、(d) 分支已 ablation 否決）。
+
+---
+
 ## 5. 推薦順序
 
 1. **先做 (a)**：寫診斷腳本，量出 GIL 競爭的時間軸分佈。這一步幾乎零風險、成本最低，且是
