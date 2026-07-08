@@ -1,0 +1,46 @@
+{
+  "stage2_gc_baseline": {
+    "label": "stage2_gc_baseline",
+    "gpu": {
+      "samples_1s": 218,
+      "sm_mean_pct": 32.9,
+      "sm_median_pct": 19,
+      "sm_p90_pct": 91,
+      "sm_idle_frac": 0.183,
+      "sm_busy_ge50_frac": 0.289,
+      "memctrl_mean_pct": 21.6,
+      "vram_peak_mb": 5159,
+      "vram_mean_mb": 4559
+    },
+    "mem": {
+      "samples": 354,
+      "rss_peak_gb": 3.109,
+      "rss_start_gb": 0.649,
+      "rss_end_gb": 3.109,
+      "cuda_alloc_peak_gb": 2.696,
+      "cuda_reserved_peak_gb": 4.675
+    }
+  },
+  "stage2_gc_modified": {
+    "label": "stage2_gc_modified",
+    "gpu": {
+      "samples_1s": 217,
+      "sm_mean_pct": 31.9,
+      "sm_median_pct": 18,
+      "sm_p90_pct": 91,
+      "sm_idle_frac": 0.221,
+      "sm_busy_ge50_frac": 0.281,
+      "memctrl_mean_pct": 20.8,
+      "vram_peak_mb": 5159,
+      "vram_mean_mb": 4720
+    },
+    "mem": {
+      "samples": 352,
+      "rss_peak_gb": 3.092,
+      "rss_start_gb": 0.649,
+      "rss_end_gb": 3.092,
+      "cuda_alloc_peak_gb": 3.233,
+      "cuda_reserved_peak_gb": 4.675
+    }
+  }
+}
