@@ -119,10 +119,21 @@ Python mask 重建 41%），背景 `detect_all_dots` 只佔 18.6%。故：
   （→背景執行緒）ablation，結果為負向、已還原**（wall 217.1 vs 218.0 持平、idle 0.221 vs 0.183 反
   微升、記憶體/正確性 OK；見 gil-contention-diag.md「方案 (d) ablation 結果」）。原因：depth-1 管線
   的重疊是**背景 CPU 綁定**，把 gc 搬到背景那一極只會讓它更長。
-- 其餘 ~19% wall 的 Cellpose/UNet 內在 Python 重建 → §4(c) 架構級，本輪不碰。
+- 其餘 ~19% wall 的內在 Python 重建 → §4(c) 架構級，本輪不碰。**追加深挖修正**（見
+  [gil-contention-diag.md](./measurement/gil-contention-diag.md)「追加深挖」節）：這 19% **幾乎全部
+  是 Cellpose，不是「Cellpose/UNet」聯合**——UNet++ 原先算的 14.9% GIL 有 93% 是一次性 import／模型
+  載入（`_init_unet_inferencer`，tile 迴圈前呼叫一次），非逐 tile 成本，已與 bottleneck-list.md ⑥
+  的「模型初始化、一次性」對上，不是新瓶頸。且 Cellpose 那 19% 裡 5 個具名函式有 4 個
+  （`_extend_centers_gpu`/`get_masks_torch`/`steps_interp`/`get_rel_pos`）**已經在 GPU 上跑**，卡住的
+  是 Python for-loop 逐輪 launch 小 kernel 的開銷（槓桿是 CUDA graph capture／向量化迴圈，不是換裝置
+  或換模型架構）；只有 `fill_holes_and_remove_small_masks` 是真正無 GPU 路徑的 CPU-only 函式。故
+  「model-inherent、非單點可解」的定性並不準確——技術上可行，只是天花板仍只有 ~1.23x（即使完全歸零
+  這 19%），且改動面是 patch 釘死版本的第三方套件（`cellpose==4.0.8`/`segment_anything`），投報比
+  不足以推翻本輪停損，但列為**具名 backlog**（不再是模糊的「架構替換、需另立案」）。
 - **本輪 Choose 結論 = 停損**：(b) 與 (d) 都證實對 GPU idle 無效；殘餘 idle 主因（背景 CPU 綁定
-  + 主執行緒模型內在 Python）非單點便宜可解，剩餘 Amdahl 天花板 ~1.18x。**保持方案 (b) 現狀不再
-  改動**，跨 tile batching（§4(a)）/ 換 backbone（§4(c)）需另立案 + 精度取捨，本輪不做。
+  + 主執行緒 Cellpose 內在 Python，見上）非單點便宜可解，剩餘 Amdahl 天花板 ~1.18–1.23x。**保持方案
+  (b) 現狀不再改動**，跨 tile batching（§4(a)）/ 換 backbone或 CUDA-graph 化 Cellpose 內部迴圈（§4(c)）
+  需另立案 + 精度取捨，本輪不做。
 
 下面 §5–§7 為 (a) 執行前的原始計畫，保留作為對照（其 (b) 分支已被數據否決、(d) 分支已 ablation 否決）。
 
