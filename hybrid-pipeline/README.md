@@ -21,6 +21,7 @@
 | 針對 GPU 序列瓶頸（①）的下一步方案設計 | [10-gpu-serial-pipeline-plan.md](./10-gpu-serial-pipeline-plan.md) | 承接 bottleneck-list.md①，playbook Analyze→Plan→Choose，含驗收標準 |
 | 方案 (b) 的實作與量測結果（-18.5%，idle 0.494→0.154） | [measurement/pipeline-overlap-result.md](./measurement/pipeline-overlap-result.md) | 驗收 doc 10 §5 標準；含「為何沒到理論上限」的根因分析 |
 | stage 2：detect_all_dots 與主執行緒 GIL 競爭的下一步 | [11-gpu-pipeline-stage2-plan.md](./11-gpu-pipeline-stage2-plan.md) | 承接 pipeline-overlap-result.md 的剩餘 15.4% idle，先診斷再決定要不要動 joblib 後端 |
+| stage 2 (a) py-spy GIL 診斷 + (d) gc ablation（**推翻 doc 11 假設 → 停損**） | [measurement/gil-contention-diag.md](./measurement/gil-contention-diag.md) | 拖 GIL 的 81% 是主執行緒（gc.collect 33.6% + Cellpose/UNet 重建）；(b) 與 (d) gc 重定位皆實測對 idle 無效 → 本輪停損、保持方案 (b) 現狀 |
 | 在本地把它跑起來、驗證沒改壞 | [05-dev-testing-guide.md](./05-dev-testing-guide.md) | `cp config_example.py config.py` → 編 config → CLI 跑；回歸基準 |
 | 動依賴前確認相容性 | [06-versions-dependencies.md](./06-versions-dependencies.md) | venv 實測版本 vs requirements vs pyproject 三方衝突；Blackwell 限制 |
 | 踩到怪坑（config 跑不動、幻影檔案…） | [07-gotchas-appendix.md](./07-gotchas-appendix.md) | codegraph 過期、config gitignore、未接線參數、失聯 spec docs |
