@@ -71,6 +71,7 @@
 
 ### ⑥ 模型初始化（一次性）
 - 25 地磚時 7.3% → 121 時 1.3% → **441 時 0.37%**。純一次性載入，在 WSI 規模時攤銷至可忽略。Class 6。資訊性。信心度：實測。
+- **交叉驗證（2026-07-08，第二階段 GIL 診斷）**：這個一次性成本就是 [`gil-contention-diag.md`](./gil-contention-diag.md) 原始 Result 1 表格中「UNet++ Python 14.9%」被放大的原因之一，其中 93% 的 GIL 區塊其實來自 `_init_unet_inferencer` 的匯入鏈（`segmentation_models_pytorch` / `torch` / `timm` / `torchvision` / `triton`），而不是每地磚重複成本。這同時確認此項「在規模下可忽略」，並排除 UNet++ 是每地磚 GIL 來源；完整追蹤請見該文件的「追加深挖」段落。
 
 ### ⑦ API / 工作層（階段 E）
 - `submit_job` 入隊 **2.3 µs** 平均；BackgroundTask 派遣 **~3.8 ms** — ~10⁻⁷ 多小時執行的時間。可忽略。唯一注意事項：並行分析請求各佔用一個執行緒池工作者，但在單一 GPU/CUDA 上下文上序列化（未來多請求風險，非當前熱點）。Class 6。信心度：實測。
@@ -84,7 +85,7 @@
 ## 分類摘要（方案 §6）
 | 類別 | 瓶頸 |
 |---|---|
-| 1 演算法/模型複雜度 | ② detect_all_dots；① 內的 Cellpose SAM `get_rel_pos` 前向傳播成本 |
+| 1 演算法/模型複雜度 | ② detect_all_dots；① 內的 Cellpose/SAM 後處理成本 — `_extend_centers_gpu` / `get_masks_torch` / `steps_interp`（`cellpose/dynamics.py`）與 `get_rel_pos`（`segment_anything/modeling/image_encoder.py`）都已經是 GPU 常駐、受 kernel launch 限制（Python 迴圈跑在迭代 / seed / block 上，而不是 CPU 擺放問題；參見 `gil-contention-diag.md` 的「追加深挖」與逐函式追蹤，2026-07-08）；真正純 CPU 的函式是 `fill_holes_and_remove_small_masks`（`cellpose/utils.py`），因為 `fill_voids` 沒有 GPU 路徑 |
 | 3 平行/並行 | ① 串列管線 / GPU 閒置；D 串列拼接 |
 | 4 記憶體生命週期 | ④ 每地磚 gc；RSS 細胞結果累積 |
 | 5 I/O & 儲存 | ③ PNG 編碼；⑤ 預切 & 拼接 |
