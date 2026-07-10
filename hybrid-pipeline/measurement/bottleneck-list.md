@@ -76,6 +76,7 @@ candidates are therefore only #1–#3; #4–#7 are logged for completeness.
 
 ### ⑥ Model init (one-time)
 - 7.3% at 25 tiles → 1.3% at 121 → **0.37%** at 441. Pure one-time load, amortizes to negligible at WSI scale. Class 6. Informational. 信心: 實測.
+- **Cross-check (2026-07-08, stage-2 GIL diagnosis)**: this same one-time cost is what inflated the "UNet++ Python 14.9%" figure in [`gil-contention-diag.md`](./gil-contention-diag.md)'s original Result 1 table — 93% of that GIL bucket was `_init_unet_inferencer`'s import cascade (`segmentation_models_pytorch`/`torch`/`timm`/`torchvision`/`triton`), not recurring per-tile cost. Confirms this entry's "negligible at scale" and rules out UNet++ as a per-tile GIL contributor; see that doc's "追加深挖" section for the full trace.
 
 ### ⑦ API / job layer (Phase E)
 - `submit_job` enqueue **2.3 µs** mean; BackgroundTask dispatch **~3.8 ms** — ~10⁻⁷ of a multi-hour run. Negligible. Only caveat: concurrent analysis requests each hold a threadpool worker but serialize on the single GPU/CUDA context (future multi-request risk, not a current hotspot). Class 6. 信心: 實測.
@@ -89,7 +90,7 @@ candidates are therefore only #1–#3; #4–#7 are logged for completeness.
 ## Classification summary (plan §6)
 | class | bottlenecks |
 |---|---|
-| 1 algorithm/model complexity | ② detect_all_dots; the Cellpose SAM `get_rel_pos` forward cost inside ① |
+| 1 algorithm/model complexity | ② detect_all_dots; Cellpose/SAM postprocessing inside ① — `_extend_centers_gpu`/`get_masks_torch`/`steps_interp` (`cellpose/dynamics.py`) + `get_rel_pos` (`segment_anything/modeling/image_encoder.py`) are **already GPU-resident, kernel-launch-bound** (Python loop over iterations/seeds/blocks, not CPU placement — see `gil-contention-diag.md` "追加深挖" for per-function trace, 2026-07-08); `fill_holes_and_remove_small_masks` (`cellpose/utils.py`) is the one genuinely CPU-only function (no GPU path in `fill_voids`) |
 | 3 parallel/concurrency | ① serial pipeline / GPU idle; D serial stitch |
 | 4 memory lifecycle | ④ per-tile gc; RSS cell-result accumulation |
 | 5 I/O & storage | ③ PNG encode; ⑤ precut & stitch |
