@@ -40,6 +40,13 @@ candidates are therefore only #1–#3; #4–#7 are logged for completeness.
 | 分類方向 | **Class 3 (parallel/concurrency) + Class 6 (architecture)**: serial `run_batch` loop, no cross-tile GPU batching, models never overlapped with CPU work |
 | 信心 | 實測直接量到 (measured directly) |
 
+- **Update (方案 (b) landed → single-process two-stage overlap)**: `run_batch` now overlaps each tile's
+  GPU front with the previous tile's CPU back (background thread, depth 1). Measured effect: GPU idle_frac
+  0.494 → 0.154, 121-tile wall −18.5%; see [`pipeline-overlap-result.md`](./pipeline-overlap-result.md).
+  Post-overlap the GPU front (M1 UNet + M2/M3b Cellpose forwards) is now **80.9% of wall @441** and is the
+  standing critical path — the next lever is the forwards themselves (① next stage, CuPy/GPU-kernel), out of
+  scope here. This is also **why ② became overlap-hidden** (see ②'s cross-check).
+
 ### ② `detect_all_dots` — M3 HER2/CEP17 dot detection
 | field | value |
 |---|---|
@@ -51,6 +58,18 @@ candidates are therefore only #1–#3; #4–#7 are logged for completeness.
 | 新現象 | Old 03-doc had it at 17.1%; **now higher** (dedup refactor + denser input) |
 | 分類方向 | **Class 1 (algorithm complexity)** + Class 3 (already CPU-parallel, but runs while GPU idles) |
 | 信心 | 實測直接量到 |
+
+- **Cross-check / disposition (2026-07-11, HEAD `00f2c91`, after ① 方案 (b) overlap landed)**: the
+  30.7% above is the **serial baseline** (this table). Re-measured on current HEAD (② timer already in
+  `perf_measure.py` as `B3_detect_dots`, no py-spy): the two-stage overlap pipeline runs `detect_all_dots`
+  on the background thread, and at **both** 121- and 441-tile it is **fully hidden behind the GPU front** —
+  per-tile detect ≤ 0.67 s vs per-tile GPU front ~1.33 s (large: detect 238.6 s / **but 0.579 s/tile** <
+  B1 1.329 s/tile). So its **effective** end-to-end Amdahl ceiling is ≈ **1.0**, not the serial 1.44, and
+  the doc-12 premise "② is now the heavy pole" was **refuted by measurement**. Actioned: the cheap zero-risk
+  `disk()`-hoist (doc 12 §3(a)) was landed bit-exact; the process-backend / regionprops_table / whole-tile
+  vectorization options (doc 12 §3(b)/(c)/(d)) were **stopped-out** (a hidden stage can't move wall). The
+  remaining lever is the GPU front itself (① next stage). Full record:
+  [`detect-all-dots-result.md`](./detect-all-dots-result.md). 信心: 實測直接量到.
 
 ### ③ PNG encode + write of per-tile artifacts
 | field | value |
@@ -106,3 +125,15 @@ Per plan §5.2/§6, this document classifies only. The solution-design follow-up
 [`../10-gpu-serial-pipeline-plan.md`](../10-gpu-serial-pipeline-plan.md). It also explains why
 ② and ③ are not independently actioned this round (their wall-clock cost overlaps almost exactly
 with ①'s measured idle window and may be resolved for free if ①'s fix lands).
+
+**Status update (2026-07-11, HEAD `00f2c91`):**
+- **① actioned** — 方案 (b) single-process two-stage overlap landed; GPU idle 0.494 → 0.154, 121-tile
+  wall −18.5% ([`pipeline-overlap-result.md`](./pipeline-overlap-result.md)). The GPU front is now the
+  standing critical path (80.9% wall @441); its own optimization (① next stage) is the remaining lever.
+- **② resolved "for free" — confirmed.** The prediction above held: once ①'s overlap landed, `detect_all_dots`
+  was **hidden behind the GPU front** at all scales. It was re-measured (doc 12 §2), the cheap `disk()`-hoist
+  (§3(a)) landed bit-exact, and the heavier §3(b)/(c)/(d) options were stopped-out
+  ([`detect-all-dots-result.md`](./detect-all-dots-result.md)).
+- **③ PNG encode** — now runs on the background CPU stage too (overlapped with the GPU front), so like ②
+  its ~9% serial share is largely hidden; not independently actioned. Still Class 5 backlog if the GPU front
+  ever shrinks enough to re-expose it.
