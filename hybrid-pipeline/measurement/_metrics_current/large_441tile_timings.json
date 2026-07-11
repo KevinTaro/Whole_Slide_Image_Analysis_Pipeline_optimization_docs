@@ -1,0 +1,124 @@
+{
+  "label": "large_441tile",
+  "n_tiles": 441,
+  "grid": {
+    "cols": 21,
+    "rows": 21
+  },
+  "wall": {
+    "end_to_end_total_s": 707.413,
+    "phaseA_precut_s": 20.395,
+    "runbatch_BCD_s": 687.017
+  },
+  "disk_bytes": {
+    "precut_scratch": 1001193648,
+    "analysis_output": 5237562120
+  },
+  "stats": {
+    "success": 379,
+    "skipped": 62
+  },
+  "timings": {
+    "init_unet": {
+      "n": 1,
+      "t": 1.16138106300059
+    },
+    "init_cellpose_m2": {
+      "n": 1,
+      "t": 1.0917768860017532
+    },
+    "init_cellpose_m3b": {
+      "n": 1,
+      "t": 0.824285074002546
+    },
+    "B2r_tile_read": {
+      "n": 882,
+      "t": 7.317276120033057
+    },
+    "B1_unet_coremask": {
+      "n": 441,
+      "t": 14.413916739027627
+    },
+    "BM1_apply_mask": {
+      "n": 412,
+      "t": 6.918459145006636
+    },
+    "BM1_overlay_dish": {
+      "n": 412,
+      "t": 5.599808440030756
+    },
+    "BM1_fuse": {
+      "n": 412,
+      "t": 4.6445359860226745
+    },
+    "B1_m3b_cellpose": {
+      "n": 824,
+      "t": 564.4767893369826
+    },
+    "Bs_clear_edge": {
+      "n": 412,
+      "t": 4.079172652964189
+    },
+    "B3_build_results": {
+      "n": 412,
+      "t": 7.230878850023146
+    },
+    "B3_enlarge_cells": {
+      "n": 412,
+      "t": 18.293162313031644
+    },
+    "B4_empty_cache": {
+      "n": 441,
+      "t": 2.6526772109937156
+    },
+    "B4_gc_collect": {
+      "n": 441,
+      "t": 36.33450658194124
+    },
+    "B3_detect_dots": {
+      "n": 412,
+      "t": 239.40604273496865
+    },
+    "B3_merge_dots": {
+      "n": 412,
+      "t": 0.010334576985769672
+    },
+    "Bs_filter_absolutize": {
+      "n": 412,
+      "t": 0.09126328095589997
+    },
+    "B2_png_encode": {
+      "n": 1323,
+      "t": 78.53793366596074,
+      "bytes": 432847296
+    },
+    "B2_tiff_encode": {
+      "n": 1323,
+      "t": 1.1823111920166411,
+      "bytes": 4505042352
+    },
+    "B2_render_overlay": {
+      "n": 412,
+      "t": 9.303262139019353
+    },
+    "B2_percell_crops": {
+      "n": 412,
+      "t": 4.624703911005781
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.008747972002311144
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.0006465600017691031
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 5.081746609001129
+    }
+  },
+  "config_hash": "db2b7e6a",
+  "peak_cuda_reserved_gb": 4.675,
+  "peak_rss_gb": 3.94
+}
