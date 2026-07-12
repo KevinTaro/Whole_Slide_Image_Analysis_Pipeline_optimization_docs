@@ -12,7 +12,7 @@
 | 名稱 | 值 |
 |---|---|
 | Repo 根目錄 | `C:\Users\RCLab\Desktop\tsgh` |
-| conda 環境 | `tsgh311`（含 openslide、pyvips、Node 26 / npm 11） |
+| conda 環境 | `tsgh311`（含 openslide、pyvips、Node 26 / npm 11）；**還沒建 → 先做 [12-env-setup.md](12-env-setup.md)** |
 | Python | `C:\Users\RCLab\miniconda3\envs\tsgh311\python.exe` |
 | Node / npm（**裝在 env 根目錄，不在 Scripts\**） | `C:\Users\RCLab\miniconda3\envs\tsgh311\{node.exe, npm.cmd, npx.cmd}` |
 | Slides 來源（viewer 副本） | `D:\tsgh_output\thriple_image_layer\viewer` |
