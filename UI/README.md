@@ -8,6 +8,10 @@
 
 ## Phase 0 現況（重要）
 
+> ⚠️ **本節多數敘述已過時（2026-07-12）**：`backend/` 與 `frontend/` 都已存在，
+> tile server + React 切片工作台已能跑。UI 現況以 [10](10-viewer-ui-implementation.md)、
+> 跑法以 [11](11-runbook-teammate.md) 為準；下方保留原文供歷史對照。
+
 - **repo 內還沒有 `backend/` 或 `frontend/` 資料夾**。本文所有目錄樹、endpoint、指令都是 **提議 / 未來式**，不是現況。
 - 目前所有功能都是 Python script / CLI（`thriple_image_layer/`、`cell_mask/hybrid/`）。
 - 演算法仍在**醫師驗證 + 迭代**中，**尚未定版**。UI 要等演算法進維護期才啟動（見 [07](07-phase-roadmap.md)）。
@@ -27,6 +31,9 @@
 | 6 | [02-tech-stack-versions.md](02-tech-stack-versions.md) | 已釘 / 未釘版本、版本真相來源層級 | 要 `uv add` / 裝套件前 |
 | 7 | [06-dev-setup.md](06-dev-setup.md) | 現在能跑什麼、未來開發指令、除錯備註 | 要動手跑東西時 |
 | 8 | [08-pitfalls-open-decisions.md](08-pitfalls-open-decisions.md) | 9 個常見陷阱 + 8 個未決事項 | 隨時翻，踩雷前查 |
+| 9 | [09-viewer-tiff-subifd.md](09-viewer-tiff-subifd.md) · [09-…pm-brief.md](09-viewer-subifd-pm-brief.md) | 為什麼 viewer 一定要 subifd=False 副本（技術版＋PM 決策版） | 產 / 顯示切片前 |
+| 10 | [10-viewer-ui-implementation.md](10-viewer-ui-implementation.md) | **實作現況**：tile server + React 切片工作台改了哪些檔 | 想知道現在有什麼 |
+| 11 | [11-runbook-teammate.md](11-runbook-teammate.md) | **照做把 UI 跑起來**（後端 + 前端 + 操作 + 踩雷表） | 要在自己機器上跑 |
 | — | [architecture-diagram.html](architecture-diagram.html) | 視覺化：分層圖、請求流程、座標邊界、護欄紅線 | 想看圖的時候（瀏覽器開） |
 
 ---
