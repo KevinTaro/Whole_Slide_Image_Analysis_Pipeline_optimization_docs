@@ -37,10 +37,21 @@ $py = "C:\Users\RCLab\miniconda3\envs\tsgh311\python.exe"
 # level_count= 11  → OK；若是 1 → 這是 subifd=True 原檔，不能用，得先轉副本
 ```
 
-**若還沒有副本 / 有新的對齊輸出要轉**：把 aligned TIFF（`subifd=True`）用 pyvips 轉
-`subifd=False + tiled` 金字塔（`compression=jpeg, Q=85, tile=256, pyramid, bigtiff`），
-輸出到 viewer 資料夾。轉一張約 2 分鐘 / 2 GB。細節與腳本邏輯見
-[`09-viewer-tiff-subifd.md`](09-viewer-tiff-subifd.md) §3.2。
+**若還沒有副本 / 有新的對齊輸出要轉**：用 repo 內的腳本 `scripts/make_viewer_copy.py`
+把 aligned TIFF（`subifd=True`）轉成 `subifd=False + tiled` 金字塔副本（`jpeg Q85 tile256
+pyramid bigtiff`）。轉一張約 2 分鐘 / 2 GB，轉完會印出 OpenSlide `level_count` 讓你確認 > 1：
+
+```powershell
+$py = "C:\Users\RCLab\miniconda3\envs\tsgh311\python.exe"
+# 一次可轉多張；輸出為 <來源檔名>_viewer.tiff，直接吐進 SLIDES_DIR
+& $py scripts\make_viewer_copy.py `
+    D:\tsgh_output\thriple_image_layer\HER2_aligned_lv0.ome.tiff `
+    D:\tsgh_output\thriple_image_layer\DISH_aligned_lv0.ome.tiff `
+    --out-dir D:\tsgh_output\thriple_image_layer\viewer
+```
+
+> ⚠️ 腳本只做「輸入→輸出」轉換，**不會產生輸入**：你手上得先有 aligned TIFF（跑完對齊
+> pipeline 才有）。背景與實測成本見 [`09-viewer-tiff-subifd.md`](09-viewer-tiff-subifd.md) §3.2。
 
 ---
 
