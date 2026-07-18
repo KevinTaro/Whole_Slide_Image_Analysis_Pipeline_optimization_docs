@@ -1,0 +1,495 @@
+<title>前後端雲端部署架構討論報告</title>
+<style>
+  :root{
+    --bg:#f2f5f6;
+    --bg-elevated:#ffffff;
+    --ink-900:#121b1d;
+    --ink-700:#3c4d50;
+    --ink-500:#6d8083;
+    --border:#d6dfe1;
+    --border-soft:#e4eaec;
+    --accent:#1f6f6b;
+    --accent-ink:#0f4a47;
+    --accent-soft:#e2efed;
+    --warn:#a2551a;
+    --warn-soft:#f8ecdc;
+    --warn-border:#e3c397;
+    --code-bg:#eef2f2;
+    --code-ink:#16292b;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1516; --bg-elevated:#151d1e; --ink-900:#e8eef0; --ink-700:#b5c4c6; --ink-500:#7e9295;
+      --border:#2a3739; --border-soft:#202b2d; --accent:#5dd0c3; --accent-ink:#8fe4da; --accent-soft:#152826;
+      --warn:#e19a5e; --warn-soft:#2c2013; --warn-border:#4a3620; --code-bg:#182122; --code-ink:#d9e4e5;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1516; --bg-elevated:#151d1e; --ink-900:#e8eef0; --ink-700:#b5c4c6; --ink-500:#7e9295;
+    --border:#2a3739; --border-soft:#202b2d; --accent:#5dd0c3; --accent-ink:#8fe4da; --accent-soft:#152826;
+    --warn:#e19a5e; --warn-soft:#2c2013; --warn-border:#4a3620; --code-bg:#182122; --code-ink:#d9e4e5;
+  }
+  :root[data-theme="light"]{
+    --bg:#f2f5f6; --bg-elevated:#ffffff; --ink-900:#121b1d; --ink-700:#3c4d50; --ink-500:#6d8083;
+    --border:#d6dfe1; --border-soft:#e4eaec; --accent:#1f6f6b; --accent-ink:#0f4a47; --accent-soft:#e2efed;
+    --warn:#a2551a; --warn-soft:#f8ecdc; --warn-border:#e3c397; --code-bg:#eef2f2; --code-ink:#16292b;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink-900);
+    font-family:"PingFang TC","Hiragino Sans CNS","Noto Sans TC","Microsoft JhengHei","Heiti TC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    line-height:1.75; font-size:16.5px; -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent-ink);text-underline-offset:3px;}
+  a:focus-visible, button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px;}
+
+  .shell{max-width:1180px;margin:0 auto;padding:3.5rem 1.5rem 6rem;display:grid;grid-template-columns:1fr;gap:2.5rem;}
+  @media (min-width:980px){.shell{grid-template-columns:236px minmax(0,800px);gap:3.5rem;align-items:start;}}
+
+  header.masthead{grid-column:1/-1;max-width:820px;padding-bottom:2rem;border-bottom:1px solid var(--border);margin-bottom:0.5rem;}
+  .eyebrow{font-size:0.78rem;letter-spacing:0.12em;color:var(--accent-ink);font-weight:600;text-transform:uppercase;}
+  h1{font-size:clamp(1.65rem,3vw,2.15rem);line-height:1.35;margin:0.5rem 0 0.9rem;text-wrap:balance;letter-spacing:-0.01em;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:0.5rem 1.2rem;font-size:0.9rem;color:var(--ink-500);font-variant-numeric:tabular-nums;}
+  .meta-row span b{color:var(--ink-700);font-weight:600;}
+
+  nav.toc{position:sticky;top:2.5rem;display:none;}
+  @media (min-width:980px){ nav.toc{display:block;} }
+  nav.toc .toc-label{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-500);margin-bottom:0.75rem;font-weight:600;}
+  nav.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--border);}
+  nav.toc a{display:block;padding:0.4rem 0 0.4rem 0.9rem;margin-left:-1px;border-left:2px solid transparent;font-size:0.88rem;color:var(--ink-700);text-decoration:none;line-height:1.4;}
+  nav.toc a:hover{color:var(--accent-ink);border-left-color:var(--border);}
+  nav.toc a b{color:var(--ink-500);font-weight:600;font-variant-numeric:tabular-nums;margin-right:0.35em;}
+  nav.toc a.flag{color:var(--warn);}
+  nav.toc a.flag b{color:var(--warn);}
+  nav.toc a.flag.ok{color:var(--accent-ink);}
+  nav.toc a.flag.ok b{color:var(--accent-ink);}
+
+  main{min-width:0;}
+  section{margin-bottom:3.4rem;scroll-margin-top:2rem;}
+  section > .sec-head{display:flex;align-items:baseline;gap:0.6rem;margin-bottom:1.1rem;}
+  section > .sec-head .num{font-variant-numeric:tabular-nums;color:var(--accent-ink);font-weight:700;font-size:0.95rem;}
+  section > .sec-head h2{font-size:1.32rem;margin:0;letter-spacing:-0.005em;text-wrap:balance;}
+  h3{font-size:1.0rem;margin:1.5rem 0 0.7rem;color:var(--ink-900);}
+  p{margin:0.8rem 0;color:var(--ink-700);max-width:44em;}
+  strong{color:var(--ink-900);font-weight:700;}
+  ul,ol{padding-left:1.3rem;color:var(--ink-700);}
+  li{margin:0.4rem 0;max-width:44em;}
+  li::marker{color:var(--ink-500);}
+
+  blockquote{margin:1.1rem 0;padding:0.9rem 1.1rem;border-left:3px solid var(--accent);background:var(--accent-soft);color:var(--ink-900);font-size:0.97rem;border-radius:2px;}
+  blockquote p{color:var(--ink-900);margin:0;max-width:none;}
+
+  .flag-card{border:1px solid var(--warn-border);background:var(--warn-soft);border-radius:4px;padding:1.3rem 1.4rem 1.4rem;margin:0 0 1.4rem;}
+  .flag-card .flag-label{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.74rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--warn);margin-bottom:0.6rem;}
+  .flag-card .flag-label::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--warn);display:inline-block;}
+  .flag-card p{color:var(--ink-900);max-width:none;}
+  .flag-card blockquote{background:var(--bg-elevated);border-left-color:var(--warn);}
+  .flag-card.ok{border-color:var(--accent);background:var(--accent-soft);}
+  .flag-card.ok .flag-label{color:var(--accent-ink);}
+  .flag-card.ok .flag-label::before{background:var(--accent);}
+  .flag-card.ok blockquote{border-left-color:var(--accent);}
+
+  .qitem.resolved{align-items:flex-start;border-left:3px solid var(--accent);}
+  .qitem.resolved .qn{background:var(--accent-soft);color:var(--accent-ink);}
+  .qitem.resolved .q{margin:0;font-size:0.83rem;color:var(--ink-500);}
+  .qitem.resolved .a{margin:0.35rem 0 0;font-size:0.87rem;font-weight:600;color:var(--accent-ink);}
+  .qitem.resolved.followup{border-left-color:var(--warn);}
+  .qitem .flagnote{margin:0.5rem 0 0;font-size:0.78rem;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:0.45rem 0.6rem;}
+
+  /* diagram card wrapping mermaid */
+  .diagram-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:1.1rem 1.2rem 0.6rem;margin:1rem 0 1.4rem;overflow-x:auto;}
+  .diagram-card .diagram-title{font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-500);margin-bottom:0.4rem;font-weight:600;}
+  pre.mermaid{margin:0;background:none;border:none;padding:0.3rem 0 0.6rem;}
+
+  /* evidence chips (section 0 citations) */
+  .evidence-row{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;}
+  .evidence{display:inline-flex;align-items:center;gap:0.4rem;background:var(--bg-elevated);border:1px solid var(--warn-border);border-radius:4px;padding:0.35em 0.7em;font-size:0.78rem;color:var(--ink-700);}
+  .evidence code{background:none;padding:0;font-size:0.78rem;}
+
+  /* fact grid (section 1) */
+  .fact-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0.7rem;margin:1.1rem 0 0.6rem;}
+  .fact{background:var(--bg-elevated);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:5px;padding:0.75rem 0.9rem;}
+  .fact.warn{border-left-color:var(--warn);}
+  .fact.keep{border-left-color:var(--accent);}
+  .fact .ftag{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.05em;font-weight:700;margin-bottom:0.35rem;display:inline-block;}
+  .fact.warn .ftag{color:var(--warn);}
+  .fact.keep .ftag{color:var(--accent-ink);}
+  .fact .flabel{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--ink-500);margin-top:0.3rem;}
+  .fact .fval{font-size:0.9rem;color:var(--ink-900);font-weight:600;line-height:1.4;}
+  .fact .fsrc{font-size:0.72rem;color:var(--ink-500);margin-top:0.35rem;font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .legend{display:flex;gap:1.2rem;font-size:0.78rem;color:var(--ink-500);margin:0.2rem 0 1.2rem;}
+  .legend span{display:inline-flex;align-items:center;gap:0.4rem;}
+  .legend i{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .legend i.warn{background:var(--warn);}
+  .legend i.keep{background:var(--accent);}
+
+  /* verdict banner */
+  .verdict{display:flex;gap:0.7rem;align-items:flex-start;background:var(--accent-soft);border:1px solid var(--border);border-radius:4px;padding:0.85rem 1.05rem;margin:1rem 0 1.4rem;}
+  .verdict .vlabel{flex:none;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent-ink);padding-top:0.15rem;}
+  .verdict p{margin:0;color:var(--ink-900);max-width:none;}
+
+  /* endpoint badge rows */
+  .endpoint-card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:0.3rem 1rem;margin:1rem 0 1.4rem;}
+  .endpoint{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;padding:0.6rem 0;border-bottom:1px solid var(--border-soft);}
+  .endpoint:last-child{border-bottom:none;}
+  .method{font-size:0.7rem;font-weight:700;letter-spacing:0.02em;padding:0.2em 0.55em;border-radius:3px;font-family:ui-monospace,Menlo,Consolas,monospace;flex:none;min-width:3.4em;text-align:center;}
+  .method.get{background:var(--accent-soft);color:var(--accent-ink);}
+  .method.post{background:var(--warn-soft);color:var(--warn);}
+  .endpoint .path{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.85rem;color:var(--ink-900);flex:none;}
+  .endpoint .desc{color:var(--ink-500);font-size:0.83rem;flex:1 1 220px;min-width:150px;}
+  .status-chips{display:flex;gap:0.3rem;flex-wrap:wrap;}
+  .status-chip{font-size:0.7rem;font-family:ui-monospace,Menlo,Consolas,monospace;padding:0.1em 0.48em;border-radius:3px;background:var(--border-soft);color:var(--ink-700);}
+  .status-chip.err{background:var(--warn-soft);color:var(--warn);}
+  .status-chip.ok{background:var(--accent-soft);color:var(--accent-ink);}
+
+  /* field chips */
+  .field-grid{display:flex;flex-wrap:wrap;gap:0.45rem;margin:0.7rem 0 1.3rem;}
+  .field-chip{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.8rem;background:var(--code-bg);color:var(--code-ink);padding:0.3em 0.6em;border-radius:4px;border:1px solid var(--border);}
+  .field-chip b{font-weight:600;}
+  .field-chip .t{color:var(--ink-500);margin-left:0.35em;font-style:italic;}
+  .tech-chip{font-size:0.8rem;background:var(--accent-soft);color:var(--accent-ink);padding:0.3em 0.7em;border-radius:20px;border:1px solid var(--border);font-weight:600;}
+
+  /* card grid (reasons / tradeoffs) */
+  .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0.9rem;margin:1.1rem 0 1.4rem;}
+  .tcard{background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:1rem 1.1rem;}
+  .tcard .tag{display:inline-block;font-size:0.66rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:0.15em 0.55em;border-radius:3px;margin-bottom:0.55rem;}
+  .tcard.warn .tag{color:var(--warn);background:var(--warn-soft);}
+  .tcard.keep .tag{color:var(--accent-ink);background:var(--accent-soft);}
+  .tcard h4{margin:0 0 0.35rem;font-size:0.96rem;color:var(--ink-900);}
+  .tcard p{margin:0;font-size:0.87rem;color:var(--ink-700);max-width:none;}
+
+  /* compare (reject vs recommend) */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.1rem 0 1.4rem;}
+  @media (max-width:600px){.compare{grid-template-columns:1fr;}}
+  .compare .no{border:1px solid var(--warn-border);background:var(--warn-soft);border-radius:6px;padding:1rem 1.1rem;}
+  .compare .yes{border:1px solid var(--border);background:var(--accent-soft);border-radius:6px;padding:1rem 1.1rem;}
+  .compare .clabel{font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.5rem;display:block;}
+  .compare .no .clabel{color:var(--warn);}
+  .compare .yes .clabel{color:var(--accent-ink);}
+  .compare p{margin:0;font-size:0.87rem;color:var(--ink-900);max-width:none;}
+
+  /* open question checklist */
+  .qlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0.75rem;margin:1.1rem 0;}
+  .qitem{display:flex;gap:0.7rem;background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:0.8rem 0.95rem;}
+  .qitem .qn{flex:none;width:1.7rem;height:1.7rem;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;font-variant-numeric:tabular-nums;}
+  .qitem.priority .qn{background:var(--warn-soft);color:var(--warn);}
+  .qitem p{margin:0;font-size:0.87rem;color:var(--ink-700);max-width:none;}
+
+  /* roadmap captions */
+  .step-caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.9rem;margin-top:0.3rem;}
+  .step-cap{border-left:2px solid var(--accent);padding-left:0.7rem;}
+  .step-cap b{display:block;font-size:0.85rem;color:var(--ink-900);margin-bottom:0.2rem;}
+  .step-cap span{font-size:0.82rem;color:var(--ink-500);}
+
+  hr.divider{border:none;border-top:1px solid var(--border);margin:2.6rem 0;}
+  footer{grid-column:1/-1;max-width:820px;margin-top:1rem;padding-top:1.6rem;border-top:1px solid var(--border);color:var(--ink-500);font-size:0.85rem;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto !important;}}
+</style>
+
+<div class="shell">
+
+<header class="masthead">
+  <div class="eyebrow">架構討論報告 · tsgh WSI pipeline</div>
+  <h1>前後端雲端部署架構討論報告</h1>
+  <div class="meta-row">
+    <span>方法：<b>現況程式碼審視</b> + <b>Codex（gpt-5.6-terra, effort high）</b> 架構討論</span>
+    <span>範圍：<b>localhost → 伺服器 / 雲端</b> 部署遷移</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="目錄">
+  <div class="toc-label">目錄</div>
+  <ol>
+    <li><a href="#s0" class="flag ok"><b>0</b>最優先前提：資料落地限制（已解除）</a></li>
+    <li><a href="#s1"><b>1</b>現況架構</a></li>
+    <li><a href="#s2"><b>2</b>Q1 · localhost → 雲端</a></li>
+    <li><a href="#s3"><b>3</b>Q2 · 長任務健康回報</a></li>
+    <li><a href="#s4"><b>4</b>Q3 · 上傳／儲存／結果</a></li>
+    <li><a href="#s5"><b>5</b>Tradeoff / 風險</a></li>
+    <li><a href="#s6" class="flag ok"><b>6</b>待確認事項（已確認）</a></li>
+    <li><a href="#s7"><b>7</b>建議下一步順序</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="s0">
+  <div class="sec-head"><span class="num">0</span><h2>最優先前提：資料落地限制 — 已確認解除</h2></div>
+
+  <div class="flag-card ok">
+    <div class="flag-label">已與團隊確認，不再是開放問題</div>
+    <p>現有架構文件把「病理影像不得離開本機」寫成<strong>硬性紅線</strong>。這次會議討論的「架設於伺服器」，字面上就是在推翻它——確認結果：<strong>限制直接解除，合規（BAA／資料落地／稽核等）由院方自行處理</strong>，不在本報告技術範圍內。</p>
+
+    <div class="diagram-card">
+      <div class="diagram-title">決策分岔 → 已確認走向</div>
+      <pre class="mermaid">
+flowchart LR
+    Q["會議提案：<br/>架設於伺服器"] --> F{"伺服器 = ？"}
+    F -->|"院內自架"| A["院內機房"]
+    F -->|"公有雲（AWS 等）"| B["BAA／資料落地合約<br/>由院方處理"]
+    A --> R
+    B --> R
+    R["✓ 已確認：限制解除<br/>院方自行處理合規"]
+      </pre>
+    </div>
+
+    <div class="evidence-row">
+      <span class="evidence"><code>docs/UI/01</code> 選型理由：Remote web server 已被否決（舊限制）</span>
+      <span class="evidence"><code>docs/UI/08</code> 陷阱 #8：禁止綁 <code>0.0.0.0</code>（舊限制）</span>
+      <span class="evidence"><code>backend/main.py</code>：<code>host="127.0.0.1"</code>（待更新）</span>
+    </div>
+  </div>
+
+  <p>以下所有設計都以「資料可以上雲／上伺服器」為既定前提；<code>docs/UI/01</code>、<code>08</code> 與 <code>backend/main.py</code> 中對應的舊限制文字需要在實作階段同步更新，避免文件與實際決策脫節。</p>
+</section>
+
+<section id="s1">
+  <div class="sec-head"><span class="num">1</span><h2>現況架構</h2></div>
+
+  <div class="diagram-card">
+    <div class="diagram-title">現有架構（單機桌面 app）</div>
+    <pre class="mermaid">
+flowchart TB
+    subgraph PC["doctor-pc（雙擊 .exe）"]
+        direction TB
+        FE["frontend React<br/>same-origin /api/*"] -->|"HTTP 127.0.0.1:8000"| BE["backend FastAPI<br/>只綁 127.0.0.1"]
+        BE --> FS[("本機檔案系統<br/>影像＋結果，不進 git")]
+    end
+    </pre>
+  </div>
+
+  <div class="legend"><span><i class="warn"></i>上雲需要改</span><span><i class="keep"></i>延續不變</span></div>
+
+  <div class="fact-grid">
+    <div class="fact warn"><span class="ftag">需要改</span><div class="flabel">Binding</div><div class="fval">只綁 127.0.0.1</div><div class="fsrc">backend/main.py</div></div>
+    <div class="fact warn"><span class="ftag">需要改</span><div class="flabel">認證 / 授權</div><div class="fval">完全沒有</div><div class="fsrc">存取控制 = 實體機器存取權</div></div>
+    <div class="fact warn"><span class="ftag">需要改</span><div class="flabel">Job 狀態儲存</div><div class="fval">記憶體 dict，非持久化</div><div class="fsrc">backend/api/jobs.py <code>_jobs</code></div></div>
+    <div class="fact keep"><span class="ftag">延續不變</span><div class="flabel">影像邊界（護欄 7）</div><div class="fval">檔案路徑 + JSON，禁 numpy 跨界</div><div class="fsrc">docs/UI/04</div></div>
+    <div class="fact keep"><span class="ftag">延續不變</span><div class="flabel">Tile 服務</div><div class="fval">DeepZoom 逐塊切片</div><div class="fsrc">/api/tiles/...</div></div>
+    <div class="fact keep"><span class="ftag">延續不變</span><div class="flabel">型別同步</div><div class="fval">Pydantic → OpenAPI → TS 型別</div><div class="fsrc">單一真相來源</div></div>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="sec-head"><span class="num">2</span><h2>Q1 · API 全部走 localhost，上雲要改什麼</h2></div>
+
+  <div class="verdict"><span class="vlabel">結論</span><p>優先維持 same-origin，把「網路邊界」交給 reverse proxy；認證從「不需要」變成「必須」。</p></div>
+
+  <div class="diagram-card">
+    <div class="diagram-title">現況 vs 建議</div>
+    <pre class="mermaid">
+flowchart LR
+    subgraph N["現況"]
+        direction TB
+        U1["瀏覽器（pywebview）"] -->|"127.0.0.1<br/>無 TLS／CORS／Auth"| B1["FastAPI backend"]
+    end
+    subgraph P["建議：伺服器部署"]
+        direction TB
+        U2["使用者瀏覽器"] -->|"HTTPS / TLS"| RP["Reverse Proxy"]
+        RP -->|"機構 SSO / OIDC"| BE2["FastAPI backend<br/>容器內仍只綁 127.0.0.1"]
+    end
+    </pre>
+  </div>
+
+  <ul>
+    <li>Uvicorn 不直接對外，前面掛 Nginx／Caddy／雲端 ALB 做 TLS termination。</li>
+    <li>前後端同 origin，<code>client.ts</code> 現有「只打相對路徑 <code>/api/*</code>」的假設幾乎不用改；只有前後端真分開部署才需要 <code>API_BASE_URL</code> + 嚴格 CORS allowlist。</li>
+    <li>每個 <code>slide_id</code>／<code>job_id</code>／tile 請求都要做 ownership 檢查，不能只驗證「有沒有登入」。</li>
+    <li>現在 <code>JobStatus.result_path</code> 是後端檔案系統路徑，上網路後不該存在於對外 schema，需改成不透明的 <code>result_id</code>。</li>
+  </ul>
+
+  <div class="endpoint-card">
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/api/me</span>
+      <span class="desc">目前登入者與可存取的 project（新增）</span>
+      <span class="status-chips"><span class="status-chip ok">200</span><span class="status-chip err">401</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/api/tiles/{slide_id}/{level}/{col}_{row}.jpg</span>
+      <span class="desc">沿用現有邏輯，加掛授權檢查</span>
+      <span class="status-chips"><span class="status-chip ok">200</span><span class="status-chip err">401</span><span class="status-chip err">403</span><span class="status-chip err">404</span></span>
+    </div>
+  </div>
+</section>
+
+<section id="s3">
+  <div class="sec-head"><span class="num">3</span><h2>Q2 · 長任務（以小時計）的健康 / 錯誤回報</h2></div>
+
+  <div class="verdict"><span class="vlabel">結論</span><p>現有 <code>BackgroundTasks</code> + 記憶體 dict 是為單機單使用者設計的最小方案，一旦變共用伺服器就會直接失效，需要換掉。</p></div>
+
+  <div class="card-grid">
+    <div class="tcard warn"><span class="tag">失效原因 1</span><h4>同一 process</h4><p>長任務跟 API 共用 process，Uvicorn 重啟／部署新版會把跑到一半的任務直接殺掉。</p></div>
+    <div class="tcard warn"><span class="tag">失效原因 2</span><h4>記憶體 dict</h4><p>重啟即歸零；若之後開多個 worker/replica，使用者建立的 job 換一台查詢就會 404。</p></div>
+    <div class="tcard warn"><span class="tag">失效原因 3</span><h4>沒有 heartbeat</h4><p>現有四態 schema 分不出「還在跑」跟「process 已死、卡死在 running」——正是本題要回答的問題。</p></div>
+  </div>
+
+  <p>建議新增：<span class="tech-chip">Postgres</span> <span class="tech-chip">Redis</span> <span class="tech-chip">RQ / Dramatiq</span> <span class="tech-chip">Reconciler</span> —— job 狀態存進資料庫取代 dict，運算搬到獨立 worker，中間用佇列（AWS 上等價於 SQS + worker service）。複雜度是「長任務撐過重啟/多副本」的最低必要成本，不需要一開始就上 K8s 等級編排。</p>
+
+  <div class="diagram-card">
+    <div class="diagram-title">Job 狀態機（新 schema）</div>
+    <pre class="mermaid">
+stateDiagram-v2
+    [*] --> queued
+    queued --> running
+    running --> succeeded
+    running --> failed
+    running --> cancel_requested
+    cancel_requested --> cancelled
+    running --> orphaned: heartbeat 逾時
+    succeeded --> [*]
+    failed --> [*]
+    cancelled --> [*]
+    orphaned --> [*]
+    </pre>
+  </div>
+
+  <div class="field-grid">
+    <span class="field-chip"><b>job_id</b><span class="t">str</span></span>
+    <span class="field-chip"><b>status</b><span class="t">enum</span></span>
+    <span class="field-chip"><b>progress.fraction</b><span class="t">0~1 | null</span></span>
+    <span class="field-chip"><b>progress.stage</b><span class="t">str</span></span>
+    <span class="field-chip"><b>heartbeat_at</b><span class="t">datetime</span></span>
+    <span class="field-chip"><b>updated_at</b><span class="t">datetime</span></span>
+    <span class="field-chip"><b>result_id</b><span class="t">str | null</span></span>
+    <span class="field-chip"><b>error.code / message</b><span class="t">str | null</span></span>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/api/jobs/{job_id}</span>
+      <span class="desc">取代現有四態，加 heartbeat / result_id</span>
+      <span class="status-chips"><span class="status-chip ok">200</span><span class="status-chip err">401</span><span class="status-chip err">403</span><span class="status-chip err">404</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method post">POST</span><span class="path">/api/jobs/{job_id}/cancel</span>
+      <span class="desc">新增：取消任務</span>
+      <span class="status-chips"><span class="status-chip ok">202</span><span class="status-chip err">409</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/health/live</span>
+      <span class="desc">新增：process 是否活著（liveness probe）</span>
+      <span class="status-chips"><span class="status-chip ok">200</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/health/ready</span>
+      <span class="desc">新增：db／queue／storage 依賴是否就緒</span>
+      <span class="status-chips"><span class="status-chip ok">200</span><span class="status-chip err">503</span></span>
+    </div>
+  </div>
+
+  <p><code>GET /api/jobs/{id}</code> 回答「這個任務」的狀態；<code>/health/*</code> 回答「這個服務本身」死活——兩者現在被混在一起想，實務上要分開。輪詢機制本身<strong>不用換成 WebSocket</strong>：成本跟是不是單機無關，真正要換的是「狀態存在哪」跟「誰執行」；未來要做即時進度條，SSE 仍是對的升級路徑。</p>
+</section>
+
+<section id="s4">
+  <div class="sec-head"><span class="num">4</span><h2>Q3 · 上傳 → 計算 → 結果，資料存哪、回傳什麼</h2></div>
+
+  <div class="verdict"><span class="vlabel">結論</span><p>後端持久化所有資料，前端永遠只拿輕量 metadata 與 tile / 結果連結——延續現有護欄 7 的精神。單機部署（單一 EC2 或院內單一 VM + 掛載磁碟）下，這就是現有桌面版架構原封不動搬過去，不需要物件儲存。</p></div>
+
+  <div class="compare">
+    <div class="no"><span class="clabel">不建議：寫回使用者端原始檔</span><p>HTTP 是 client 主動發起的協定，伺服器無法主動寫入瀏覽器另一端的本機硬碟；要做到得另外裝 client agent／掛網路磁碟，會讓現有「前端看不到本機路徑」的護欄 2 失去意義，且 WSI 動輒幾十~幾百 GB，寫回等於整檔再搬一次。</p></div>
+    <div class="yes"><span class="clabel">建議：伺服器端持久化 + 只回結果</span><p>沿用現有「大檔案留在後端、HTTP 只傳輕量資料」的護欄，只是把「backend 檔案系統」從筆電換成 <strong>EC2（或院內 VM）掛載的磁碟</strong>——同一台機器收檔、算、serve tile，跟現在完全同一種形狀，不需要另外導入物件儲存服務。</p></div>
+  </div>
+
+  <div class="diagram-card">
+    <div class="diagram-title">資料流（單機部署）</div>
+    <pre class="mermaid">
+flowchart LR
+    C["瀏覽器"] -->|"① chunked 上傳（TUS）"| BE["Backend（EC2 / VM）"]
+    BE -->|"② 寫入本機磁碟"| FS[("磁碟（EBS 或本機硬碟）")]
+    FS -->|"③ 檔案路徑 + JSON"| ALG["algorithms/ 演算法"]
+    ALG -->|"④ 結果檔 + JSON"| FS
+    FS -->|"⑤ tile / metadata"| C
+    </pre>
+  </div>
+
+  <p>上傳側（現況完全沒有，全新增）：WSI 幾十~幾百 GB，不適合一般一次性 <code>multipart/form-data</code>。用 <strong>TUS 協定</strong>（或等價的自訂 chunked endpoint）把檔案切塊直接 <code>PATCH</code> 進 backend，backend 寫進本機／掛載磁碟即可——單機部署不需要 presigned URL、不需要物件儲存的分塊上傳協定，backend 自己就是唯一的儲存端。</p>
+
+  <div class="field-grid">
+    <span class="field-chip"><b>upload_id</b></span>
+    <span class="field-chip"><b>method</b><span class="t">tus</span></span>
+    <span class="field-chip"><b>chunk_size_bytes</b></span>
+    <span class="field-chip"><b>offset_bytes</b></span>
+    <span class="field-chip"><b>state</b><span class="t">initiated→uploading→verifying→ready</span></span>
+  </div>
+
+  <div class="endpoint-card">
+    <div class="endpoint">
+      <span class="method post">POST</span><span class="path">/api/uploads</span>
+      <span class="desc">建立上傳工作階段</span>
+      <span class="status-chips"><span class="status-chip ok">201</span><span class="status-chip err">413</span><span class="status-chip err">415</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method post">PATCH</span><span class="path">/api/uploads/{id}</span>
+      <span class="desc">TUS：續傳下一段 chunk（帶 offset）</span>
+      <span class="status-chips"><span class="status-chip ok">204</span><span class="status-chip err">409</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/api/uploads/{id}</span>
+      <span class="desc">查上傳狀態 / 已上傳到哪個 offset（斷點續傳靠這個）</span>
+      <span class="status-chips"><span class="status-chip ok">200</span><span class="status-chip err">410</span></span>
+    </div>
+    <div class="endpoint">
+      <span class="method get">GET</span><span class="path">/api/results/{result_id}</span>
+      <span class="desc">結果 metadata + tile / 下載連結，取代 result_path</span>
+      <span class="status-chips"><span class="status-chip ok">200</span></span>
+    </div>
+  </div>
+
+  <p><strong>更新（第 6 節）：</strong>前端閱片器已確定沿用 OpenSeadragon（<code>SlideViewer.tsx</code> / <code>OverlayViewer.tsx</code>），疊圖是把 overlay 影像轉成金字塔 TIFF、以另一個 <code>slide_id</code> 掛進同一個 <code>/api/tiles/*.dzi</code> 機制堆疊圖層，不需要向量標註端點。單機部署下這點完全不用煩惱：<code>backend/io/pyramid.py</code> 的 <code>OpenSlide(...)</code> 本來就是直接讀本機檔案系統，磁碟就在同一台 EC2 上，不會遇到物件儲存 random-read 不相容的問題——這正是選單機部署而非拆分物件儲存的直接好處。</p>
+</section>
+
+<section id="s5">
+  <div class="sec-head"><span class="num">5</span><h2>Tradeoff / 風險</h2></div>
+  <div class="card-grid">
+    <div class="tcard warn"><span class="tag">合約層級</span><h4>雲端 vs 院內自架</h4><p>雲端牽涉資料落地、BAA、金鑰管理、稽核；院內自架要自扛備份與勒索軟體應變。必須回到第 0 節先確認。</p></div>
+    <div class="tcard warn"><span class="tag">維運成本</span><h4>佇列 + 資料庫</h4><p>新增維運負擔，但沒有它任務撐不過一次重啟。單機部署下 worker process + Postgres 可以先跟 API 擠在同一台 EC2 上，不需要獨立服務或多副本。</p></div>
+    <div class="tcard warn"><span class="tag">資料真實度</span><h4>進度回報</h4><p>若 pipeline 內部跑在沒插樁的原生呼叫裡，寧可回粗顆粒 stage 或 null，也不要編造精確百分比。</p></div>
+    <div class="tcard warn"><span class="tag">單機風險</span><h4>單點故障 + 磁碟容量</h4><p>單一 EC2 沒有物件儲存的自動備援，磁碟滿了任務會直接失敗；需要磁碟用量告警 + EBS snapshot 排程備份，不是「上雲就自動有備份」。</p></div>
+    <div class="tcard warn"><span class="tag">授權責任</span><h4>上傳仍要驗身份</h4><p>單機直傳省掉了 presigned URL 那層，但也代表 backend 自己要在 <code>PATCH /api/uploads/{id}</code> 驗證上傳者、配額、checksum，不能假設「能連到這台機器」就等於「有權上傳」。</p></div>
+    <div class="tcard warn"><span class="tag">資訊洩漏</span><h4>result_path / str(e)</h4><p>本機模式下無害，上網路後就是路徑外洩／內部錯誤訊息外洩，已在第 2、3 節草案中改掉。</p></div>
+  </div>
+</section>
+
+<section id="s6">
+  <div class="sec-head"><span class="num">6</span><h2>待確認事項 → 已確認</h2></div>
+  <p>已與團隊逐條確認，結論如下（第 6 點確認過程中另外發現一個技術落差，見下方標色說明）：</p>
+  <div class="qlist">
+    <div class="qitem resolved"><span class="qn">✓</span><div><p class="q">最優先 — 「伺服器」指院內自架還是公有雲？限制是解除還是縮小範圍？</p><p class="a">→ 限制直接解除，合規由院方自行處理，見第 0 節。</p></div></div>
+    <div class="qitem resolved"><span class="qn">✓</span><div><p class="q">使用者範圍：單一科別、多院區、還是多機構共用？</p><p class="a">→ 單一科別／單一團隊。授權模型不需做院區或跨機構隔離。</p></div></div>
+    <div class="qitem resolved"><span class="qn">✓</span><div><p class="q">原始檔／中間產物／結果的保留期限、備份、稽核、加密與刪除規則？</p><p class="a">→ 沿用院內 IT／資安既有規範，不另外設計。</p></div></div>
+    <div class="qitem resolved"><span class="qn">✓</span><div><p class="q">使用者端頻寬撐得住直傳幾十~幾百 GB 的 WSI 嗎？</p><p class="a">→ 假設環境頂得住，不需額外做斷點續傳 upload agent（走 TUS chunked upload 直傳 backend 磁碟，不需要物件儲存）。</p></div></div>
+    <div class="qitem resolved"><span class="qn">✓</span><div><p class="q">任務失敗要不要自動重試？<code>algorithms/</code> 層是否具備冪等性？</p><p class="a">→ 不做自動重試，失敗人工介入即可；<code>algorithms/</code> 層不需要額外的冪等性改造。</p></div></div>
+    <div class="qitem resolved followup"><span class="qn">✓</span><div><p class="q">「最終結果」指衍生圖層、可下載完整 WSI、還是標註/量測數據？</p><p class="a">→ 前端將提供類似 QuPath 的閱片功能，三者都要，且用 OpenSeadragon 疊圖顯示（已確認，非向量標註）。</p><p class="flagnote">釐清後修正：前端閱片器沿用現有 OpenSeadragon 架構（<code>SlideViewer.tsx</code> / <code>OverlayViewer.tsx</code>），overlay 是轉成金字塔 TIFF 後掛成另一層 <code>slide_id</code>，不需要新的向量標註（GeoJSON）端點——先前草稿誤判了這點。單機部署（單一 EC2／VM）下 <code>backend/io/pyramid.py</code> 直接讀本機磁碟即可，見第 4 節。</p></div></div>
+  </div>
+</section>
+
+<section id="s7">
+  <div class="sec-head"><span class="num">7</span><h2>建議下一步順序</h2></div>
+
+  <div class="diagram-card">
+    <div class="diagram-title">實作順序</div>
+    <pre class="mermaid">
+flowchart LR
+    S0["0 · 合規已確認"] --> S1["1 · Reverse Proxy<br/>+ TLS + SSO"]
+    S1 --> S2["2 · Job 持久化<br/>+ Worker / 佇列"]
+    S2 --> S3["3 · 上傳 / 儲存<br/>TUS 直傳 + EC2 掛載磁碟"]
+    </pre>
+  </div>
+
+  <div class="step-caps">
+    <div class="step-cap"><b>0 · 合規已確認</b><span>限制解除、院方自行處理合規（第 0、6 節），其餘規劃直接建立在這個答案上，不再是待辦。</span></div>
+    <div class="step-cap"><b>1 · Proxy + Auth</b><span>不論院內自架或雲端都必要，可以先做。</span></div>
+    <div class="step-cap"><b>2 · Job 持久化</b><span>現有記憶體 dict 最脆弱，任何一次部署都會炸掉使用者工作。</span></div>
+    <div class="step-cap"><b>3 · 上傳 / 儲存</b><span>TUS chunked upload 直傳到 backend（EC2／VM 掛載磁碟），不導入物件儲存——單機部署下 OpenSlide 本來就直接讀本機磁碟（第 4 節）。閱片器繼續用 OpenSeadragon，不需要額外做向量標註端點（第 6 節）。</span></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  本報告的架構建議部分經由 Codex（<code>gpt-5.6-terra</code>，reasoning effort: high）產生並交叉核對；現況事實部分（binding、schema、現有 endpoint）皆已對照 <code>backend/main.py</code>、<code>backend/api/jobs.py</code>、<code>backend/schemas/common.py</code>、<code>frontend/src/api/client.ts</code>、<code>frontend/src/api/jobs.ts</code> 與 <code>docs/UI/01/04/05/08</code> 原始檔案內容確認。
+</footer>
+
+</div>
