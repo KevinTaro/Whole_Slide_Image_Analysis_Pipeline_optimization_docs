@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>前後端分離架構討論 — 我的 API 傳圖片還是傳路徑?</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --panel2: #1e222b; --line: #2a2f3a;
+    --ink: #e6e9ef; --ink2: #aab2c0; --ink3: #7b8494;
+    --blue: #56a8ff; --amber: #ffb454; --green: #5fd08a; --red: #ff6b6b; --violet: #b48cff;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height: 1.7; font-size: 16px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 48px 24px 96px; }
+  header.doc { border-bottom: 1px solid var(--line); padding-bottom: 24px; margin-bottom: 40px; }
+  header.doc .tag { display: inline-block; font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink3); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; margin-bottom: 16px; }
+  h1 { font-size: 30px; line-height: 1.3; margin: 0 0 12px; }
+  h2 { font-size: 22px; margin: 56px 0 16px; padding-top: 8px; }
+  h2 .num { color: var(--blue); font-variant-numeric: tabular-nums; margin-right: 10px; }
+  h3 { font-size: 17px; margin: 28px 0 10px; color: var(--ink); }
+  p { margin: 12px 0; color: var(--ink2); }
+  strong { color: var(--ink); font-weight: 650; }
+  code { font-family: var(--mono); font-size: .88em; background: var(--panel2); color: #e2c08d;
+    padding: 1px 6px; border-radius: 5px; }
+  a { color: var(--blue); }
+  .lead { font-size: 18px; color: var(--ink); }
+
+  .callout { border-left: 3px solid var(--blue); background: var(--panel);
+    border-radius: 0 10px 10px 0; padding: 16px 20px; margin: 24px 0; }
+  .callout.warn { border-color: var(--amber); }
+  .callout.bad  { border-color: var(--red); }
+  .callout.good { border-color: var(--green); }
+  .callout p:first-child { margin-top: 0; } .callout p:last-child { margin-bottom: 0; }
+
+  figure { margin: 28px 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 14px; padding: 24px 20px 12px; overflow-x: auto; }
+  figure svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+  figcaption { text-align: center; color: var(--ink3); font-size: 13px; margin-top: 14px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--ink3); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; }
+  td code { font-size: .85em; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  .pill.keep { background: rgba(95,208,138,.14); color: var(--green); }
+  .pill.cut  { background: rgba(255,107,107,.14); color: var(--red); }
+  .pill.simp { background: rgba(255,180,84,.14); color: var(--amber); }
+
+  .legend { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; font-size: 13px; color: var(--ink2); margin-top: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 22px; height: 4px; border-radius: 2px; display: inline-block; }
+
+  ul { color: var(--ink2); } li { margin: 6px 0; }
+  .foot { margin-top: 64px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--ink3); font-size: 13px; }
+  svg text { font-family: system-ui, "Noto Sans TC", sans-serif; }
+  .mono-note { font-family: var(--mono); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <span class="tag">Architecture · tsgh</span>
+  <h1>前後端分離架構討論<br>「我的 API 到底傳圖片還是傳路徑?」</h1>
+  <p class="lead">前提變更:前端與後端不再是 localhost,而是分屬兩台機器(內網 / EC2),單機單用戶。</p>
+  <p class="mono-note" style="color:var(--ink3)">討論模型 gpt-5.6-sol · effort high · 2026-07-19</p>
+</header>
+
+<div class="callout">
+  <p><strong>一句話結論</strong>:現在你的 pipeline API <strong>兩個都不是「傳圖片」</strong>——它傳 <em>id 進去、傳路徑字串出來</em>,圖片像素只在「看圖」時才過網路。而「回傳路徑」正是拆成兩台機器會斷掉的根因。</p>
+  <p>跨機器後正確答案是:<strong>路徑整個消失,圖片只在頭尾兩端當 bytes 傳(上傳、下載/看圖),中間全部用 id。</strong></p>
+</div>
+
+<!-- ================= SECTION 0 ================= -->
+<h2><span class="num">0</span>核心問題:你的 API 現在傳什麼</h2>
+
+<p>會混淆,是因為現在有<strong>三條完全分開的通道</strong>被當成同一件事。逐條拆:</p>
+
+<table>
+  <thead><tr><th style="width:22%">通道</th><th style="width:20%">方向</th><th style="width:30%">實際傳的東西</th><th>證據(檔案:行)</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>跑 pipeline</strong></td>
+      <td>前端 → 後端</td>
+      <td>id 或空 body,<strong>沒有圖片</strong></td>
+      <td><code>PipelinePanel.tsx:43</code> alignment 送 <code>body:{}</code>;<code>:66</code> hybrid 送 <code>{ihc_slide_id, dish_slide_id}</code></td>
+    </tr>
+    <tr>
+      <td><strong>拿結果</strong></td>
+      <td>後端 → 前端</td>
+      <td>一個<strong>路徑字串</strong> <code>result_path</code></td>
+      <td><code>jobs.py:33</code> 存 <code>result_path</code>;<code>PipelinePanel.tsx:202</code> 把它當文字印「結果:{path}」</td>
+    </tr>
+    <tr>
+      <td><strong>看圖</strong></td>
+      <td>後端 → 前端</td>
+      <td>真正的 <strong>jpeg bytes</strong></td>
+      <td><code>SlideViewer.tsx</code> + <code>tiles.py:35</code>,OSD 按 <code>slide_id</code> 逐塊抓圖磚</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>換句話說:<strong>整條 pipeline API 從頭到尾沒有一張圖片過網路。</strong>圖片本來就躺在後端自己的硬碟(<code>SLIDES_DIR</code>),前端只是叫後端「處理你自己硬碟上那個東西」,後端再回「結果在我硬碟的這個路徑」。</p>
+
+<figure>
+<!-- Diagram A: current localhost, shared disk -->
+<svg viewBox="0 0 720 300" role="img" aria-label="現況:前後端共用同一顆硬碟">
+  <!-- shared disk band -->
+  <rect x="40" y="210" width="640" height="60" rx="10" fill="#12151c" stroke="#2a2f3a"/>
+  <text x="360" y="245" text-anchor="middle" fill="#7b8494" font-size="13">同一顆硬碟 &nbsp;/data · SLIDES_DIR &nbsp;(前後端都看得到)</text>
+
+  <!-- frontend box -->
+  <rect x="70" y="60" width="220" height="90" rx="12" fill="#1e222b" stroke="#2a2f3a"/>
+  <text x="180" y="92" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">前端 (瀏覽器)</text>
+  <text x="180" y="116" text-anchor="middle" fill="#aab2c0" font-size="12">送 id / 空 body</text>
+  <text x="180" y="134" text-anchor="middle" fill="#aab2c0" font-size="12">收到路徑字串,只能印出來</text>
+
+  <!-- backend box -->
+  <rect x="430" y="60" width="220" height="90" rx="12" fill="#1e222b" stroke="#2a2f3a"/>
+  <text x="540" y="92" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">後端 (FastAPI)</text>
+  <text x="540" y="116" text-anchor="middle" fill="#aab2c0" font-size="12">讀自己硬碟的圖</text>
+  <text x="540" y="134" text-anchor="middle" fill="#aab2c0" font-size="12">回 result_path</text>
+
+  <!-- arrows -->
+  <defs>
+    <marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 z" fill="#56a8ff"/></marker>
+  </defs>
+  <line x1="290" y1="95" x2="425" y2="95" stroke="#56a8ff" stroke-width="2" marker-end="url(#ab)"/>
+  <text x="357" y="86" text-anchor="middle" fill="#56a8ff" font-size="11">跑 pipeline (id)</text>
+  <line x1="430" y1="128" x2="295" y2="128" stroke="#56a8ff" stroke-width="2" marker-end="url(#ab)"/>
+  <text x="360" y="150" text-anchor="middle" fill="#56a8ff" font-size="11">result_path 字串</text>
+
+  <!-- disk links -->
+  <line x1="180" y1="150" x2="180" y2="210" stroke="#2a2f3a" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <line x1="540" y1="150" x2="540" y2="210" stroke="#2a2f3a" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+  <text x="360" y="34" text-anchor="middle" fill="#5fd08a" font-size="13" font-weight="600">✔ 現在能動 — 但只是因為兩邊是同一台機器、共用硬碟</text>
+</svg>
+<figcaption>現況(localhost):路徑之所以有意義,是因為前後端指向同一顆硬碟。</figcaption>
+</figure>
+
+<div class="callout bad">
+  <p><strong>為什麼拆兩台一定壞</strong>:前端在你的電腦、後端在 EC2,兩顆硬碟不再共用 ——</p>
+  <ul style="margin:8px 0 0">
+    <li>後端看不到你電腦上的輸入檔 → 「跑 pipeline」沒東西可處理。</li>
+    <li>後端回的 <code>/home/ubuntu/output/Metrics.csv</code> 在你電腦上不存在 → 你拿到一個<strong>廢字串</strong>。</li>
+  </ul>
+</div>
+
+<figure>
+<!-- Diagram B: broken across machines -->
+<svg viewBox="0 0 720 210" role="img" aria-label="拆成兩台機器後路徑失效">
+  <rect x="70" y="60" width="230" height="100" rx="12" fill="#1e222b" stroke="#2a2f3a"/>
+  <text x="185" y="90" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">前端 · 你的電腦</text>
+  <rect x="100" y="108" width="170" height="34" rx="7" fill="#12151c" stroke="#3a2020"/>
+  <text x="185" y="130" text-anchor="middle" fill="#7b8494" font-size="12">硬碟 C:\ (自己的)</text>
+
+  <rect x="420" y="60" width="230" height="100" rx="12" fill="#1e222b" stroke="#2a2f3a"/>
+  <text x="535" y="90" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">後端 · EC2</text>
+  <rect x="450" y="108" width="170" height="34" rx="7" fill="#12151c" stroke="#203a2a"/>
+  <text x="535" y="130" text-anchor="middle" fill="#7b8494" font-size="12">硬碟 /home/ubuntu</text>
+
+  <!-- broken arrow -->
+  <line x1="300" y1="110" x2="420" y2="110" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="6 5"/>
+  <text x="360" y="100" text-anchor="middle" fill="#ff6b6b" font-size="18" font-weight="700">✕</text>
+  <text x="360" y="150" text-anchor="middle" fill="#ff6b6b" font-size="11">result_path 在對面硬碟無意義</text>
+
+  <text x="360" y="34" text-anchor="middle" fill="#ff6b6b" font-size="13" font-weight="600">✗ 路徑是「本機語意」,跨機器直接失效</text>
+</svg>
+<figcaption>路徑不是雙方共享的語意 —— 這是整個改架構的根本原因。</figcaption>
+</figure>
+
+<div class="callout warn">
+  <p><strong>順帶一個現在就對不上的 bug</strong>:frontend 送 <code>ihc_slide_id</code>/<code>dish_slide_id</code>(<code>PipelinePanel.tsx:67</code>),但後端 <code>HybridTileIn</code> 收的是 <code>ihc_path</code>/<code>dish_path</code>(<code>schemas/hybrid.py:12</code>)。欄位名對不上,hybrid 其實現在就是壞的。</p>
+</div>
+
+<!-- ================= SECTION 1 ================= -->
+<h2><span class="num">1</span>跨機器後的正確資料流</h2>
+
+<p>核心規則只有一句:<strong>路徑永遠不出後端。像素在兩個時刻以 bytes 過網路(上傳、看圖/下載),中間全部用 id。</strong></p>
+
+<figure>
+<!-- Diagram C: the correct cross-machine flow, 4 steps -->
+<svg viewBox="0 0 760 430" role="img" aria-label="跨機器正確流程四步驟">
+  <defs>
+    <marker id="mb" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 z" fill="#56a8ff"/></marker>
+    <marker id="ma" markerWidth="10" markerHeight="10" refX="7" refY="4.5" orient="auto"><path d="M0,0 L10,4.5 L0,9 z" fill="#ffb454"/></marker>
+  </defs>
+
+  <!-- columns -->
+  <rect x="60" y="40" width="200" height="360" rx="14" fill="#171a21" stroke="#2a2f3a"/>
+  <text x="160" y="66" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">前端 · 瀏覽器</text>
+  <rect x="500" y="40" width="200" height="360" rx="14" fill="#171a21" stroke="#2a2f3a"/>
+  <text x="600" y="66" text-anchor="middle" fill="#e6e9ef" font-size="15" font-weight="600">後端 · EC2</text>
+  <text x="600" y="86" text-anchor="middle" fill="#7b8494" font-size="11">Nginx · FastAPI · tusd · worker</text>
+
+  <!-- Step 1 upload bytes -->
+  <circle cx="90" cy="120" r="12" fill="#ffb454"/><text x="90" y="124" text-anchor="middle" fill="#0f1115" font-size="12" font-weight="700">1</text>
+  <line x1="260" y1="120" x2="498" y2="120" stroke="#ffb454" stroke-width="3.5" marker-end="url(#ma)"/>
+  <text x="380" y="110" text-anchor="middle" fill="#ffb454" font-size="12" font-weight="600">上傳輸入圖片 (bytes, tus 可續傳)</text>
+  <text x="380" y="138" text-anchor="middle" fill="#7b8494" font-size="11">後端存檔 → 回一個 file_id</text>
+
+  <!-- Step 2 run pipeline -->
+  <circle cx="90" cy="200" r="12" fill="#56a8ff"/><text x="90" y="204" text-anchor="middle" fill="#0f1115" font-size="12" font-weight="700">2</text>
+  <line x1="260" y1="200" x2="498" y2="200" stroke="#56a8ff" stroke-width="2" marker-end="url(#mb)"/>
+  <text x="380" y="190" text-anchor="middle" fill="#56a8ff" font-size="12">跑 pipeline &nbsp;<tspan fill="#e6e9ef">POST { file_id }</tspan></text>
+  <text x="380" y="218" text-anchor="middle" fill="#7b8494" font-size="11">回 202 + job_id(不傳圖也不傳路徑)</text>
+
+  <!-- Step 3 poll -->
+  <circle cx="90" cy="280" r="12" fill="#56a8ff"/><text x="90" y="284" text-anchor="middle" fill="#0f1115" font-size="12" font-weight="700">3</text>
+  <line x1="260" y1="280" x2="498" y2="280" stroke="#56a8ff" stroke-width="2" marker-end="url(#mb)"/>
+  <line x1="498" y1="298" x2="260" y2="298" stroke="#56a8ff" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#mb)"/>
+  <text x="380" y="272" text-anchor="middle" fill="#56a8ff" font-size="12">輪詢 job_id</text>
+  <text x="380" y="318" text-anchor="middle" fill="#7b8494" font-size="11">回 file_id + metrics 數字 (小 JSON)</text>
+
+  <!-- Step 4 download bytes -->
+  <circle cx="90" cy="368" r="12" fill="#ffb454"/><text x="90" y="372" text-anchor="middle" fill="#0f1115" font-size="12" font-weight="700">4</text>
+  <line x1="498" y1="368" x2="262" y2="368" stroke="#ffb454" stroke-width="3.5" marker-end="url(#ma)"/>
+  <text x="380" y="358" text-anchor="middle" fill="#ffb454" font-size="12" font-weight="600">看圖 / 下載結果 (bytes)</text>
+  <text x="380" y="386" text-anchor="middle" fill="#7b8494" font-size="11">DZI 圖磚 · CSV / TIFF 下載</text>
+</svg>
+<div class="legend">
+  <span><span class="swatch" style="background:#ffb454"></span> 圖片 / 檔案 bytes(像素過網路)</span>
+  <span><span class="swatch" style="background:#56a8ff"></span> id / 小 JSON(控制訊息)</span>
+  <span><span class="swatch" style="background:#ff6b6b"></span> 路徑 = 不再過網路</span>
+</div>
+<figcaption>控制訊息傳 id;像素只在步驟 ① 上傳與 ④ 看圖/下載時當 bytes 傳。</figcaption>
+</figure>
+
+<div class="callout good">
+  <p>你原本以為是「圖片 or 路徑」二選一。真正的答案是:<strong>路徑要整個消失,圖片只在頭尾兩端當 bytes 傳。</strong></p>
+</div>
+
+<!-- ================= SECTION 2 ================= -->
+<h2><span class="num">2</span>單機單用戶:能砍掉什麼</h2>
+
+<p>「一台機器只服務一個人 + 內網/EC2 + 單 peer 身分即可」這幾個前提,砍掉了整層多租戶與認證。真正<strong>即使單用戶仍必須保留</strong>的只有「禁止傳路徑、大檔可續傳」——那是「遠端 + 大檔」的需求,不是「多人」的需求。長任務與 job 狀態則<strong>沿用現有的 <code>BackgroundTasks</code> + 記憶體 dict</strong> 就夠(理由見下方 SQLite 註記)。</p>
+
+<table>
+  <thead><tr><th style="width:34%">元件</th><th style="width:16%">判定</th><th>單機單用戶版本</th></tr></thead>
+  <tbody>
+    <tr><td>OIDC / 登入 / token / session</td><td><span class="pill cut">移除</span></td><td>網路邊界交給 EC2 Security Group(只開你的來源 IP)/ 內網防火牆,應用層不做登入</td></tr>
+    <tr><td>使用者表 · <code>owner_id</code> · ACL</td><td><span class="pill cut">移除</span></td><td>整台 instance 即單一資料域,查詢不再帶 <code>WHERE owner_id</code></td></tr>
+    <tr><td><code>tiles.py</code> owner filtering</td><td><span class="pill cut">移除</span></td><td>直接列出本機所有已登錄 slides</td></tr>
+    <tr><td>備份 · retention 清理 · 磁碟門檻</td><td><span class="pill cut">移除</span></td><td>容量當無限;只留一支「使用率 &gt; 80% 印 warning」</td></tr>
+    <tr><td>per-user 配額 / 公平排程</td><td><span class="pill cut">移除</span></td><td>單一 FIFO worker 自然序列化</td></tr>
+    <tr><td>Redis + RQ / 獨立 task queue</td><td><span class="pill cut">移除</span></td><td>單用戶一次一個 job,不需要外部佇列 —— 沿用現有的 <code>BackgroundTasks</code></td></tr>
+    <tr><td><code>asset_id</code> + <code>artifact_id</code> 兩套 ID</td><td><span class="pill simp">簡化</span></td><td>統一成一個 <code>file_id</code>;上傳直接存成 <code>{file_id}.ext</code>,<strong>file_id 即檔名</strong>,連 catalog 表都不用</td></tr>
+    <tr><td>「API 不接受路徑」+ 不透明 handle</td><td><span class="pill keep">保留</span></td><td>防跨機器語意失效 + 任意讀寫檔案的攻擊面</td></tr>
+    <tr><td>長任務用 <code>BackgroundTasks</code>(現況)</td><td><span class="pill keep">保留</span></td><td>anyio threadpool 已把運算移出事件迴圈,輪詢照常回應;重啟中斷 = 重跑(你接受的模型)</td></tr>
+    <tr><td>job 狀態 · polling</td><td><span class="pill keep">保留現況</span></td><td>in-memory <code>_jobs</code> dict + 輪詢就夠;「已完成結果撐過重啟」屬 optional,痛了再加 SQLite</td></tr>
+    <tr><td>tusd 大檔續傳 · Nginx protected download</td><td><span class="pill keep">保留</span></td><td>多 GB WSI/TIFF 過 WAN,不能塞單一 request、不能占 API worker</td></tr>
+    <tr><td>結構化錯誤 / 分層 timeout</td><td><span class="pill keep">保留</span></td><td>遠端 + 長任務仍需區分「排隊逾時 / 執行逾時 / 壞輸入」</td></tr>
+  </tbody>
+</table>
+
+<div class="callout warn">
+  <p><strong>關於 SQLite —— 為什麼這版拿掉了</strong>。先前草案把 SQLite 當必需品,其實它的兩個角色都有更省的替代:</p>
+  <ul style="margin:8px 0 0">
+    <li><strong>file 目錄</strong>:上傳存成 <code>{file_id}.ext</code>,<code>file_id</code> 本身就是檔名 —— 查表 = 字串拼接,不需要資料庫。</li>
+    <li><strong>job 狀態</strong>:in-memory dict 就夠。重啟中斷的計算 <em>SQLite 也救不回來</em>(記憶體裡的運算沒了就是沒了),只能 raise error 重跑 —— 這正是你說的作法。</li>
+  </ul>
+  <p style="margin-bottom:0">SQLite 唯一真正賺到的場景:一個長任務<strong>算完了</strong>、使用者離開,這時後端因部署/維護重啟,記憶體版會讓<strong>已完成的結果</strong>憑空消失、得再等一次。這是「痛了再加」的 optional,不是第一天的必需品。</p>
+</div>
+
+<!-- ================= SECTION 3 ================= -->
+<h2><span class="num">3</span>最小骨架</h2>
+
+<p>砍完之後剩下的骨架——沒有 VPN、認證、owner、備份、配額、retention,連資料庫都不用:</p>
+
+<figure>
+<!-- Diagram D: minimal skeleton pipeline (no database) -->
+<svg viewBox="0 0 760 200" role="img" aria-label="最小骨架 pipeline">
+  <defs>
+    <marker id="md" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 z" fill="#7b8494"/></marker>
+  </defs>
+  <!-- nodes -->
+  <g font-size="12.5">
+    <rect x="30"  y="80" width="150" height="56" rx="10" fill="#1e222b" stroke="#ffb454"/>
+    <text x="105" y="104" text-anchor="middle" fill="#e6e9ef" font-weight="600">tus 上傳</text>
+    <text x="105" y="122" text-anchor="middle" fill="#7b8494">存成 {file_id}.ext</text>
+
+    <rect x="215" y="80" width="160" height="56" rx="10" fill="#1e222b" stroke="#b48cff"/>
+    <text x="295" y="104" text-anchor="middle" fill="#e6e9ef" font-weight="600">BackgroundTasks</text>
+    <text x="295" y="122" text-anchor="middle" fill="#7b8494">threadpool 跑 pipeline</text>
+
+    <rect x="410" y="80" width="150" height="56" rx="10" fill="#1e222b" stroke="#56a8ff"/>
+    <text x="485" y="104" text-anchor="middle" fill="#e6e9ef" font-weight="600">輪詢 job</text>
+    <text x="485" y="122" text-anchor="middle" fill="#7b8494">記憶體 dict · status</text>
+
+    <rect x="595" y="80" width="140" height="56" rx="10" fill="#1e222b" stroke="#ffb454"/>
+    <text x="665" y="104" text-anchor="middle" fill="#e6e9ef" font-weight="600">下載 / DZI</text>
+    <text x="665" y="122" text-anchor="middle" fill="#7b8494">用 file_id 取</text>
+  </g>
+  <!-- arrows -->
+  <line x1="180" y1="108" x2="213" y2="108" stroke="#7b8494" stroke-width="1.6" marker-end="url(#md)"/>
+  <line x1="375" y1="108" x2="408" y2="108" stroke="#7b8494" stroke-width="1.6" marker-end="url(#md)"/>
+  <line x1="560" y1="108" x2="593" y2="108" stroke="#7b8494" stroke-width="1.6" marker-end="url(#md)"/>
+  <text x="384" y="40" text-anchor="middle" fill="#e6e9ef" font-size="14" font-weight="600">Nginx = 唯一入口(TLS · 路由 · 大檔 protected download)</text>
+  <rect x="14" y="54" width="740" height="96" rx="14" fill="none" stroke="#2a2f3a" stroke-dasharray="5 5"/>
+</svg>
+<figcaption>tus 上傳(存成 {file_id}.ext)→ BackgroundTasks 跑 → 輪詢記憶體 job → 用 file_id 下載 / DZI 看圖。<strong>沒有資料庫。</strong></figcaption>
+</figure>
+
+<h3>對應改動範圍</h3>
+<ul>
+  <li><code>schemas/alignment.py</code> · <code>schemas/hybrid.py</code>:拿掉所有 <code>*_dir</code> / <code>*_path</code> 欄位,改收 <code>file_id</code>。</li>
+  <li><code>api/jobs.py</code>:<strong>幾乎不動</strong> —— 沿用 in-memory <code>_jobs</code> dict + <code>BackgroundTasks</code>;只把存的 <code>result_path</code> 改成 <code>file_id</code>。</li>
+  <li>新增:tus 上傳端點,收到的檔案存成 <code>{file_id}.ext</code>(<code>file_id</code> 即檔名,不建 catalog 表)。</li>
+  <li>frontend:<code>result_path</code> 顯示改成「下載連結 / 開啟 viewer」;hybrid 欄位名對齊(<code>*_slide_id</code> ↔ 後端 <code>*_path</code> 目前對不上);新增上傳 UI。</li>
+  <li><code>main.py</code>:掛 Nginx protected download 的 internal redirect 端點(多 GB 結果檔不佔 API worker)。</li>
+</ul>
+
+<!-- ================= SECTION 4 ================= -->
+<h2><span class="num">4</span>部署前仍必須決定的取捨</h2>
+<ul>
+  <li><strong>frontend 是否為 HTTPS origin</strong>:若是,API 也要 HTTPS,否則瀏覽器擋 mixed content。</li>
+  <li><strong>job 被中斷後</strong>:標記 failed 由人重送(推薦),還是做 checkpoint/resume(每條 pipeline 狀態設計大增)。啟動 reconciliation 要把殘留的 <code>running</code> 標成 <code>interrupted/failed</code>,不自動重跑。</li>
+  <li><strong>各 pipeline execution timeout</strong>:依實測設,不可套短任務預設,也不建議 unlimited(否則失控工作長期占住唯一 GPU)。</li>
+  <li><strong>Idempotency-Key / 防連按兩次</strong>:相同 dataset+stage 已在 queued/running 時要不要直接拒絕重複提交。</li>
+</ul>
+
+<!-- ================= SECTION 5 ================= -->
+<h2><span class="num">5</span>下一步</h2>
+<p>建議先動「根」:<strong>移除路徑參數 → 改 <code>file_id</code>(檔名即 id)+ tus 上傳</strong>。這塊不落地,其他(下載、看圖)都接不上。job 與 worker 沿用現有的 <code>BackgroundTasks</code> + 記憶體 dict,<strong>先不碰</strong>;等真的被「重啟掉已完成結果」咬到,再把狀態換成 SQLite。</p>
+
+<div class="foot">
+  tsgh · WSI / medical image pipeline &nbsp;·&nbsp; 本文為架構討論記錄,非最終規格 &nbsp;·&nbsp; 引用行號以撰寫當下原始碼為準,實作前請重新確認。
+</div>
+
+</div>
+</body>
+</html>
