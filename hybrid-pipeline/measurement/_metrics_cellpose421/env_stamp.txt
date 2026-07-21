@@ -1,0 +1,26 @@
+=== date ===
+2026-07-22T01:39:17+08:00
+=== git ===
+f95a5735596dc295c3be3567541208ad0f24cbca
+ M docs/hybrid-pipeline/measurement/_metrics/small_25tile_CPROFILE_gpu_dmon.txt
+ M docs/hybrid-pipeline/measurement/bottleneck-list-zh.md
+ M docs/hybrid-pipeline/measurement/bottleneck-list.md
+?? docs/hybrid-pipeline/13-next-optimization-plan.md
+?? docs/hybrid-pipeline/measurement/_metrics_cellpose421/
+=== gpu ===
+NVIDIA GeForce RTX 5090, 580.159.03, 32607 MiB
+=== python ===
+Python 3.11.15
+=== key pkgs ===
+cellpose 4.2.1.1
+torch 2.11.0+cu130 cc (12, 0)
+numpy 1.26.4
+skimage 0.24.0
+opencv 4.8.1
+=== model weights (mtime + sha256) ===
+2026-07-22 01:17:02.297783164 +0800 343601652  backend/algorithms/hybrid/models/cellpose/cellpose_dish_best
+6855a1d02a7b10de50f75f639c1eaea51bccf22d06507c0ca6b23aabf11d6e1a  backend/algorithms/hybrid/models/cellpose/cellpose_dish_best
+2026-07-22 01:35:36.186419823 +0800 343602448  backend/algorithms/hybrid/models/cellpose/cellpose_ihc_dish_best
+febfa4d2e123c6b16e2ebbf71e3f484cc8ef0525693bf62919cb1536e9bd4b3c  backend/algorithms/hybrid/models/cellpose/cellpose_ihc_dish_best
+2026-07-07 02:14:10.866889262 +0800 84077719  backend/algorithms/hybrid/models/unet/b4/best_model_unet_b4.pth
+76943268569ddc54fa9f9f1fc39312052dd0f239024f3b6bb3831a9420ed8e42  backend/algorithms/hybrid/models/unet/b4/best_model_unet_b4.pth

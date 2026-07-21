@@ -1,0 +1,346 @@
+{
+  "label": "medium_121tile",
+  "n_tiles": 121,
+  "grid": {
+    "cols": 11,
+    "rows": 11
+  },
+  "end_to_end_total_s": 166.573,
+  "config_hash": "db2b7e6a",
+  "peak_rss_gb": 3.094,
+  "peak_cuda_reserved_gb": 2.187,
+  "disk_bytes": {
+    "precut_scratch": 281197092,
+    "analysis_output": 1432228347
+  },
+  "stats": {
+    "success": 103,
+    "skipped": 18
+  },
+  "wall": {
+    "end_to_end_total_s": 166.573,
+    "phaseA_precut_s": 5.588,
+    "runbatch_BCD_s": 160.984
+  },
+  "sub_ranking": [
+    {
+      "bucket": "B1_m3b_cellpose",
+      "phase": "B1",
+      "label": "M3b Cellpose forward (DISH nuclei)",
+      "t": 123.31730446207803,
+      "n": 238,
+      "pct": 74.03198865487084,
+      "bytes": null,
+      "amdahl_ceiling": 3.85
+    },
+    {
+      "bucket": "B3_detect_dots",
+      "phase": "B3",
+      "label": "detect_all_dots (HER2/CEP17)",
+      "t": 79.78460957523203,
+      "n": 119,
+      "pct": 47.89768424368416,
+      "bytes": null,
+      "amdahl_ceiling": 1.92
+    },
+    {
+      "bucket": "B2_png_encode",
+      "phase": "B2",
+      "label": "PNG encode+write (core/masked/overlay)",
+      "t": 23.38136315724114,
+      "n": 363,
+      "pct": 14.03670652341084,
+      "bytes": 130868840,
+      "amdahl_ceiling": 1.16
+    },
+    {
+      "bucket": "B4_gc_collect",
+      "phase": "B4",
+      "label": "gc.collect (per tile)",
+      "t": 9.916088709840551,
+      "n": 121,
+      "pct": 5.952998811236245,
+      "bytes": null,
+      "amdahl_ceiling": 1.06
+    },
+    {
+      "bucket": "B3_enlarge_cells",
+      "phase": "B3",
+      "label": "enlarge_cell_instances",
+      "t": 5.741139297897462,
+      "n": 119,
+      "pct": 3.4466205795041582,
+      "bytes": null,
+      "amdahl_ceiling": 1.04
+    },
+    {
+      "bucket": "A_precut",
+      "phase": "A",
+      "label": "precut_paired_tiles (Phase A)",
+      "t": 5.588,
+      "n": 121,
+      "pct": 3.354685333157234,
+      "amdahl_ceiling": 1.03
+    },
+    {
+      "bucket": "B1_unet_coremask",
+      "phase": "B1",
+      "label": "M1 UNet++ core mask forward",
+      "t": 5.009328168409411,
+      "n": 121,
+      "pct": 3.007286996337588,
+      "bytes": null,
+      "amdahl_ceiling": 1.03
+    },
+    {
+      "bucket": "B2_render_overlay",
+      "phase": "B2",
+      "label": "render_overlay_image (annotate)",
+      "t": 2.826435924798716,
+      "n": 119,
+      "pct": 1.6968151650019605,
+      "bytes": null,
+      "amdahl_ceiling": 1.02
+    },
+    {
+      "bucket": "B3_build_results",
+      "phase": "B3",
+      "label": "build_all_positive_results",
+      "t": 2.622280786978081,
+      "n": 119,
+      "pct": 1.574253202486646,
+      "bytes": null,
+      "amdahl_ceiling": 1.02
+    },
+    {
+      "bucket": "B2r_tile_read",
+      "phase": "B2r",
+      "label": "tile read (_read_rgb)",
+      "t": 1.9026368129998446,
+      "n": 242,
+      "pct": 1.1422240176978529,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "BM1_apply_mask",
+      "phase": "B-M1",
+      "label": "apply_mask_to_ihc_image",
+      "t": 1.83792796486523,
+      "n": 119,
+      "pct": 1.1033768767238568,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "Bs_clear_edge",
+      "phase": "B-stitch",
+      "label": "clear_slide_edge_cells",
+      "t": 1.6140900867176242,
+      "n": 119,
+      "pct": 0.9689986292602187,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "init_unet",
+      "phase": "init",
+      "label": "UNet++ model init",
+      "t": 1.5100590889924206,
+      "n": 1,
+      "pct": 0.906544931647038,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "D_stitch_overlay",
+      "phase": "D",
+      "label": "_stitch_overlay_slide",
+      "t": 1.5064061310258694,
+      "n": 1,
+      "pct": 0.9043519243970327,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "BM1_overlay_dish",
+      "phase": "B-M1",
+      "label": "overlay_ihc_mask_on_dish",
+      "t": 1.3864127799170092,
+      "n": 119,
+      "pct": 0.8323154292214279,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "B2_percell_crops",
+      "phase": "B2",
+      "label": "per-cell crop export loop",
+      "t": 1.2841022851644084,
+      "n": 119,
+      "pct": 0.7708946138716408,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "BM1_fuse",
+      "phase": "B-M1",
+      "label": "fuse_masked_ihc_with_dish",
+      "t": 1.1496208289754577,
+      "n": 119,
+      "pct": 0.6901603675118162,
+      "bytes": null,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "bucket": "init_cellpose_m2",
+      "phase": "init",
+      "label": "Cellpose M2 model init",
+      "t": 0.7335588549613021,
+      "n": 1,
+      "pct": 0.44038280811494185,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "init_cellpose_m3b",
+      "phase": "init",
+      "label": "Cellpose M3b model init",
+      "t": 0.49316195701248944,
+      "n": 1,
+      "pct": 0.2960635619292979,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "B4_empty_cache",
+      "phase": "B4",
+      "label": "torch.cuda.empty_cache (per tile)",
+      "t": 0.4116680286824703,
+      "n": 121,
+      "pct": 0.24713970972634838,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "B2_tiff_encode",
+      "phase": "B2",
+      "label": "int32 TIFF encode+write (instance/nucleus/overlay)",
+      "t": 0.3131045452901162,
+      "n": 363,
+      "pct": 0.18796836539542194,
+      "bytes": 1216446896,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "Bs_filter_absolutize",
+      "phase": "B-stitch",
+      "label": "filter_and_absolutize (per tile)",
+      "t": 0.0283329879748635,
+      "n": 119,
+      "pct": 0.017009352040765008,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "B3_merge_dots",
+      "phase": "B3",
+      "label": "merge_dot_results_to_cell_analysis",
+      "t": 0.0030177792068570852,
+      "n": 119,
+      "pct": 0.0018116856914728587,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "C_export_csv",
+      "phase": "C",
+      "label": "export_tile_csv",
+      "t": 0.002506998018361628,
+      "n": 1,
+      "pct": 0.0015050446461080894,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    },
+    {
+      "bucket": "C_export_summary",
+      "phase": "C",
+      "label": "export_summary_statistics",
+      "t": 0.0002508380566723645,
+      "n": 1,
+      "pct": 0.00015058746415827563,
+      "bytes": null,
+      "amdahl_ceiling": 1.0
+    }
+  ],
+  "phase_ranking": [
+    {
+      "phase": "B1",
+      "t": 128.32663263048744,
+      "pct": 77.03927565120844,
+      "amdahl_ceiling": 4.36
+    },
+    {
+      "phase": "B3",
+      "t": 88.15104743931442,
+      "pct": 52.92036971136644,
+      "amdahl_ceiling": 2.12
+    },
+    {
+      "phase": "B2",
+      "t": 27.80500591249438,
+      "pct": 16.692384667679864,
+      "amdahl_ceiling": 1.2
+    },
+    {
+      "phase": "B4",
+      "t": 10.327756738523021,
+      "pct": 6.200138520962594,
+      "amdahl_ceiling": 1.07
+    },
+    {
+      "phase": "A",
+      "t": 5.588,
+      "pct": 3.354685333157234,
+      "amdahl_ceiling": 1.03
+    },
+    {
+      "phase": "B-M1",
+      "t": 4.373961573757697,
+      "pct": 2.625852673457101,
+      "amdahl_ceiling": 1.03
+    },
+    {
+      "phase": "init",
+      "t": 2.736779900966212,
+      "pct": 1.6429913016912776,
+      "amdahl_ceiling": 1.02
+    },
+    {
+      "phase": "B2r",
+      "t": 1.9026368129998446,
+      "pct": 1.1422240176978529,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "phase": "B-stitch",
+      "t": 1.6424230746924877,
+      "pct": 0.9860079813009838,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "phase": "D",
+      "t": 1.5064061310258694,
+      "pct": 0.9043519243970327,
+      "amdahl_ceiling": 1.01
+    },
+    {
+      "phase": "C",
+      "t": 0.0027578360750339925,
+      "pct": 0.0016556321102663652,
+      "amdahl_ceiling": 1.0
+    }
+  ],
+  "residual_unattributed_s": -105.79,
+  "residual_pct": -63.51
+}
