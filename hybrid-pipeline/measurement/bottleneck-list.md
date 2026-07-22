@@ -104,6 +104,43 @@ document predicted ("Still Class 5 backlog if B1 ever shrinks enough to re-expos
 > itself is a bit smaller now, which *tightens* this margin somewhat — re-measure the
 > actual MAIN/BG split before sizing ⑧ or the Priority 4 batch-size sweep against it; don't
 > reuse 34%/36.8% as-is.
+>
+> **SUPERSEDED (round 4, 2026-07-22).** That re-measurement has now been done at both
+> anchors under the full §0 protocol — the margin was **25.6% (large) / 26.4% (medium)**,
+> not 34.0%/36.8%. After ⑧ was moved off the MAIN arm it is **15.9%**. Full record:
+> [`../18-gpu-starvation-prerequisites-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md).
+
+## Round-4 anchors (2026-07-22) — ⑧ moved off MAIN + precut A overlapped
+
+> Adds the fourth measured round; **rounds 1–3 above are preserved verbatim.** Same machine,
+> crops, harness and checkpoints as round 3 (checkpoint SHA-256 verified identical), GPU idle
+> before every launch, `--gpu-dmon --workers 8`, n=3 at large / n=2 at medium.
+> Raw artifacts: `_metrics_r4/` (incl. `env_stamp_p0.txt`, `env_stamp_p2.txt`, `pip_freeze.txt`),
+> per-run CSVs in `runs_r4/`. Solution design: [`../17-...-plan.md`](../17-gpu-starvation-prerequisites-plan.md);
+> implementation + results: [`../18-...-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md).
+
+| config | large/441 | medium/121 | what changed |
+|---|--:|--:|---|
+| round-3 record | 573.7 s | 166.6 s | — |
+| `p0` round-4 baseline | **538.5 s** | **154.0 s** | `gc.freeze()` (doc 16) now in the baseline |
+| `p2` | **495.5 s** | **146.3 s** | ⑧ moved to the BG arm (doc 13 P2) |
+| `p3` | **480.3 s** | **140.8 s** | precut A streamed into the analysis loop (doc 13 P3) |
+
+**Cumulative −16.3% vs round 3** (−10.8% from this round's two code changes alone).
+Full-WSI refit on the `p3` anchors: `wall ≈ 12.5 s + 1.0608 s/tile` ⇒ **~10.5 h** (was ~12.6 h).
+
+Arm state after `p3` (large): MAIN **453.9 s**, BG **381.7 s**, outside **7.6 s** →
+BG/MAIN **0.841**, i.e. MAIN has only **15.9%** left to shed before ②③ are re-exposed.
+The single-process floor is therefore `BG + outside = 389.3 s` (**1.23x** from 480.3 s).
+
+**Two measurement caveats this round established — apply them to the tables above:**
+1. `idle_frac` counted as *exactly* SM==0 is knife-edge and must not be compared across
+   configurations; between `p0` and `p2` it rose 0.32→0.43 while wall **fell** 8%, purely
+   because SM=1–3% samples collapsed onto 0. Near-idle (SM≤3) fell 0.50→0.45, consistent with
+   the wall-clock. Prefer cuda-Event gaps over either.
+2. `peak_cuda_reserved_gb` is unreliable (one run reported 25.97 GB against a `dmon fb` peak of
+   2787 MB, identical to every other run) — the same artifact class doc 13 warned about. Read
+   VRAM from `dmon fb`.
 
 ---
 
@@ -320,6 +357,19 @@ document predicted ("Still Class 5 backlog if B1 ever shrinks enough to re-expos
   (`outside` in the arm model), so unlike ②/③ their cost is fully on the critical path and
   both are reducible toward zero by overlapping them with the B loop. A scales linearly with
   tile count → at full-WSI it is the larger of the two by far. Recorded as actionable.
+- **Round 4 (2026-07-22) — A resolved, D closed as structurally non-overlappable.**
+  **A**: `m0_reader.PrecutStream` hands the tile grid over immediately (derivable from the
+  image header alone — `read_size` decodes no pixels) and yields tiles as they are cut, so the
+  cutting overlaps the analysis loop. `phaseA_precut_s` 20.31 s → **0.004 s**; net wall
+  **−3.1% (large) / −3.8% (medium)**, i.e. ~75% of A recovered at large (the remainder is CPU
+  contention with the BG arm). Safe because tile processing order cannot affect output —
+  `run_batch` sorts globally by `(abs_y, abs_x, cell_id)` before renumbering and the stitcher
+  reads by coordinate; `PrecutStream` was verified to emit a byte-identical tile set.
+  **D**: **not overlappable and closed, not backlogged.** The `pyvips` row/column joins are
+  lazy — all cost is the single `tiffsave`, which cannot be done incrementally for a pyramidal
+  TIFF, and D runs at the very end of `run_batch` with no remaining work to overlap it with.
+  Overlappable content ≈ 0 s of its 5.10 s. See
+  [`../18-gpu-starvation-prerequisites-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md) §4.
 
 ### ⑥ Model init (one-time)
 - 7.3% at 25 tiles → 1.3% at 121 → **0.37%** at 441. Pure one-time load, amortizes to negligible at WSI scale. Class 6. Informational. 信心: 實測.
@@ -347,6 +397,15 @@ document predicted ("Still Class 5 backlog if B1 ever shrinks enough to re-expos
 - These grew with the new checkpoints' higher cell yield (enlarge 18.29 → 19.60 s,
   build 7.23 → 8.81 s) and will keep growing with cell count. Recorded only —
   moving them is a code change and is out of scope for this measurement round.
+- **RESOLVED (round 4, 2026-07-22).** Both calls moved from `_process_one_chunk_gpu` (MAIN)
+  into `_finish_chunk_cpu` (BG). Measured **−8.0% wall at large / −5.0% at medium**, beating
+  this entry's ~1.05x estimate because the move also removed GIL contention between ⑧ and
+  `detect_all_dots`: the *unmodified* B1 forwards fell 444.4→431.6 s and `detect_all_dots`
+  fell 279.9→257.6 s. `torch.cuda.Event` instrumentation confirms the mechanism directly —
+  the M2→M3b device-idle gap closed from **10.06 s to 1.66 s** (medium), the residual being
+  exactly `clear_slide_edge_cells`. Correctness veto passed (differing cells indistinguishable
+  from the same-code noise floor). See
+  [`../18-gpu-starvation-prerequisites-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md) §2–3.
 
 ### ⑨ CPU back-stage regression: `detect_all_dots` +22.3% — **NEW, watch item**
 | field | value |
@@ -497,6 +556,34 @@ Ranked by **critical-arm contribution × plausible reduction**, not by self-time
    to settle (re-run dot detection over saved instance masks under both dependency sets).
 7. **Record a `pip freeze` with every future round.** The overlap round has none, which is
    why ⑨'s cause cannot be attributed cleanly. Process fix, not a performance item.
+
+### Re-sorted priority after round 4 (2026-07-22) — supersedes the round-3 list above
+
+> The round-3 list is preserved as the record. It is superseded because items 3 (⑧) and 4 (⑤)
+> in it are now **built and measured**, and the margin every remaining item must be sized
+> against changed from 34.0% to **15.9%**. Full reasoning:
+> [`../18-gpu-starvation-prerequisites-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md) §6.
+
+1. **Wire `cellpose_batch_size` into `Config`, then sweep — now the top open item.** Still
+   unwired (`getattr(config, "cellpose_batch_size", 16)`, no such field). Round 4 found the
+   reason it matters more than previously thought: at these tile sizes `segment_windowed` runs
+   **one window per call**, so this knob controls Cellpose's *internal* patch batching within a
+   single 1024² image (~25–36 patches, currently 16 at a time = 2–3 internal batches). That
+   targets the **intra-forward, launch-bound** idle, which round 4's cuda-Event work showed is
+   the *larger* half of all device idle and is unreachable by any pipeline-level restructuring.
+   Ceiling bounded by the new margin: **≤1.19x**. Step 1 must be a bit-exact no-op.
+2. **Cross-tile multiprocessing — scope only if #1 disappoints.** Unlike every single-process
+   lever it is not bounded by the `BG + outside = 389.3 s` floor (each process carries its own
+   BG thread), so its ceiling is wider — roughly **1.23x–1.7x** — but it still requires solving
+   fork-under-CUDA (per-process model reload: VRAM 2.79 GB × N, init 2.4 s × N) and carries the
+   largest correctness risk of anything remaining.
+3. **⑨ isolate the `detect_all_dots` regression (optional, unchanged priority).** Note it moved
+   on its own in round 4 (279.9 → 257.6 s) purely from ⑧'s thread relocation, so any isolation
+   attempt must control for thread placement.
+4. **Closed this round, do not reopen without new evidence:** the CUDA-stream / pipeline-depth-2
+   bubble redesign (sized at **≤1.065x** after ⑧ landed — see doc 18 §3), GPU-side tile/transform
+   loading (`B2r_tile_read` = **1.22%** of wall, ceiling 1.012x, and no such pipeline exists to
+   move), and stitch-D overlap (structurally ~0 s recoverable).
 
 **Superseded by round 3, do not re-run as written:** item 3 of the 2026-07-11 list
 ("isolate the GIL-contention share of B1's +192.9 s growth"). Most of that growth reversed
