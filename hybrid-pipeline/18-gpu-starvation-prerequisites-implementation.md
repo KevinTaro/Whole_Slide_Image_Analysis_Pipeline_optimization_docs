@@ -32,6 +32,7 @@ Configurations measured (each stacked on the previous, so each comparison isolat
 | `p2` | p0 + item 2 (⑧ moved off the MAIN arm) |
 | `p3` | p2 + item 4 (precut A overlapped with the analysis loop) |
 | `p0ev` / `p2ev` | `--cuda-events` instrumentation runs (item 3) |
+| `p4_bs{16,32,64}` | p3 + `cellpose_batch_size` wired to `Config`, swept (§6.1) |
 
 ## 1. Item 1 — re-measure the MAIN/BG margin with `gc.freeze()` in place
 
@@ -274,7 +275,57 @@ against the pre-round idle. What is left, measured:
   buys nothing further until BG also shrinks — the floor for all single-process levers is
   `BG + outside = 381.7 + 7.6 = ` **389.3 s**, i.e. **1.23x** from today's 480.3 s.
 
-### 6.1 Extending Cellpose's batch size — **now the top-ranked open item**
+### 6.1 Extending Cellpose's batch size — **BUILT AND MEASURED: wiring adopted, sweep NEGATIVE**
+
+> **This subsection's original prediction was wrong, and is kept below with the correction in front of
+> it.** I ranked this the top open item on the reasoning in the indented block; the sweep then measured
+> flat, and the mechanism turned out to make a win impossible at the current tile size. Recorded this
+> way because the playbook treats a negative result as a first-class outcome, and because the *reason*
+> it is negative is the reusable part.
+
+**What was built** (doc 13 P4 step 1): `cellpose_batch_size: int = 16` added to `Config`, and the two
+`getattr(config, "cellpose_batch_size", 16)` fallbacks at `hybrid_pipeline.py:206,218` replaced with a
+real field read. This is a genuine Class-7 correctness fix — the field never existed, so the fallback
+`16` was the only value that had ever run. **Config hash changes `db2b7e6a` → `ad41c42f`** (a field was
+genuinely added); every round-4 CSV before this point carries the old hash.
+
+**Step 1 verified as a bit-exact no-op** before sweeping, as doc 13 required: 142.5 s vs `p3`'s 140.8 s
+mean (+1.2%, inside the 1.6% medium run-to-run band), cells **3648** — identical to both `p3` runs —
+tiles 103/18.
+
+**Sweep result (medium anchor, `--stream-precut`): flat at every level.**
+
+| `cellpose_batch_size` | wall | B1 forwards | ms / Cellpose call | VRAM peak | cells |
+|--:|--:|--:|--:|--:|--:|
+| 16 (current) | 142.5 s | 128.0 s | 517.6 | 2787 MB | 3648 |
+| 32 | 144.7 s | 128.4 s | 519.0 | 2787 MB | 3647 |
+| 64 | 144.0 s | 128.3 s | 518.6 | 2787 MB | 3649 |
+
+Per-call forward time varies by **0.3%** and VRAM does not move at all — the tell that the knob is
+not reaching anything.
+
+**Why it cannot help at the current tile size.** Cellpose's `batch_size` is "the number of patches to
+run simultaneously on the GPU", and it tiles each input into `bsize` blocks — **384 for the `cpdino`
+backbone** in use since round 3. Measured with `cellpose.transforms.make_tiles`:
+
+| tile size | patches per tile | batches at bs=16 | at bs=64 |
+|--:|--:|--:|--:|
+| **1024 px (current)** | **16** | **1** | **1** |
+| 1536 px | 25 | 2 | 1 |
+| 2048 px | 49 | 4 | 1 |
+
+A 1024² tile produces exactly **4×4 = 16 patches** — precisely the existing batch size. Every patch
+already runs in a single batch, so raising the cap has nothing left to batch. The hardcoded fallback
+`16` was, by coincidence, exactly the right value for this tile size and backbone. **The knob only
+becomes live if `default_tile_size` grows past 1024** (≥1536), which is a separate change with its own
+segmentation-quality consequences and is not proposed here.
+
+**Disposition:** the wiring **stays** (dead config is a real defect, and the field now makes the value
+explicit and correct rather than an accidental fallback); the batch-size *sweep* is **stopped out** per
+doc 13 P4 step 4. Do not revisit unless `default_tile_size` changes.
+
+<details>
+<summary>Original (pre-measurement) reasoning, preserved — it was wrong on the patch count</summary>
 
 Still unwired at HEAD: `hybrid_pipeline.py:206,218` call `getattr(config, "cellpose_batch_size", 16)`
 and no such field exists on `Config` (the real `batch_size=4` at `config.py:184` feeds UNet++ only), so
@@ -292,6 +343,13 @@ and no such field exists on `Config` (the real `batch_size=4` at `config.py:184`
 VRAM headroom is ample: steady state 2785 MB of 32 GB. Ceiling bounded by the 15.9% margin ⇒ **≤1.19x**.
 Cost: one `Config` field plus a sweep. **Do step 1 as a bit-exact no-op first** (default 16, flat
 wall, `report.csv` within this round's noise floor), then sweep 16 → 32 → 64 at medium before large.
+
+**Where this reasoning failed:** point 1 assumed "order 25–36 patches" per tile from a `bsize` of 256.
+The `cpdino` backbone uses `bsize=384`, giving exactly 16 — equal to the batch size already in use.
+The estimate of the patch count was never checked against `cellpose.transforms.make_tiles` before
+ranking the item; doing so takes one line and would have predicted the flat result.
+
+</details>
 
 ### 6.2 Cross-tile multiprocessing — scope only after 6.1, and size it honestly
 
@@ -315,8 +373,19 @@ construction. Item 4 additionally removed the *other* I/O cost (precut A) by ove
 device change. Nothing in the measured record supports building this. Recorded as stopped-out, not
 backlog.
 
-**Ranked recommendation:** 6.1 (cheap, targets the larger idle half, ≤1.19x) → re-measure the margin →
-6.2 only if 6.1 disappoints. 6.3 closed.
+**Ranked recommendation (revised after 6.1 measured flat):**
+
+1. **Cross-tile multiprocessing (6.2) is now the only remaining lever with a real ceiling.** 6.1 was
+   the cheap alternative to it and is exhausted; 6.3 is closed at 1.012x; §3's bubble redesign is
+   stopped out at ≤1.065x. Everything cheap has now been tried.
+2. Before scoping it, note what 6.1's failure implies: the *intra-forward, launch-bound* idle — the
+   larger half of all device idle (§3) — has **no remaining single-process lever**. Batch size cannot
+   reach it at this tile size, and patching Cellpose internals was already stop-lossed in
+   `gil-contention-diag.md`. Multiprocessing reaches it only by running independent forwards
+   concurrently so their launch gaps interleave.
+3. If multiprocessing is judged too expensive, the honest answer is that **this pipeline is near the
+   end of what CPU-side rebalancing can buy**: 480.3 s against a single-process floor of 389.3 s, with
+   the remaining gap being device idle no single-process change can fill.
 
 ## 7. Methodology corrections found while doing this
 
@@ -354,10 +423,13 @@ making arm membership *measured* — is listed in §10.
 | `backend/algorithms/hybrid/hybrid_pipeline.py` | item 2: ⑧ moved `_process_one_chunk_gpu` → `_finish_chunk_cpu`; `matching_mask`/`results_pre` dropped from `_ChunkGpuState`. item 4: `run_batch(..., tile_stream=None)`; loop consumes an iterator; `_run_single_tile_cli` uses `PrecutStream` |
 | `backend/algorithms/hybrid/m0_reader.py` | item 4: new `PrecutStream` (grid upfront, tiles yielded as cut) |
 | `backend/api/hybrid.py` | item 4: `/api/hybrid/tile` uses `PrecutStream` |
-| `scripts/perf_measure.py` | item 3: `--cuda-events` GPU-timeline instrumentation. item 4: `--stream-precut` |
+| `backend/algorithms/hybrid/config.py` + `config_example.py` | §6.1: new `cellpose_batch_size: int = 16` field |
+| `scripts/perf_measure.py` | item 3: `--cuda-events` GPU-timeline instrumentation. item 4: `--stream-precut`. §6.1: `--cellpose-batch-size` sweep override |
 | `scripts/arm_report.py` | **new** — two-arm decomposition, margin, idle attribution, Event buckets |
 
-No config fields added; `config.py` / `config_example.py` untouched (hash unchanged).
+**Config hash changed `db2b7e6a` → `ad41c42f`** by the `cellpose_batch_size` field (§6.1). Runs
+`p0`/`p2`/`p3` carry the old hash; only the `p4_bs*` sweep runs carry the new one. This is the first
+config change since round 1 — every earlier round's CSVs are still `db2b7e6a`.
 
 ## 9. Reproducing
 
@@ -370,6 +442,9 @@ No config fields added; `config.py` / `config_example.py` untouched (hash unchan
 
 # GPU-timeline bubble map (adds a per-tile synchronize -- size bubbles, don't compare wall)
 ... --label <tag>ev --cuda-events
+
+# batch-size sweep (§6.1); step 1 must be a bit-exact no-op at bs=16
+... --label p4_bs32_med --stream-precut --cellpose-batch-size 32
 
 # arm model + margin + idle attribution
 .venv/bin/python scripts/arm_report.py --metrics-dir <m> --group --detail \
