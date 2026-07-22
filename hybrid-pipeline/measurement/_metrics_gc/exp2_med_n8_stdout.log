@@ -1,0 +1,999 @@
+2026-07-22 03:10:03,621 - hybrid_pipeline - INFO - 批次處理開始 — run_id=b9d02da2, config_hash=9e4b6866
+2026-07-22 03:10:03,622 - m1_overlay - INFO - 配對完成: 121 對 tile
+2026-07-22 03:10:04,826 - unet_inference - INFO - 成功載入權重: /data/taro_Projects/tsgh/backend/algorithms/hybrid/models/unet/b4/best_model_unet_b4.pth
+2026-07-22 03:10:04,844 - unet_inference - INFO - 模型載入完成，設備: cuda
+2026-07-22 03:10:04,997 - cellpose.core - INFO - ** TORCH CUDA version installed and working. **
+2026-07-22 03:10:04,997 - cellpose.core - INFO - >>>> using GPU (CUDA)
+2026-07-22 03:10:05,006 - dinov3 - INFO - using base=100 for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using min_period=None for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using max_period=None for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using normalize_coords=separate for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using shift_coords=None for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using rescale_coords=2 for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using jitter_coords=None for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using dtype=fp32 for rope new
+2026-07-22 03:10:05,006 - dinov3 - INFO - using mlp layer as FFN
+2026-07-22 03:10:05,467 - cellpose.models - INFO - >>>> loading model /data/taro_Projects/tsgh/backend/algorithms/hybrid/models/cellpose/cellpose_ihc_dish_best
+2026-07-22 03:10:05,524 - m2_segmentation - INFO - Cellpose 模型載入完成: cellpose_ihc_dish_best (diameter=None)
+2026-07-22 03:10:05,525 - cellpose.core - INFO - ** TORCH CUDA version installed and working. **
+2026-07-22 03:10:05,525 - cellpose.core - INFO - >>>> using GPU (CUDA)
+2026-07-22 03:10:05,531 - dinov3 - INFO - using base=100 for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using min_period=None for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using max_period=None for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using normalize_coords=separate for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using shift_coords=None for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using rescale_coords=2 for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using jitter_coords=None for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using dtype=fp32 for rope new
+2026-07-22 03:10:05,532 - dinov3 - INFO - using mlp layer as FFN
+2026-07-22 03:10:05,975 - cellpose.models - INFO - >>>> loading model /data/taro_Projects/tsgh/backend/algorithms/hybrid/models/cellpose/cellpose_dish_best
+2026-07-22 03:10:06,026 - m2_segmentation - INFO - Cellpose 模型載入完成: cellpose_dish_best (diameter=None)
+2026-07-22 03:10:06,026 - hybrid_pipeline - INFO - [1/121] 處理 tile: tile_x0_y0
+2026-07-22 03:10:08,010 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 71 個細胞
+2026-07-22 03:10:08,062 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 71 顆細胞, factor=1.50(面積), 中位半徑=23.7px, 外擴=5.3px
+2026-07-22 03:10:08,331 - hybrid_pipeline - INFO - [2/121] 處理 tile: tile_x0_y1536
+2026-07-22 03:10:08,372 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=71, DISH=61, matched(1核)=41 (其中重疊=41), drop-out(競爭落敗)=13, 無候選(計入)=17, factor=1.50, min_reach=20.0
+2026-07-22 03:10:09,132 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=54, 黑點=91, 涉及細胞=71
+2026-07-22 03:10:09,313 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 99 個細胞
+2026-07-22 03:10:09,374 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 99 顆細胞, factor=1.50(面積), 中位半徑=29.6px, 外擴=6.6px
+2026-07-22 03:10:09,389 - m4_module.cell_crops - INFO - 匯出 52 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y0/cells
+2026-07-22 03:10:09,389 - hybrid_pipeline - INFO - Tile tile_x0_y0 完成: 核心擁有 52 細胞 (52 陽性), 3.36 秒
+2026-07-22 03:10:09,655 - hybrid_pipeline - INFO - [3/121] 處理 tile: tile_x0_y2304
+2026-07-22 03:10:09,690 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=99, DISH=77, matched(1核)=67 (其中重疊=67), drop-out(競爭落敗)=18, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-22 03:10:11,036 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=79, 黑點=177, 涉及細胞=99
+2026-07-22 03:10:11,196 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 86 個細胞
+2026-07-22 03:10:11,253 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 86 顆細胞, factor=1.50(面積), 中位半徑=27.4px, 外擴=6.2px
+2026-07-22 03:10:11,380 - m4_module.cell_crops - INFO - 匯出 72 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y1536/cells
+2026-07-22 03:10:11,380 - hybrid_pipeline - INFO - Tile tile_x0_y1536 完成: 核心擁有 72 細胞 (72 陽性), 3.05 秒
+2026-07-22 03:10:11,525 - hybrid_pipeline - INFO - [4/121] 處理 tile: tile_x0_y3072
+2026-07-22 03:10:11,563 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=86, DISH=49, matched(1核)=45 (其中重疊=45), drop-out(競爭落敗)=21, 無候選(計入)=20, factor=1.50, min_reach=20.0
+2026-07-22 03:10:12,386 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=53, 黑點=105, 涉及細胞=86
+2026-07-22 03:10:12,515 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 43 個細胞
+2026-07-22 03:10:12,557 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 43 顆細胞, factor=1.50(面積), 中位半徑=28.2px, 外擴=6.3px
+2026-07-22 03:10:12,653 - m4_module.cell_crops - INFO - 匯出 45 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y2304/cells
+2026-07-22 03:10:12,653 - hybrid_pipeline - INFO - Tile tile_x0_y2304 完成: 核心擁有 45 細胞 (45 陽性), 3.00 秒
+2026-07-22 03:10:12,833 - hybrid_pipeline - INFO - [5/121] 處理 tile: tile_x0_y3840
+2026-07-22 03:10:12,863 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=43, DISH=28, matched(1核)=19 (其中重疊=19), drop-out(競爭落敗)=11, 無候選(計入)=13, factor=1.50, min_reach=20.0
+2026-07-22 03:10:13,145 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=16, 黑點=40, 涉及細胞=43
+2026-07-22 03:10:13,268 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 54 個細胞
+2026-07-22 03:10:13,309 - m4_module.cell_crops - INFO - 匯出 17 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y3072/cells
+2026-07-22 03:10:13,309 - hybrid_pipeline - INFO - Tile tile_x0_y3072 完成: 核心擁有 17 細胞 (17 陽性), 1.78 秒
+2026-07-22 03:10:13,317 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 54 顆細胞, factor=1.50(面積), 中位半徑=27.6px, 外擴=6.2px
+2026-07-22 03:10:13,588 - hybrid_pipeline - INFO - [6/121] 處理 tile: tile_x0_y4608
+2026-07-22 03:10:13,622 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=54, DISH=47, matched(1核)=32 (其中重疊=32), drop-out(競爭落敗)=9, 無候選(計入)=13, factor=1.50, min_reach=20.0
+2026-07-22 03:10:14,201 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=37, 黑點=85, 涉及細胞=54
+2026-07-22 03:10:14,382 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 91 個細胞
+2026-07-22 03:10:14,403 - m4_module.cell_crops - INFO - 匯出 31 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y3840/cells
+2026-07-22 03:10:14,403 - hybrid_pipeline - INFO - Tile tile_x0_y3840 完成: 核心擁有 31 細胞 (31 陽性), 1.57 秒
+2026-07-22 03:10:14,441 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 91 顆細胞, factor=1.50(面積), 中位半徑=31.1px, 外擴=7.0px
+2026-07-22 03:10:14,710 - hybrid_pipeline - INFO - [7/121] 處理 tile: tile_x0_y5376
+2026-07-22 03:10:14,747 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=91, DISH=72, matched(1核)=52 (其中重疊=52), drop-out(競爭落敗)=18, 無候選(計入)=21, factor=1.50, min_reach=20.0
+2026-07-22 03:10:15,769 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=59, 黑點=134, 涉及細胞=91
+2026-07-22 03:10:15,971 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 97 個細胞
+2026-07-22 03:10:16,030 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 97 顆細胞, factor=1.50(面積), 中位半徑=32.3px, 外擴=7.2px
+2026-07-22 03:10:16,141 - m4_module.cell_crops - INFO - 匯出 61 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y4608/cells
+2026-07-22 03:10:16,141 - hybrid_pipeline - INFO - Tile tile_x0_y4608 完成: 核心擁有 61 細胞 (61 陽性), 2.55 秒
+2026-07-22 03:10:16,304 - hybrid_pipeline - INFO - [8/121] 處理 tile: tile_x0_y6144
+2026-07-22 03:10:16,342 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=97, DISH=79, matched(1核)=65 (其中重疊=65), drop-out(競爭落敗)=20, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:10:17,712 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=83, 黑點=179, 涉及細胞=97
+2026-07-22 03:10:17,870 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 79 個細胞
+2026-07-22 03:10:17,920 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 79 顆細胞, factor=1.50(面積), 中位半徑=29.4px, 外擴=6.6px
+2026-07-22 03:10:18,097 - m4_module.cell_crops - INFO - 匯出 68 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y5376/cells
+2026-07-22 03:10:18,098 - hybrid_pipeline - INFO - Tile tile_x0_y5376 完成: 核心擁有 68 細胞 (68 陽性), 3.39 秒
+2026-07-22 03:10:18,278 - hybrid_pipeline - INFO - [9/121] 處理 tile: tile_x0_y6912
+2026-07-22 03:10:18,317 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=79, DISH=61, matched(1核)=53 (其中重疊=53), drop-out(競爭落敗)=21, 無候選(計入)=5, factor=1.50, min_reach=20.0
+2026-07-22 03:10:19,373 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=66, 黑點=116, 涉及細胞=79
+2026-07-22 03:10:19,528 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 66 個細胞
+2026-07-22 03:10:19,583 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 66 顆細胞, factor=1.50(面積), 中位半徑=29.4px, 外擴=6.6px
+2026-07-22 03:10:19,646 - m4_module.cell_crops - INFO - 匯出 68 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y6144/cells
+2026-07-22 03:10:19,646 - hybrid_pipeline - INFO - Tile tile_x0_y6144 完成: 核心擁有 68 細胞 (68 陽性), 3.34 秒
+2026-07-22 03:10:19,856 - hybrid_pipeline - INFO - [10/121] 處理 tile: tile_x0_y7168
+2026-07-22 03:10:19,890 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=66, DISH=60, matched(1核)=44 (其中重疊=44), drop-out(競爭落敗)=10, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:10:20,716 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=48, 黑點=102, 涉及細胞=66
+2026-07-22 03:10:20,874 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 77 個細胞
+2026-07-22 03:10:20,933 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 77 顆細胞, factor=1.50(面積), 中位半徑=31.0px, 外擴=7.0px
+2026-07-22 03:10:20,990 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y6912/cells
+2026-07-22 03:10:20,990 - hybrid_pipeline - INFO - Tile tile_x0_y6912 完成: 核心擁有 0 細胞 (0 陽性), 2.71 秒
+2026-07-22 03:10:21,209 - hybrid_pipeline - INFO - [11/121] 處理 tile: tile_x0_y768
+2026-07-22 03:10:21,246 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=77, DISH=80, matched(1核)=54 (其中重疊=54), drop-out(競爭落敗)=12, 無候選(計入)=11, factor=1.50, min_reach=20.0
+2026-07-22 03:10:22,398 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=57, 黑點=134, 涉及細胞=77
+2026-07-22 03:10:22,542 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 66 個細胞
+2026-07-22 03:10:22,590 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 66 顆細胞, factor=1.50(面積), 中位半徑=26.7px, 外擴=6.0px
+2026-07-22 03:10:22,752 - m4_module.cell_crops - INFO - 匯出 71 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y7168/cells
+2026-07-22 03:10:22,752 - hybrid_pipeline - INFO - Tile tile_x0_y7168 完成: 核心擁有 71 細胞 (71 陽性), 2.90 秒
+2026-07-22 03:10:22,871 - hybrid_pipeline - INFO - [12/121] 處理 tile: tile_x1536_y0
+2026-07-22 03:10:22,905 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=66, DISH=61, matched(1核)=48 (其中重疊=48), drop-out(競爭落敗)=7, 無候選(計入)=11, factor=1.50, min_reach=20.0
+2026-07-22 03:10:23,769 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=40, 黑點=94, 涉及細胞=66
+2026-07-22 03:10:23,943 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 116 個細胞
+2026-07-22 03:10:23,995 - m4_module.cell_crops - INFO - 匯出 34 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x0_y768/cells
+2026-07-22 03:10:23,995 - hybrid_pipeline - INFO - Tile tile_x0_y768 完成: 核心擁有 34 細胞 (34 陽性), 2.79 秒
+2026-07-22 03:10:24,003 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 116 顆細胞, factor=1.50(面積), 中位半徑=26.1px, 外擴=5.9px
+2026-07-22 03:10:24,280 - hybrid_pipeline - INFO - [13/121] 處理 tile: tile_x1536_y1536
+2026-07-22 03:10:24,314 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=116, DISH=107, matched(1核)=74 (其中重疊=73), drop-out(競爭落敗)=19, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-22 03:10:25,791 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=91, 黑點=211, 涉及細胞=116
+2026-07-22 03:10:25,954 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 70 個細胞
+2026-07-22 03:10:26,017 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 70 顆細胞, factor=1.50(面積), 中位半徑=29.1px, 外擴=6.5px
+2026-07-22 03:10:26,237 - m4_module.cell_crops - INFO - 匯出 70 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y0/cells
+2026-07-22 03:10:26,237 - hybrid_pipeline - INFO - Tile tile_x1536_y0 完成: 核心擁有 70 細胞 (70 陽性), 3.37 秒
+2026-07-22 03:10:26,314 - hybrid_pipeline - INFO - [14/121] 處理 tile: tile_x1536_y2304
+2026-07-22 03:10:26,351 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=70, DISH=96, matched(1核)=50 (其中重疊=50), drop-out(競爭落敗)=6, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-22 03:10:27,386 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=49, 黑點=119, 涉及細胞=70
+2026-07-22 03:10:27,604 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 40 個細胞
+2026-07-22 03:10:27,648 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 40 顆細胞, factor=1.50(面積), 中位半徑=21.6px, 外擴=4.9px
+2026-07-22 03:10:27,766 - m4_module.cell_crops - INFO - 匯出 34 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y1536/cells
+2026-07-22 03:10:27,766 - hybrid_pipeline - INFO - Tile tile_x1536_y1536 完成: 核心擁有 34 細胞 (34 陽性), 3.49 秒
+2026-07-22 03:10:27,937 - hybrid_pipeline - INFO - [15/121] 處理 tile: tile_x1536_y3072
+2026-07-22 03:10:27,971 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=40, DISH=35, matched(1核)=23 (其中重疊=23), drop-out(競爭落敗)=5, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:10:28,380 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=23, 黑點=54, 涉及細胞=40
+2026-07-22 03:10:28,569 - m4_module.cell_crops - INFO - 匯出 21 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y2304/cells
+2026-07-22 03:10:28,569 - hybrid_pipeline - INFO - Tile tile_x1536_y2304 完成: 核心擁有 21 細胞 (21 陽性), 2.26 秒
+2026-07-22 03:10:28,590 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 3 個細胞
+2026-07-22 03:10:28,620 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 3 顆細胞, factor=1.50(面積), 中位半徑=13.8px, 外擴=3.1px
+2026-07-22 03:10:28,893 - hybrid_pipeline - INFO - [16/121] 處理 tile: tile_x1536_y3840
+2026-07-22 03:10:28,924 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=3, DISH=4, matched(1核)=2 (其中重疊=2), drop-out(競爭落敗)=0, 無候選(計入)=1, factor=1.50, min_reach=20.0
+2026-07-22 03:10:29,037 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=1, 黑點=2, 涉及細胞=3
+2026-07-22 03:10:29,097 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y3072/cells
+2026-07-22 03:10:29,098 - hybrid_pipeline - INFO - Tile tile_x1536_y3072 完成: 核心擁有 0 細胞 (0 陽性), 1.16 秒
+2026-07-22 03:10:29,286 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 22 個細胞
+2026-07-22 03:10:29,323 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 22 顆細胞, factor=1.50(面積), 中位半徑=26.8px, 外擴=6.0px
+2026-07-22 03:10:29,678 - hybrid_pipeline - INFO - [17/121] 處理 tile: tile_x1536_y4608
+2026-07-22 03:10:29,709 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=22, DISH=18, matched(1核)=12 (其中重疊=12), drop-out(競爭落敗)=4, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:10:29,921 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=12, 黑點=26, 涉及細胞=22
+2026-07-22 03:10:30,036 - m4_module.cell_crops - INFO - 匯出 6 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y3840/cells
+2026-07-22 03:10:30,036 - hybrid_pipeline - INFO - Tile tile_x1536_y3840 完成: 核心擁有 6 細胞 (6 陽性), 1.14 秒
+2026-07-22 03:10:30,141 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 26 個細胞
+2026-07-22 03:10:30,177 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 26 顆細胞, factor=1.50(面積), 中位半徑=28.1px, 外擴=6.3px
+2026-07-22 03:10:30,448 - hybrid_pipeline - INFO - [18/121] 處理 tile: tile_x1536_y5376
+2026-07-22 03:10:30,480 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=26, DISH=16, matched(1核)=14 (其中重疊=14), drop-out(競爭落敗)=5, 無候選(計入)=7, factor=1.50, min_reach=20.0
+2026-07-22 03:10:30,697 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=10, 黑點=24, 涉及細胞=26
+2026-07-22 03:10:30,820 - m4_module.cell_crops - INFO - 匯出 10 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y4608/cells
+2026-07-22 03:10:30,820 - hybrid_pipeline - INFO - Tile tile_x1536_y4608 完成: 核心擁有 10 細胞 (10 陽性), 1.14 秒
+2026-07-22 03:10:30,938 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 31 個細胞
+2026-07-22 03:10:30,980 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 31 顆細胞, factor=1.50(面積), 中位半徑=29.0px, 外擴=6.5px
+2026-07-22 03:10:31,251 - hybrid_pipeline - INFO - [19/121] 處理 tile: tile_x1536_y6144
+2026-07-22 03:10:31,283 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=31, DISH=29, matched(1核)=21 (其中重疊=20), drop-out(競爭落敗)=2, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:10:31,621 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=16, 黑點=37, 涉及細胞=31
+2026-07-22 03:10:31,782 - m4_module.cell_crops - INFO - 匯出 4 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y5376/cells
+2026-07-22 03:10:31,782 - hybrid_pipeline - INFO - Tile tile_x1536_y5376 完成: 核心擁有 4 細胞 (4 陽性), 1.33 秒
+2026-07-22 03:10:31,860 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 60 個細胞
+2026-07-22 03:10:31,910 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 60 顆細胞, factor=1.50(面積), 中位半徑=28.0px, 外擴=6.3px
+2026-07-22 03:10:32,180 - hybrid_pipeline - INFO - [20/121] 處理 tile: tile_x1536_y6912
+2026-07-22 03:10:32,214 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=60, DISH=49, matched(1核)=37 (其中重疊=37), drop-out(競爭落敗)=9, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-22 03:10:32,914 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=49, 黑點=97, 涉及細胞=60
+2026-07-22 03:10:33,131 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 16 個細胞
+2026-07-22 03:10:33,165 - m4_module.cell_crops - INFO - 匯出 37 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y6144/cells
+2026-07-22 03:10:33,165 - hybrid_pipeline - INFO - Tile tile_x1536_y6144 完成: 核心擁有 37 細胞 (37 陽性), 1.91 秒
+2026-07-22 03:10:33,175 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 16 顆細胞, factor=1.50(面積), 中位半徑=25.8px, 外擴=5.8px
+2026-07-22 03:10:33,445 - hybrid_pipeline - INFO - [21/121] 處理 tile: tile_x1536_y7168
+2026-07-22 03:10:33,471 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=16, DISH=14, matched(1核)=11 (其中重疊=11), drop-out(競爭落敗)=1, 無候選(計入)=4, factor=1.50, min_reach=20.0
+2026-07-22 03:10:33,691 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=13, 黑點=16, 涉及細胞=16
+2026-07-22 03:10:33,816 - m4_module.cell_crops - INFO - 匯出 6 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y6912/cells
+2026-07-22 03:10:33,816 - hybrid_pipeline - INFO - Tile tile_x1536_y6912 完成: 核心擁有 6 細胞 (6 陽性), 1.64 秒
+2026-07-22 03:10:33,913 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 5 個細胞
+2026-07-22 03:10:33,950 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 5 顆細胞, factor=1.50(面積), 中位半徑=31.7px, 外擴=7.1px
+2026-07-22 03:10:34,224 - hybrid_pipeline - INFO - [22/121] 處理 tile: tile_x1536_y768
+2026-07-22 03:10:34,253 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=5, DISH=7, matched(1核)=5 (其中重疊=5), drop-out(競爭落敗)=0, 無候選(計入)=0, factor=1.50, min_reach=20.0
+2026-07-22 03:10:34,396 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=6, 黑點=11, 涉及細胞=5
+2026-07-22 03:10:34,475 - m4_module.cell_crops - INFO - 匯出 4 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y7168/cells
+2026-07-22 03:10:34,475 - hybrid_pipeline - INFO - Tile tile_x1536_y7168 完成: 核心擁有 4 細胞 (4 陽性), 1.03 秒
+2026-07-22 03:10:34,673 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 106 個細胞
+2026-07-22 03:10:34,730 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 106 顆細胞, factor=1.50(面積), 中位半徑=28.2px, 外擴=6.3px
+2026-07-22 03:10:35,004 - hybrid_pipeline - INFO - [23/121] 處理 tile: tile_x2304_y0
+2026-07-22 03:10:35,042 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=106, DISH=115, matched(1核)=68 (其中重疊=68), drop-out(競爭落敗)=14, 無候選(計入)=24, factor=1.50, min_reach=20.0
+2026-07-22 03:10:36,234 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=69, 黑點=174, 涉及細胞=106
+2026-07-22 03:10:36,403 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 111 個細胞
+2026-07-22 03:10:36,463 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 111 顆細胞, factor=1.50(面積), 中位半徑=25.2px, 外擴=5.7px
+2026-07-22 03:10:36,707 - m4_module.cell_crops - INFO - 匯出 57 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x1536_y768/cells
+2026-07-22 03:10:36,707 - hybrid_pipeline - INFO - Tile tile_x1536_y768 完成: 核心擁有 57 細胞 (57 陽性), 2.48 秒
+2026-07-22 03:10:36,748 - hybrid_pipeline - INFO - [24/121] 處理 tile: tile_x2304_y1536
+2026-07-22 03:10:36,785 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=111, DISH=81, matched(1核)=55 (其中重疊=55), drop-out(競爭落敗)=22, 無候選(計入)=34, factor=1.50, min_reach=20.0
+2026-07-22 03:10:37,934 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=64, 黑點=160, 涉及細胞=111
+2026-07-22 03:10:38,147 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 38 個細胞
+2026-07-22 03:10:38,195 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 38 顆細胞, factor=1.50(面積), 中位半徑=27.0px, 外擴=6.1px
+2026-07-22 03:10:38,349 - m4_module.cell_crops - INFO - 匯出 68 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y0/cells
+2026-07-22 03:10:38,350 - hybrid_pipeline - INFO - Tile tile_x2304_y0 完成: 核心擁有 68 細胞 (68 陽性), 3.35 秒
+2026-07-22 03:10:38,544 - hybrid_pipeline - INFO - [25/121] 處理 tile: tile_x2304_y2304
+2026-07-22 03:10:38,577 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=38, DISH=56, matched(1核)=24 (其中重疊=24), drop-out(競爭落敗)=2, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:10:39,014 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=24, 黑點=35, 涉及細胞=38
+2026-07-22 03:10:39,241 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 31 個細胞
+2026-07-22 03:10:39,257 - m4_module.cell_crops - INFO - 匯出 24 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y1536/cells
+2026-07-22 03:10:39,257 - hybrid_pipeline - INFO - Tile tile_x2304_y1536 完成: 核心擁有 24 細胞 (24 陽性), 2.51 秒
+2026-07-22 03:10:39,284 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 31 顆細胞, factor=1.50(面積), 中位半徑=21.6px, 外擴=4.9px
+2026-07-22 03:10:39,562 - hybrid_pipeline - INFO - [26/121] 處理 tile: tile_x2304_y3072
+2026-07-22 03:10:39,593 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=31, DISH=43, matched(1核)=19 (其中重疊=19), drop-out(競爭落敗)=1, 無候選(計入)=11, factor=1.50, min_reach=20.0
+2026-07-22 03:10:40,009 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=25, 黑點=37, 涉及細胞=31
+2026-07-22 03:10:40,189 - m4_module.cell_crops - INFO - 匯出 23 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y2304/cells
+2026-07-22 03:10:40,189 - hybrid_pipeline - INFO - Tile tile_x2304_y2304 完成: 核心擁有 23 細胞 (23 陽性), 1.65 秒
+2026-07-22 03:10:40,266 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 60 個細胞
+2026-07-22 03:10:40,317 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 60 顆細胞, factor=1.50(面積), 中位半徑=20.4px, 外擴=4.6px
+2026-07-22 03:10:40,605 - hybrid_pipeline - INFO - [27/121] 處理 tile: tile_x2304_y3840
+2026-07-22 03:10:40,637 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=60, DISH=53, matched(1核)=33 (其中重疊=33), drop-out(競爭落敗)=9, 無候選(計入)=18, factor=1.50, min_reach=20.0
+2026-07-22 03:10:41,303 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=38, 黑點=75, 涉及細胞=60
+2026-07-22 03:10:41,540 - m4_module.cell_crops - INFO - 匯出 41 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y3072/cells
+2026-07-22 03:10:41,540 - hybrid_pipeline - INFO - Tile tile_x2304_y3072 完成: 核心擁有 41 細胞 (41 陽性), 1.98 秒
+2026-07-22 03:10:41,543 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 59 個細胞
+2026-07-22 03:10:41,589 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 59 顆細胞, factor=1.50(面積), 中位半徑=21.6px, 外擴=4.9px
+2026-07-22 03:10:41,864 - hybrid_pipeline - INFO - [28/121] 處理 tile: tile_x2304_y4608
+2026-07-22 03:10:41,890 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=59, DISH=46, matched(1核)=33 (其中重疊=33), drop-out(競爭落敗)=10, 無候選(計入)=16, factor=1.50, min_reach=20.0
+2026-07-22 03:10:42,583 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=43, 黑點=74, 涉及細胞=59
+2026-07-22 03:10:42,801 - m4_module.cell_crops - INFO - 匯出 49 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y3840/cells
+2026-07-22 03:10:42,801 - hybrid_pipeline - INFO - Tile tile_x2304_y3840 完成: 核心擁有 49 細胞 (49 陽性), 2.20 秒
+2026-07-22 03:10:42,804 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 22 個細胞
+2026-07-22 03:10:42,840 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 22 顆細胞, factor=1.50(面積), 中位半徑=20.3px, 外擴=4.6px
+2026-07-22 03:10:43,113 - hybrid_pipeline - INFO - [29/121] 處理 tile: tile_x2304_y5376
+2026-07-22 03:10:43,142 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=22, DISH=16, matched(1核)=12 (其中重疊=12), drop-out(競爭落敗)=4, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:10:43,360 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=12, 黑點=23, 涉及細胞=22
+2026-07-22 03:10:43,496 - m4_module.cell_crops - INFO - 匯出 1 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y4608/cells
+2026-07-22 03:10:43,496 - hybrid_pipeline - INFO - Tile tile_x2304_y4608 完成: 核心擁有 1 細胞 (1 陽性), 1.63 秒
+2026-07-22 03:10:43,592 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 19 個細胞
+2026-07-22 03:10:43,628 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 19 顆細胞, factor=1.50(面積), 中位半徑=19.6px, 外擴=4.4px
+2026-07-22 03:10:43,898 - hybrid_pipeline - INFO - [30/121] 處理 tile: tile_x2304_y6144
+2026-07-22 03:10:43,930 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=19, DISH=22, matched(1核)=15 (其中重疊=15), drop-out(競爭落敗)=1, 無候選(計入)=3, factor=1.50, min_reach=20.0
+2026-07-22 03:10:44,219 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=30, 涉及細胞=19
+2026-07-22 03:10:44,313 - m4_module.cell_crops - INFO - 匯出 3 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y5376/cells
+2026-07-22 03:10:44,314 - hybrid_pipeline - INFO - Tile tile_x2304_y5376 完成: 核心擁有 3 細胞 (3 陽性), 1.20 秒
+2026-07-22 03:10:44,446 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 14 個細胞
+2026-07-22 03:10:44,480 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 14 顆細胞, factor=1.50(面積), 中位半徑=28.4px, 外擴=6.4px
+2026-07-22 03:10:44,751 - hybrid_pipeline - INFO - [31/121] 處理 tile: tile_x2304_y6912
+2026-07-22 03:10:44,782 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=14, DISH=11, matched(1核)=7 (其中重疊=7), drop-out(競爭落敗)=1, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:10:44,951 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=7, 黑點=15, 涉及細胞=14
+2026-07-22 03:10:45,042 - m4_module.cell_crops - INFO - 匯出 11 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y6144/cells
+2026-07-22 03:10:45,043 - hybrid_pipeline - INFO - Tile tile_x2304_y6144 完成: 核心擁有 11 細胞 (11 陽性), 1.14 秒
+2026-07-22 03:10:45,164 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 9 個細胞
+2026-07-22 03:10:45,198 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 9 顆細胞, factor=1.50(面積), 中位半徑=25.1px, 外擴=5.6px
+2026-07-22 03:10:45,469 - hybrid_pipeline - INFO - [32/121] 處理 tile: tile_x2304_y7168
+2026-07-22 03:10:45,501 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=9, DISH=8, matched(1核)=4 (其中重疊=4), drop-out(競爭落敗)=1, 無候選(計入)=4, factor=1.50, min_reach=20.0
+2026-07-22 03:10:45,639 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=4, 黑點=6, 涉及細胞=9
+2026-07-22 03:10:45,721 - m4_module.cell_crops - INFO - 匯出 2 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y6912/cells
+2026-07-22 03:10:45,721 - hybrid_pipeline - INFO - Tile tile_x2304_y6912 完成: 核心擁有 2 細胞 (2 陽性), 0.97 秒
+2026-07-22 03:10:45,854 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 23 個細胞
+2026-07-22 03:10:45,894 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 23 顆細胞, factor=1.50(面積), 中位半徑=27.1px, 外擴=6.1px
+2026-07-22 03:10:46,244 - hybrid_pipeline - INFO - [33/121] 處理 tile: tile_x2304_y768
+2026-07-22 03:10:46,277 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=23, DISH=26, matched(1核)=13 (其中重疊=13), drop-out(競爭落敗)=2, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:10:46,507 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=24, 涉及細胞=23
+2026-07-22 03:10:46,653 - m4_module.cell_crops - INFO - 匯出 15 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y7168/cells
+2026-07-22 03:10:46,653 - hybrid_pipeline - INFO - Tile tile_x2304_y7168 完成: 核心擁有 15 細胞 (15 陽性), 1.18 秒
+2026-07-22 03:10:46,756 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 61 個細胞
+2026-07-22 03:10:46,806 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 61 顆細胞, factor=1.50(面積), 中位半徑=24.0px, 外擴=5.4px
+2026-07-22 03:10:47,076 - hybrid_pipeline - INFO - [34/121] 處理 tile: tile_x3072_y0
+2026-07-22 03:10:47,110 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=61, DISH=63, matched(1核)=35 (其中重疊=35), drop-out(競爭落敗)=8, 無候選(計入)=18, factor=1.50, min_reach=20.0
+2026-07-22 03:10:47,913 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=44, 黑點=100, 涉及細胞=61
+2026-07-22 03:10:48,181 - m4_module.cell_crops - INFO - 匯出 35 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x2304_y768/cells
+2026-07-22 03:10:48,181 - hybrid_pipeline - INFO - Tile tile_x2304_y768 完成: 核心擁有 35 細胞 (35 陽性), 1.94 秒
+2026-07-22 03:10:48,206 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 122 個細胞
+2026-07-22 03:10:48,263 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 122 顆細胞, factor=1.50(面積), 中位半徑=27.3px, 外擴=6.1px
+2026-07-22 03:10:48,535 - hybrid_pipeline - INFO - [35/121] 處理 tile: tile_x3072_y1536
+2026-07-22 03:10:48,572 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=122, DISH=88, matched(1核)=63 (其中重疊=63), drop-out(競爭落敗)=23, 無候選(計入)=36, factor=1.50, min_reach=20.0
+2026-07-22 03:10:49,679 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=57, 黑點=147, 涉及細胞=122
+2026-07-22 03:10:49,829 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 56 個細胞
+2026-07-22 03:10:49,875 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 56 顆細胞, factor=1.50(面積), 中位半徑=23.6px, 外擴=5.3px
+2026-07-22 03:10:50,100 - m4_module.cell_crops - INFO - 匯出 82 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y0/cells
+2026-07-22 03:10:50,100 - hybrid_pipeline - INFO - Tile tile_x3072_y0 完成: 核心擁有 82 細胞 (82 陽性), 3.02 秒
+2026-07-22 03:10:50,161 - hybrid_pipeline - INFO - [36/121] 處理 tile: tile_x3072_y2304
+2026-07-22 03:10:50,194 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=56, DISH=34, matched(1核)=30 (其中重疊=30), drop-out(競爭落敗)=9, 無候選(計入)=17, factor=1.50, min_reach=20.0
+2026-07-22 03:10:50,615 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=24, 黑點=72, 涉及細胞=56
+2026-07-22 03:10:50,823 - m4_module.cell_crops - INFO - 匯出 23 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y1536/cells
+2026-07-22 03:10:50,823 - hybrid_pipeline - INFO - Tile tile_x3072_y1536 完成: 核心擁有 23 細胞 (23 陽性), 2.29 秒
+2026-07-22 03:10:50,833 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 30 個細胞
+2026-07-22 03:10:50,878 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 30 顆細胞, factor=1.50(面積), 中位半徑=25.8px, 外擴=5.8px
+2026-07-22 03:10:51,152 - hybrid_pipeline - INFO - [37/121] 處理 tile: tile_x3072_y3072
+2026-07-22 03:10:51,183 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=30, DISH=41, matched(1核)=22 (其中重疊=22), drop-out(競爭落敗)=2, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:10:51,575 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=25, 黑點=48, 涉及細胞=30
+2026-07-22 03:10:51,779 - m4_module.cell_crops - INFO - 匯出 4 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y2304/cells
+2026-07-22 03:10:51,779 - hybrid_pipeline - INFO - Tile tile_x3072_y2304 完成: 核心擁有 4 細胞 (4 陽性), 1.62 秒
+2026-07-22 03:10:51,818 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 27 個細胞
+2026-07-22 03:10:51,864 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 27 顆細胞, factor=1.50(面積), 中位半徑=27.5px, 外擴=6.2px
+2026-07-22 03:10:52,141 - hybrid_pipeline - INFO - [38/121] 處理 tile: tile_x3072_y3840
+2026-07-22 03:10:52,171 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=27, DISH=40, matched(1核)=16 (其中重疊=16), drop-out(競爭落敗)=3, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:10:52,467 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=17, 黑點=31, 涉及細胞=27
+2026-07-22 03:10:52,659 - m4_module.cell_crops - INFO - 匯出 13 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y3072/cells
+2026-07-22 03:10:52,659 - hybrid_pipeline - INFO - Tile tile_x3072_y3072 完成: 核心擁有 13 細胞 (13 陽性), 1.51 秒
+2026-07-22 03:10:52,691 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 27 個細胞
+2026-07-22 03:10:52,739 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 27 顆細胞, factor=1.50(面積), 中位半徑=23.2px, 外擴=5.2px
+2026-07-22 03:10:53,012 - hybrid_pipeline - INFO - [39/121] 處理 tile: tile_x3072_y4608
+2026-07-22 03:10:53,044 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=27, DISH=25, matched(1核)=16 (其中重疊=16), drop-out(競爭落敗)=3, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:10:53,414 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=17, 黑點=37, 涉及細胞=27
+2026-07-22 03:10:53,557 - m4_module.cell_crops - INFO - 匯出 3 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y3840/cells
+2026-07-22 03:10:53,557 - hybrid_pipeline - INFO - Tile tile_x3072_y3840 完成: 核心擁有 3 細胞 (3 陽性), 1.42 秒
+2026-07-22 03:10:53,661 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 40 個細胞
+2026-07-22 03:10:53,714 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 40 顆細胞, factor=1.50(面積), 中位半徑=24.4px, 外擴=5.5px
+2026-07-22 03:10:53,992 - hybrid_pipeline - INFO - [40/121] 處理 tile: tile_x3072_y5376
+2026-07-22 03:10:54,025 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=40, DISH=37, matched(1核)=25 (其中重疊=25), drop-out(競爭落敗)=3, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:10:54,545 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=21, 黑點=57, 涉及細胞=40
+2026-07-22 03:10:54,724 - m4_module.cell_crops - INFO - 匯出 20 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y4608/cells
+2026-07-22 03:10:54,724 - hybrid_pipeline - INFO - Tile tile_x3072_y4608 完成: 核心擁有 20 細胞 (20 陽性), 1.71 秒
+2026-07-22 03:10:54,751 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 25 個細胞
+2026-07-22 03:10:54,788 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 25 顆細胞, factor=1.50(面積), 中位半徑=21.1px, 外擴=4.7px
+2026-07-22 03:10:55,143 - hybrid_pipeline - INFO - [41/121] 處理 tile: tile_x3072_y6144
+2026-07-22 03:10:55,176 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=25, DISH=26, matched(1核)=18 (其中重疊=18), drop-out(競爭落敗)=0, 無候選(計入)=7, factor=1.50, min_reach=20.0
+2026-07-22 03:10:55,499 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=36, 涉及細胞=25
+2026-07-22 03:10:55,645 - m4_module.cell_crops - INFO - 匯出 20 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y5376/cells
+2026-07-22 03:10:55,645 - hybrid_pipeline - INFO - Tile tile_x3072_y5376 完成: 核心擁有 20 細胞 (20 陽性), 1.65 秒
+2026-07-22 03:10:55,744 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 35 個細胞
+2026-07-22 03:10:55,788 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 35 顆細胞, factor=1.50(面積), 中位半徑=18.5px, 外擴=4.2px
+2026-07-22 03:10:56,062 - hybrid_pipeline - INFO - [42/121] 處理 tile: tile_x3072_y6912
+2026-07-22 03:10:56,094 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=35, DISH=30, matched(1核)=21 (其中重疊=21), drop-out(競爭落敗)=3, 無候選(計入)=11, factor=1.50, min_reach=20.0
+2026-07-22 03:10:56,458 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=16, 黑點=42, 涉及細胞=35
+2026-07-22 03:10:56,611 - m4_module.cell_crops - INFO - 匯出 23 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y6144/cells
+2026-07-22 03:10:56,611 - hybrid_pipeline - INFO - Tile tile_x3072_y6144 完成: 核心擁有 23 細胞 (23 陽性), 1.47 秒
+2026-07-22 03:10:56,694 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 35 個細胞
+2026-07-22 03:10:56,733 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 35 顆細胞, factor=1.50(面積), 中位半徑=21.2px, 外擴=4.8px
+2026-07-22 03:10:57,013 - hybrid_pipeline - INFO - [43/121] 處理 tile: tile_x3072_y7168
+2026-07-22 03:10:57,047 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=35, DISH=30, matched(1核)=21 (其中重疊=21), drop-out(競爭落敗)=4, 無候選(計入)=10, factor=1.50, min_reach=20.0
+2026-07-22 03:10:57,443 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=20, 黑點=61, 涉及細胞=35
+2026-07-22 03:10:57,589 - m4_module.cell_crops - INFO - 匯出 15 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y6912/cells
+2026-07-22 03:10:57,589 - hybrid_pipeline - INFO - Tile tile_x3072_y6912 完成: 核心擁有 15 細胞 (15 陽性), 1.53 秒
+2026-07-22 03:10:57,673 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 25 個細胞
+2026-07-22 03:10:57,715 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 25 顆細胞, factor=1.50(面積), 中位半徑=21.4px, 外擴=4.8px
+2026-07-22 03:10:58,007 - hybrid_pipeline - INFO - [44/121] 處理 tile: tile_x3072_y768
+2026-07-22 03:10:58,034 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=25, DISH=16, matched(1核)=13 (其中重疊=13), drop-out(競爭落敗)=3, 無候選(計入)=9, factor=1.50, min_reach=20.0
+2026-07-22 03:10:58,304 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=38, 涉及細胞=25
+2026-07-22 03:10:58,447 - m4_module.cell_crops - INFO - 匯出 17 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y7168/cells
+2026-07-22 03:10:58,447 - hybrid_pipeline - INFO - Tile tile_x3072_y7168 完成: 核心擁有 17 細胞 (17 陽性), 1.43 秒
+2026-07-22 03:10:58,570 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 87 個細胞
+2026-07-22 03:10:58,633 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 87 顆細胞, factor=1.50(面積), 中位半徑=28.1px, 外擴=6.3px
+2026-07-22 03:10:58,899 - hybrid_pipeline - INFO - [45/121] 處理 tile: tile_x3840_y0
+2026-07-22 03:10:58,937 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=87, DISH=68, matched(1核)=51 (其中重疊=51), drop-out(競爭落敗)=15, 無候選(計入)=21, factor=1.50, min_reach=20.0
+2026-07-22 03:10:59,875 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=53, 黑點=127, 涉及細胞=87
+2026-07-22 03:10:59,991 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 34 個細胞
+2026-07-22 03:11:00,038 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 34 顆細胞, factor=1.50(面積), 中位半徑=20.9px, 外擴=4.7px
+2026-07-22 03:11:00,246 - m4_module.cell_crops - INFO - 匯出 51 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3072_y768/cells
+2026-07-22 03:11:00,246 - hybrid_pipeline - INFO - Tile tile_x3072_y768 完成: 核心擁有 51 細胞 (51 陽性), 2.24 秒
+2026-07-22 03:11:00,326 - hybrid_pipeline - INFO - [46/121] 處理 tile: tile_x3840_y1536
+2026-07-22 03:11:00,357 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=34, DISH=18, matched(1核)=11 (其中重疊=11), drop-out(競爭落敗)=5, 無候選(計入)=18, factor=1.50, min_reach=20.0
+2026-07-22 03:11:00,532 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=9, 黑點=20, 涉及細胞=34
+2026-07-22 03:11:00,684 - m4_module.cell_crops - INFO - 匯出 14 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y0/cells
+2026-07-22 03:11:00,684 - hybrid_pipeline - INFO - Tile tile_x3840_y0 完成: 核心擁有 14 細胞 (14 陽性), 1.78 秒
+2026-07-22 03:11:00,842 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 138 個細胞
+2026-07-22 03:11:00,906 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 138 顆細胞, factor=1.50(面積), 中位半徑=27.7px, 外擴=6.2px
+2026-07-22 03:11:01,169 - hybrid_pipeline - INFO - [47/121] 處理 tile: tile_x3840_y2304
+2026-07-22 03:11:01,206 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=138, DISH=77, matched(1核)=69 (其中重疊=69), drop-out(競爭落敗)=28, 無候選(計入)=41, factor=1.50, min_reach=20.0
+2026-07-22 03:11:02,807 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=89, 黑點=221, 涉及細胞=138
+2026-07-22 03:11:03,063 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 139 個細胞
+2026-07-22 03:11:03,125 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 139 顆細胞, factor=1.50(面積), 中位半徑=27.8px, 外擴=6.2px
+2026-07-22 03:11:03,253 - m4_module.cell_crops - INFO - 匯出 82 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y1536/cells
+2026-07-22 03:11:03,254 - hybrid_pipeline - INFO - Tile tile_x3840_y1536 完成: 核心擁有 82 細胞 (82 陽性), 2.93 秒
+2026-07-22 03:11:03,398 - hybrid_pipeline - INFO - [48/121] 處理 tile: tile_x3840_y3072
+2026-07-22 03:11:03,435 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=139, DISH=86, matched(1核)=72 (其中重疊=72), drop-out(競爭落敗)=24, 無候選(計入)=43, factor=1.50, min_reach=20.0
+2026-07-22 03:11:04,760 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=79, 黑點=194, 涉及細胞=139
+2026-07-22 03:11:05,023 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 124 個細胞
+2026-07-22 03:11:05,082 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 124 顆細胞, factor=1.50(面積), 中位半徑=27.3px, 外擴=6.1px
+2026-07-22 03:11:05,176 - m4_module.cell_crops - INFO - 匯出 71 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y2304/cells
+2026-07-22 03:11:05,176 - hybrid_pipeline - INFO - Tile tile_x3840_y2304 完成: 核心擁有 71 細胞 (71 陽性), 4.01 秒
+2026-07-22 03:11:05,443 - hybrid_pipeline - INFO - [49/121] 處理 tile: tile_x3840_y3840
+2026-07-22 03:11:05,481 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=124, DISH=84, matched(1核)=66 (其中重疊=66), drop-out(競爭落敗)=35, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-22 03:11:06,929 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=65, 黑點=201, 涉及細胞=124
+2026-07-22 03:11:07,185 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 100 個細胞
+2026-07-22 03:11:07,245 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 100 顆細胞, factor=1.50(面積), 中位半徑=26.9px, 外擴=6.1px
+2026-07-22 03:11:07,333 - m4_module.cell_crops - INFO - 匯出 67 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y3072/cells
+2026-07-22 03:11:07,333 - hybrid_pipeline - INFO - Tile tile_x3840_y3072 完成: 核心擁有 67 細胞 (67 陽性), 3.93 秒
+2026-07-22 03:11:07,522 - hybrid_pipeline - INFO - [50/121] 處理 tile: tile_x3840_y4608
+2026-07-22 03:11:07,559 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=100, DISH=80, matched(1核)=57 (其中重疊=57), drop-out(競爭落敗)=14, 無候選(計入)=29, factor=1.50, min_reach=20.0
+2026-07-22 03:11:08,702 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=65, 黑點=164, 涉及細胞=100
+2026-07-22 03:11:08,936 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 71 個細胞
+2026-07-22 03:11:08,995 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 71 顆細胞, factor=1.50(面積), 中位半徑=23.6px, 外擴=5.3px
+2026-07-22 03:11:09,062 - m4_module.cell_crops - INFO - 匯出 51 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y3840/cells
+2026-07-22 03:11:09,062 - hybrid_pipeline - INFO - Tile tile_x3840_y3840 完成: 核心擁有 51 細胞 (51 陽性), 3.62 秒
+2026-07-22 03:11:09,272 - hybrid_pipeline - INFO - [51/121] 處理 tile: tile_x3840_y5376
+2026-07-22 03:11:09,305 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=71, DISH=47, matched(1核)=35 (其中重疊=35), drop-out(競爭落敗)=10, 無候選(計入)=26, factor=1.50, min_reach=20.0
+2026-07-22 03:11:10,033 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=38, 黑點=87, 涉及細胞=71
+2026-07-22 03:11:10,261 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 23 個細胞
+2026-07-22 03:11:10,302 - m4_module.cell_crops - INFO - 匯出 41 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y4608/cells
+2026-07-22 03:11:10,302 - hybrid_pipeline - INFO - Tile tile_x3840_y4608 完成: 核心擁有 41 細胞 (41 陽性), 2.78 秒
+2026-07-22 03:11:10,305 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 23 顆細胞, factor=1.50(面積), 中位半徑=23.7px, 外擴=5.3px
+2026-07-22 03:11:10,578 - hybrid_pipeline - INFO - [52/121] 處理 tile: tile_x3840_y6144
+2026-07-22 03:11:10,608 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=23, DISH=21, matched(1核)=11 (其中重疊=11), drop-out(競爭落敗)=3, 無候選(計入)=9, factor=1.50, min_reach=20.0
+2026-07-22 03:11:10,850 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=30, 涉及細胞=23
+2026-07-22 03:11:11,023 - m4_module.cell_crops - INFO - 匯出 13 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y5376/cells
+2026-07-22 03:11:11,023 - hybrid_pipeline - INFO - Tile tile_x3840_y5376 完成: 核心擁有 13 細胞 (13 陽性), 1.75 秒
+2026-07-22 03:11:11,101 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 49 個細胞
+2026-07-22 03:11:11,145 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 49 顆細胞, factor=1.50(面積), 中位半徑=24.1px, 外擴=5.4px
+2026-07-22 03:11:11,420 - hybrid_pipeline - INFO - [53/121] 處理 tile: tile_x3840_y6912
+2026-07-22 03:11:11,451 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=49, DISH=39, matched(1核)=25 (其中重疊=25), drop-out(競爭落敗)=5, 無候選(計入)=19, factor=1.50, min_reach=20.0
+2026-07-22 03:11:12,018 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=28, 黑點=58, 涉及細胞=49
+2026-07-22 03:11:12,185 - m4_module.cell_crops - INFO - 匯出 14 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y6144/cells
+2026-07-22 03:11:12,185 - hybrid_pipeline - INFO - Tile tile_x3840_y6144 完成: 核心擁有 14 細胞 (14 陽性), 1.61 秒
+2026-07-22 03:11:12,261 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 33 個細胞
+2026-07-22 03:11:12,301 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 33 顆細胞, factor=1.50(面積), 中位半徑=21.1px, 外擴=4.7px
+2026-07-22 03:11:12,579 - hybrid_pipeline - INFO - [54/121] 處理 tile: tile_x3840_y7168
+2026-07-22 03:11:12,610 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=33, DISH=26, matched(1核)=19 (其中重疊=19), drop-out(競爭落敗)=8, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:11:12,980 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=20, 黑點=36, 涉及細胞=33
+2026-07-22 03:11:13,109 - m4_module.cell_crops - INFO - 匯出 2 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y6912/cells
+2026-07-22 03:11:13,109 - hybrid_pipeline - INFO - Tile tile_x3840_y6912 完成: 核心擁有 2 細胞 (2 陽性), 1.69 秒
+2026-07-22 03:11:13,210 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 15 個細胞
+2026-07-22 03:11:13,245 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 15 顆細胞, factor=1.50(面積), 中位半徑=21.6px, 外擴=4.9px
+2026-07-22 03:11:13,518 - hybrid_pipeline - INFO - [55/121] 處理 tile: tile_x3840_y768
+2026-07-22 03:11:13,549 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=15, DISH=15, matched(1核)=11 (其中重疊=11), drop-out(競爭落敗)=2, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-22 03:11:13,780 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=12, 黑點=21, 涉及細胞=15
+2026-07-22 03:11:13,878 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y7168/cells
+2026-07-22 03:11:13,878 - hybrid_pipeline - INFO - Tile tile_x3840_y7168 完成: 核心擁有 0 細胞 (0 陽性), 1.30 秒
+2026-07-22 03:11:14,041 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 81 個細胞
+2026-07-22 03:11:14,098 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 81 顆細胞, factor=1.50(面積), 中位半徑=29.1px, 外擴=6.5px
+2026-07-22 03:11:14,368 - hybrid_pipeline - INFO - [56/121] 處理 tile: tile_x4608_y0
+2026-07-22 03:11:14,404 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=81, DISH=57, matched(1核)=44 (其中重疊=44), drop-out(競爭落敗)=16, 無候選(計入)=21, factor=1.50, min_reach=20.0
+2026-07-22 03:11:15,159 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=40, 黑點=98, 涉及細胞=81
+2026-07-22 03:11:15,392 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 41 個細胞
+2026-07-22 03:11:15,436 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 41 顆細胞, factor=1.50(面積), 中位半徑=29.8px, 外擴=6.7px
+2026-07-22 03:11:15,513 - m4_module.cell_crops - INFO - 匯出 45 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x3840_y768/cells
+2026-07-22 03:11:15,514 - hybrid_pipeline - INFO - Tile tile_x3840_y768 完成: 核心擁有 45 細胞 (45 陽性), 1.99 秒
+2026-07-22 03:11:15,800 - hybrid_pipeline - INFO - [57/121] 處理 tile: tile_x4608_y1536
+2026-07-22 03:11:15,833 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=41, DISH=35, matched(1核)=24 (其中重疊=24), drop-out(競爭落敗)=9, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:11:16,246 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=18, 黑點=34, 涉及細胞=41
+2026-07-22 03:11:16,426 - m4_module.cell_crops - INFO - 匯出 41 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y0/cells
+2026-07-22 03:11:16,426 - hybrid_pipeline - INFO - Tile tile_x4608_y0 完成: 核心擁有 41 細胞 (41 陽性), 2.06 秒
+2026-07-22 03:11:16,516 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 77 個細胞
+2026-07-22 03:11:16,567 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 77 顆細胞, factor=1.50(面積), 中位半徑=26.6px, 外擴=6.0px
+2026-07-22 03:11:16,840 - hybrid_pipeline - INFO - [58/121] 處理 tile: tile_x4608_y2304
+2026-07-22 03:11:16,872 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=77, DISH=44, matched(1核)=33 (其中重疊=32), drop-out(競爭落敗)=11, 無候選(計入)=33, factor=1.50, min_reach=20.0
+2026-07-22 03:11:17,603 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=41, 黑點=95, 涉及細胞=77
+2026-07-22 03:11:17,847 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 118 個細胞
+2026-07-22 03:11:17,867 - m4_module.cell_crops - INFO - 匯出 27 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y1536/cells
+2026-07-22 03:11:17,867 - hybrid_pipeline - INFO - Tile tile_x4608_y1536 完成: 核心擁有 27 細胞 (27 陽性), 2.07 秒
+2026-07-22 03:11:17,910 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 118 顆細胞, factor=1.50(面積), 中位半徑=24.5px, 外擴=5.5px
+2026-07-22 03:11:18,189 - hybrid_pipeline - INFO - [59/121] 處理 tile: tile_x4608_y3072
+2026-07-22 03:11:18,225 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=118, DISH=77, matched(1核)=62 (其中重疊=61), drop-out(競爭落敗)=20, 無候選(計入)=36, factor=1.50, min_reach=20.0
+2026-07-22 03:11:19,464 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=69, 黑點=151, 涉及細胞=118
+2026-07-22 03:11:19,736 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 114 個細胞
+2026-07-22 03:11:19,794 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 114 顆細胞, factor=1.50(面積), 中位半徑=24.4px, 外擴=5.5px
+2026-07-22 03:11:19,819 - m4_module.cell_crops - INFO - 匯出 57 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y2304/cells
+2026-07-22 03:11:19,819 - hybrid_pipeline - INFO - Tile tile_x4608_y2304 完成: 核心擁有 57 細胞 (57 陽性), 2.98 秒
+2026-07-22 03:11:20,069 - hybrid_pipeline - INFO - [60/121] 處理 tile: tile_x4608_y3840
+2026-07-22 03:11:20,105 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=114, DISH=82, matched(1核)=57 (其中重疊=57), drop-out(競爭落敗)=32, 無候選(計入)=25, factor=1.50, min_reach=20.0
+2026-07-22 03:11:21,197 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=70, 黑點=164, 涉及細胞=114
+2026-07-22 03:11:21,461 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 99 個細胞
+2026-07-22 03:11:21,524 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 99 顆細胞, factor=1.50(面積), 中位半徑=29.0px, 外擴=6.5px
+2026-07-22 03:11:21,561 - m4_module.cell_crops - INFO - 匯出 63 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y3072/cells
+2026-07-22 03:11:21,562 - hybrid_pipeline - INFO - Tile tile_x4608_y3072 完成: 核心擁有 63 細胞 (63 陽性), 3.37 秒
+2026-07-22 03:11:21,808 - hybrid_pipeline - INFO - [61/121] 處理 tile: tile_x4608_y4608
+2026-07-22 03:11:21,844 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=99, DISH=99, matched(1核)=65 (其中重疊=65), drop-out(競爭落敗)=17, 無候選(計入)=17, factor=1.50, min_reach=20.0
+2026-07-22 03:11:23,144 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=72, 黑點=185, 涉及細胞=99
+2026-07-22 03:11:23,345 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 62 個細胞
+2026-07-22 03:11:23,403 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 62 顆細胞, factor=1.50(面積), 中位半徑=25.6px, 外擴=5.8px
+2026-07-22 03:11:23,552 - m4_module.cell_crops - INFO - 匯出 59 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y3840/cells
+2026-07-22 03:11:23,552 - hybrid_pipeline - INFO - Tile tile_x4608_y3840 完成: 核心擁有 59 細胞 (59 陽性), 3.48 秒
+2026-07-22 03:11:23,676 - hybrid_pipeline - INFO - [62/121] 處理 tile: tile_x4608_y5376
+2026-07-22 03:11:23,710 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=62, DISH=67, matched(1核)=38 (其中重疊=38), drop-out(競爭落敗)=11, 無候選(計入)=13, factor=1.50, min_reach=20.0
+2026-07-22 03:11:24,475 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=46, 黑點=105, 涉及細胞=62
+2026-07-22 03:11:24,701 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 35 個細胞
+2026-07-22 03:11:24,751 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 35 顆細胞, factor=1.50(面積), 中位半徑=24.5px, 外擴=5.5px
+2026-07-22 03:11:24,795 - m4_module.cell_crops - INFO - 匯出 29 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y4608/cells
+2026-07-22 03:11:24,795 - hybrid_pipeline - INFO - Tile tile_x4608_y4608 完成: 核心擁有 29 細胞 (29 陽性), 2.99 秒
+2026-07-22 03:11:25,033 - hybrid_pipeline - INFO - [63/121] 處理 tile: tile_x4608_y6144
+2026-07-22 03:11:25,064 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=35, DISH=36, matched(1核)=20 (其中重疊=20), drop-out(競爭落敗)=3, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:11:25,357 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=13, 黑點=29, 涉及細胞=35
+2026-07-22 03:11:25,574 - m4_module.cell_crops - INFO - 匯出 15 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y5376/cells
+2026-07-22 03:11:25,574 - hybrid_pipeline - INFO - Tile tile_x4608_y5376 完成: 核心擁有 15 細胞 (15 陽性), 1.90 秒
+2026-07-22 03:11:25,644 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 135 個細胞
+2026-07-22 03:11:25,706 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 135 顆細胞, factor=1.50(面積), 中位半徑=24.0px, 外擴=5.4px
+2026-07-22 03:11:25,979 - hybrid_pipeline - INFO - [64/121] 處理 tile: tile_x4608_y6912
+2026-07-22 03:11:26,016 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=135, DISH=96, matched(1核)=69 (其中重疊=69), drop-out(競爭落敗)=25, 無候選(計入)=41, factor=1.50, min_reach=20.0
+2026-07-22 03:11:27,396 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=59, 黑點=179, 涉及細胞=135
+2026-07-22 03:11:27,644 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 108 個細胞
+2026-07-22 03:11:27,706 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 108 顆細胞, factor=1.50(面積), 中位半徑=23.2px, 外擴=5.2px
+2026-07-22 03:11:27,791 - m4_module.cell_crops - INFO - 匯出 84 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y6144/cells
+2026-07-22 03:11:27,791 - hybrid_pipeline - INFO - Tile tile_x4608_y6144 完成: 核心擁有 84 細胞 (84 陽性), 2.76 秒
+2026-07-22 03:11:28,069 - hybrid_pipeline - INFO - [65/121] 處理 tile: tile_x4608_y7168
+2026-07-22 03:11:28,106 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=108, DISH=104, matched(1核)=71 (其中重疊=71), drop-out(競爭落敗)=17, 無候選(計入)=20, factor=1.50, min_reach=20.0
+2026-07-22 03:11:29,672 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=84, 黑點=203, 涉及細胞=108
+2026-07-22 03:11:29,903 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 79 個細胞
+2026-07-22 03:11:29,955 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 79 顆細胞, factor=1.50(面積), 中位半徑=22.3px, 外擴=5.0px
+2026-07-22 03:11:30,017 - m4_module.cell_crops - INFO - 匯出 25 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y6912/cells
+2026-07-22 03:11:30,017 - hybrid_pipeline - INFO - Tile tile_x4608_y6912 完成: 核心擁有 25 細胞 (25 陽性), 4.04 秒
+2026-07-22 03:11:30,235 - hybrid_pipeline - INFO - [66/121] 處理 tile: tile_x4608_y768
+2026-07-22 03:11:30,269 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=79, DISH=78, matched(1核)=55 (其中重疊=55), drop-out(競爭落敗)=12, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:11:31,376 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=61, 黑點=141, 涉及細胞=79
+2026-07-22 03:11:31,596 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 48 個細胞
+2026-07-22 03:11:31,636 - m4_module.cell_crops - INFO - 匯出 50 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y7168/cells
+2026-07-22 03:11:31,636 - hybrid_pipeline - INFO - Tile tile_x4608_y7168 完成: 核心擁有 50 細胞 (50 陽性), 3.57 秒
+2026-07-22 03:11:31,644 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 48 顆細胞, factor=1.50(面積), 中位半徑=25.2px, 外擴=5.7px
+2026-07-22 03:11:31,923 - hybrid_pipeline - INFO - [67/121] 處理 tile: tile_x5376_y0
+2026-07-22 03:11:31,955 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=48, DISH=29, matched(1核)=21 (其中重疊=21), drop-out(競爭落敗)=7, 無候選(計入)=20, factor=1.50, min_reach=20.0
+2026-07-22 03:11:32,289 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=18, 黑點=44, 涉及細胞=48
+2026-07-22 03:11:32,472 - m4_module.cell_crops - INFO - 匯出 20 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x4608_y768/cells
+2026-07-22 03:11:32,472 - hybrid_pipeline - INFO - Tile tile_x4608_y768 完成: 核心擁有 20 細胞 (20 陽性), 2.24 秒
+2026-07-22 03:11:32,564 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 89 個細胞
+2026-07-22 03:11:32,619 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 89 顆細胞, factor=1.50(面積), 中位半徑=28.9px, 外擴=6.5px
+2026-07-22 03:11:32,890 - hybrid_pipeline - INFO - [68/121] 處理 tile: tile_x5376_y1536
+2026-07-22 03:11:32,925 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=89, DISH=50, matched(1核)=42 (其中重疊=42), drop-out(競爭落敗)=20, 無候選(計入)=27, factor=1.50, min_reach=20.0
+2026-07-22 03:11:33,647 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=37, 黑點=96, 涉及細胞=89
+2026-07-22 03:11:33,926 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 118 個細胞
+2026-07-22 03:11:33,989 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 118 顆細胞, factor=1.50(面積), 中位半徑=28.6px, 外擴=6.4px
+2026-07-22 03:11:33,995 - m4_module.cell_crops - INFO - 匯出 60 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y0/cells
+2026-07-22 03:11:33,995 - hybrid_pipeline - INFO - Tile tile_x5376_y0 完成: 核心擁有 60 細胞 (60 陽性), 2.07 秒
+2026-07-22 03:11:34,260 - hybrid_pipeline - INFO - [69/121] 處理 tile: tile_x5376_y2304
+2026-07-22 03:11:34,298 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=118, DISH=90, matched(1核)=61 (其中重疊=61), drop-out(競爭落敗)=19, 無候選(計入)=38, factor=1.50, min_reach=20.0
+2026-07-22 03:11:35,365 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=56, 黑點=124, 涉及細胞=118
+2026-07-22 03:11:35,631 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 110 個細胞
+2026-07-22 03:11:35,695 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 110 顆細胞, factor=1.50(面積), 中位半徑=26.8px, 外擴=6.0px
+2026-07-22 03:11:35,779 - m4_module.cell_crops - INFO - 匯出 66 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y1536/cells
+2026-07-22 03:11:35,779 - hybrid_pipeline - INFO - Tile tile_x5376_y1536 完成: 核心擁有 66 細胞 (66 陽性), 2.89 秒
+2026-07-22 03:11:35,979 - hybrid_pipeline - INFO - [70/121] 處理 tile: tile_x5376_y3072
+2026-07-22 03:11:36,017 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=110, DISH=79, matched(1核)=61 (其中重疊=61), drop-out(競爭落敗)=21, 無候選(計入)=28, factor=1.50, min_reach=20.0
+2026-07-22 03:11:37,233 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=60, 黑點=144, 涉及細胞=110
+2026-07-22 03:11:37,385 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 10 個細胞
+2026-07-22 03:11:37,420 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 10 顆細胞, factor=1.50(面積), 中位半徑=14.0px, 外擴=3.2px
+2026-07-22 03:11:37,586 - m4_module.cell_crops - INFO - 匯出 74 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y2304/cells
+2026-07-22 03:11:37,586 - hybrid_pipeline - INFO - Tile tile_x5376_y2304 完成: 核心擁有 74 細胞 (74 陽性), 3.33 秒
+2026-07-22 03:11:37,695 - hybrid_pipeline - INFO - [71/121] 處理 tile: tile_x5376_y3840
+2026-07-22 03:11:37,725 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=10, DISH=2, matched(1核)=2 (其中重疊=2), drop-out(競爭落敗)=2, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:11:37,838 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=1, 黑點=3, 涉及細胞=10
+2026-07-22 03:11:37,916 - m4_module.cell_crops - INFO - 匯出 1 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y3072/cells
+2026-07-22 03:11:37,916 - hybrid_pipeline - INFO - Tile tile_x5376_y3072 完成: 核心擁有 1 細胞 (1 陽性), 1.94 秒
+2026-07-22 03:11:38,067 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 36 個細胞
+2026-07-22 03:11:38,125 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 36 顆細胞, factor=1.50(面積), 中位半徑=23.9px, 外擴=5.4px
+2026-07-22 03:11:38,400 - hybrid_pipeline - INFO - [72/121] 處理 tile: tile_x5376_y4608
+2026-07-22 03:11:38,432 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=36, DISH=41, matched(1核)=20 (其中重疊=20), drop-out(競爭落敗)=2, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-22 03:11:38,768 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=30, 涉及細胞=36
+2026-07-22 03:11:38,961 - m4_module.cell_crops - INFO - 匯出 7 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y3840/cells
+2026-07-22 03:11:38,961 - hybrid_pipeline - INFO - Tile tile_x5376_y3840 完成: 核心擁有 7 細胞 (7 陽性), 1.27 秒
+2026-07-22 03:11:39,049 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 114 個細胞
+2026-07-22 03:11:39,112 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 114 顆細胞, factor=1.50(面積), 中位半徑=27.3px, 外擴=6.1px
+2026-07-22 03:11:39,470 - hybrid_pipeline - INFO - [73/121] 處理 tile: tile_x5376_y5376
+2026-07-22 03:11:39,508 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=114, DISH=91, matched(1核)=60 (其中重疊=60), drop-out(競爭落敗)=19, 無候選(計入)=35, factor=1.50, min_reach=20.0
+2026-07-22 03:11:40,746 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=67, 黑點=153, 涉及細胞=114
+2026-07-22 03:11:40,968 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 72 個細胞
+2026-07-22 03:11:41,026 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 72 顆細胞, factor=1.50(面積), 中位半徑=25.9px, 外擴=5.8px
+2026-07-22 03:11:41,162 - m4_module.cell_crops - INFO - 匯出 78 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y4608/cells
+2026-07-22 03:11:41,162 - hybrid_pipeline - INFO - Tile tile_x5376_y4608 完成: 核心擁有 78 細胞 (78 陽性), 2.76 秒
+2026-07-22 03:11:41,294 - hybrid_pipeline - INFO - [74/121] 處理 tile: tile_x5376_y6144
+2026-07-22 03:11:41,328 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=72, DISH=46, matched(1核)=37 (其中重疊=37), drop-out(競爭落敗)=10, 無候選(計入)=25, factor=1.50, min_reach=20.0
+2026-07-22 03:11:42,022 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=29, 黑點=72, 涉及細胞=72
+2026-07-22 03:11:42,198 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 34 個細胞
+2026-07-22 03:11:42,243 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 34 顆細胞, factor=1.50(面積), 中位半徑=22.4px, 外擴=5.0px
+2026-07-22 03:11:42,303 - m4_module.cell_crops - INFO - 匯出 47 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y5376/cells
+2026-07-22 03:11:42,303 - hybrid_pipeline - INFO - Tile tile_x5376_y5376 完成: 核心擁有 47 細胞 (47 陽性), 2.83 秒
+2026-07-22 03:11:42,531 - hybrid_pipeline - INFO - [75/121] 處理 tile: tile_x5376_y6912
+2026-07-22 03:11:42,564 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=34, DISH=33, matched(1核)=18 (其中重疊=18), drop-out(競爭落敗)=2, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-22 03:11:42,939 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=22, 黑點=62, 涉及細胞=34
+2026-07-22 03:11:43,137 - m4_module.cell_crops - INFO - 匯出 21 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y6144/cells
+2026-07-22 03:11:43,137 - hybrid_pipeline - INFO - Tile tile_x5376_y6144 完成: 核心擁有 21 細胞 (21 陽性), 1.84 秒
+2026-07-22 03:11:43,171 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 63 個細胞
+2026-07-22 03:11:43,223 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 63 顆細胞, factor=1.50(面積), 中位半徑=22.8px, 外擴=5.1px
+2026-07-22 03:11:43,504 - hybrid_pipeline - INFO - [76/121] 處理 tile: tile_x5376_y7168
+2026-07-22 03:11:43,537 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=63, DISH=77, matched(1核)=44 (其中重疊=44), drop-out(競爭落敗)=5, 無候選(計入)=14, factor=1.50, min_reach=20.0
+2026-07-22 03:11:44,524 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=61, 黑點=130, 涉及細胞=63
+2026-07-22 03:11:44,747 - m4_module.cell_crops - INFO - 匯出 3 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y6912/cells
+2026-07-22 03:11:44,747 - hybrid_pipeline - INFO - Tile tile_x5376_y6912 完成: 核心擁有 3 細胞 (3 陽性), 2.22 秒
+2026-07-22 03:11:44,753 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 58 個細胞
+2026-07-22 03:11:44,803 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 58 顆細胞, factor=1.50(面積), 中位半徑=22.7px, 外擴=5.1px
+2026-07-22 03:11:45,080 - hybrid_pipeline - INFO - [77/121] 處理 tile: tile_x5376_y768
+2026-07-22 03:11:45,113 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=58, DISH=71, matched(1核)=41 (其中重疊=41), drop-out(競爭落敗)=5, 無候選(計入)=12, factor=1.50, min_reach=20.0
+2026-07-22 03:11:45,894 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=51, 黑點=103, 涉及細胞=58
+2026-07-22 03:11:46,098 - m4_module.cell_crops - INFO - 匯出 37 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y7168/cells
+2026-07-22 03:11:46,098 - hybrid_pipeline - INFO - Tile tile_x5376_y7168 完成: 核心擁有 37 細胞 (37 陽性), 2.59 秒
+2026-07-22 03:11:46,169 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 105 個細胞
+2026-07-22 03:11:46,231 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 105 顆細胞, factor=1.50(面積), 中位半徑=28.9px, 外擴=6.5px
+2026-07-22 03:11:46,507 - hybrid_pipeline - INFO - [78/121] 處理 tile: tile_x6144_y0
+2026-07-22 03:11:46,545 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=105, DISH=72, matched(1核)=59 (其中重疊=59), drop-out(競爭落敗)=18, 無候選(計入)=28, factor=1.50, min_reach=20.0
+2026-07-22 03:11:47,662 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=61, 黑點=144, 涉及細胞=105
+2026-07-22 03:11:47,854 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 116 個細胞
+2026-07-22 03:11:47,920 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 116 顆細胞, factor=1.50(面積), 中位半徑=33.3px, 外擴=7.5px
+2026-07-22 03:11:48,042 - m4_module.cell_crops - INFO - 匯出 49 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x5376_y768/cells
+2026-07-22 03:11:48,042 - hybrid_pipeline - INFO - Tile tile_x5376_y768 完成: 核心擁有 49 細胞 (49 陽性), 2.96 秒
+2026-07-22 03:11:48,203 - hybrid_pipeline - INFO - [79/121] 處理 tile: tile_x6144_y1536
+2026-07-22 03:11:48,245 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=116, DISH=83, matched(1核)=67 (其中重疊=67), drop-out(競爭落敗)=22, 無候選(計入)=27, factor=1.50, min_reach=20.0
+2026-07-22 03:11:49,387 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=63, 黑點=146, 涉及細胞=116
+2026-07-22 03:11:49,537 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 95 個細胞
+2026-07-22 03:11:49,593 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 95 顆細胞, factor=1.50(面積), 中位半徑=25.7px, 外擴=5.8px
+2026-07-22 03:11:49,850 - m4_module.cell_crops - INFO - 匯出 72 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y0/cells
+2026-07-22 03:11:49,850 - hybrid_pipeline - INFO - Tile tile_x6144_y0 完成: 核心擁有 72 細胞 (72 陽性), 3.34 秒
+2026-07-22 03:11:49,875 - hybrid_pipeline - INFO - [80/121] 處理 tile: tile_x6144_y2304
+2026-07-22 03:11:49,908 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=95, DISH=69, matched(1核)=43 (其中重疊=43), drop-out(競爭落敗)=20, 無候選(計入)=32, factor=1.50, min_reach=20.0
+2026-07-22 03:11:50,653 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=43, 黑點=85, 涉及細胞=95
+2026-07-22 03:11:50,920 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 100 個細胞
+2026-07-22 03:11:50,969 - m4_module.cell_crops - INFO - 匯出 35 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y1536/cells
+2026-07-22 03:11:50,970 - hybrid_pipeline - INFO - Tile tile_x6144_y1536 完成: 核心擁有 35 細胞 (35 陽性), 2.77 秒
+2026-07-22 03:11:50,978 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 100 顆細胞, factor=1.50(面積), 中位半徑=29.6px, 外擴=6.7px
+2026-07-22 03:11:51,338 - hybrid_pipeline - INFO - [81/121] 處理 tile: tile_x6144_y3072
+2026-07-22 03:11:51,376 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=100, DISH=75, matched(1核)=59 (其中重疊=59), drop-out(競爭落敗)=16, 無候選(計入)=25, factor=1.50, min_reach=20.0
+2026-07-22 03:11:52,580 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=81, 黑點=161, 涉及細胞=100
+2026-07-22 03:11:52,686 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 8 個細胞
+2026-07-22 03:11:52,722 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 8 顆細胞, factor=1.50(面積), 中位半徑=22.4px, 外擴=5.0px
+2026-07-22 03:11:52,965 - m4_module.cell_crops - INFO - 匯出 53 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y2304/cells
+2026-07-22 03:11:52,965 - hybrid_pipeline - INFO - Tile tile_x6144_y2304 完成: 核心擁有 53 細胞 (53 陽性), 3.09 秒
+2026-07-22 03:11:53,001 - hybrid_pipeline - INFO - [82/121] 處理 tile: tile_x6144_y3840
+2026-07-22 03:11:53,026 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=8, DISH=7, matched(1核)=5 (其中重疊=5), drop-out(競爭落敗)=0, 無候選(計入)=3, factor=1.50, min_reach=20.0
+2026-07-22 03:11:53,172 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=9, 黑點=7, 涉及細胞=8
+2026-07-22 03:11:53,254 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y3072/cells
+2026-07-22 03:11:53,254 - hybrid_pipeline - INFO - Tile tile_x6144_y3072 完成: 核心擁有 0 細胞 (0 陽性), 1.92 秒
+2026-07-22 03:11:53,390 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 15 個細胞
+2026-07-22 03:11:53,433 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 15 顆細胞, factor=1.50(面積), 中位半徑=21.4px, 外擴=4.8px
+2026-07-22 03:11:53,700 - hybrid_pipeline - INFO - [83/121] 處理 tile: tile_x6144_y4608
+2026-07-22 03:11:53,730 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=15, DISH=11, matched(1核)=6 (其中重疊=6), drop-out(競爭落敗)=2, 無候選(計入)=7, factor=1.50, min_reach=20.0
+2026-07-22 03:11:53,882 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=9, 黑點=12, 涉及細胞=15
+2026-07-22 03:11:53,993 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y3840/cells
+2026-07-22 03:11:53,993 - hybrid_pipeline - INFO - Tile tile_x6144_y3840 完成: 核心擁有 0 細胞 (0 陽性), 0.99 秒
+2026-07-22 03:11:54,182 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 119 個細胞
+2026-07-22 03:11:54,246 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 119 顆細胞, factor=1.50(面積), 中位半徑=28.2px, 外擴=6.3px
+2026-07-22 03:11:54,517 - hybrid_pipeline - INFO - [84/121] 處理 tile: tile_x6144_y5376
+2026-07-22 03:11:54,551 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=119, DISH=87, matched(1核)=59 (其中重疊=59), drop-out(競爭落敗)=17, 無候選(計入)=43, factor=1.50, min_reach=20.0
+2026-07-22 03:11:55,490 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=51, 黑點=114, 涉及細胞=119
+2026-07-22 03:11:55,765 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 106 個細胞
+2026-07-22 03:11:55,826 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 106 顆細胞, factor=1.50(面積), 中位半徑=26.5px, 外擴=6.0px
+2026-07-22 03:11:55,911 - m4_module.cell_crops - INFO - 匯出 75 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y4608/cells
+2026-07-22 03:11:55,912 - hybrid_pipeline - INFO - Tile tile_x6144_y4608 完成: 核心擁有 75 細胞 (75 陽性), 2.21 秒
+2026-07-22 03:11:56,097 - hybrid_pipeline - INFO - [85/121] 處理 tile: tile_x6144_y6144
+2026-07-22 03:11:56,132 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=106, DISH=80, matched(1核)=63 (其中重疊=63), drop-out(競爭落敗)=18, 無候選(計入)=25, factor=1.50, min_reach=20.0
+2026-07-22 03:11:57,266 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=63, 黑點=149, 涉及細胞=106
+2026-07-22 03:11:57,397 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 32 個細胞
+2026-07-22 03:11:57,442 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 32 顆細胞, factor=1.50(面積), 中位半徑=29.3px, 外擴=6.6px
+2026-07-22 03:11:57,687 - m4_module.cell_crops - INFO - 匯出 60 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y5376/cells
+2026-07-22 03:11:57,687 - hybrid_pipeline - INFO - Tile tile_x6144_y5376 完成: 核心擁有 60 細胞 (60 陽性), 3.17 秒
+2026-07-22 03:11:57,722 - hybrid_pipeline - INFO - [86/121] 處理 tile: tile_x6144_y6912
+2026-07-22 03:11:57,749 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=32, DISH=28, matched(1核)=22 (其中重疊=22), drop-out(競爭落敗)=6, 無候選(計入)=4, factor=1.50, min_reach=20.0
+2026-07-22 03:11:58,275 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=32, 黑點=72, 涉及細胞=32
+2026-07-22 03:11:58,438 - m4_module.cell_crops - INFO - 匯出 22 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y6144/cells
+2026-07-22 03:11:58,438 - hybrid_pipeline - INFO - Tile tile_x6144_y6144 完成: 核心擁有 22 細胞 (22 陽性), 2.34 秒
+2026-07-22 03:11:58,440 - hybrid_pipeline - INFO - [87/121] 處理 tile: tile_x6144_y7168
+2026-07-22 03:11:58,468 - hybrid_pipeline - INFO - Tile tile_x6144_y6912: 核心遮罩全空 → 空白 placeholder
+2026-07-22 03:11:58,484 - hybrid_pipeline - INFO - [88/121] 處理 tile: tile_x6144_y768
+2026-07-22 03:11:58,507 - hybrid_pipeline - INFO - Tile tile_x6144_y7168: 核心遮罩全空 → 空白 placeholder
+2026-07-22 03:11:58,906 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 113 個細胞
+2026-07-22 03:11:58,968 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 113 顆細胞, factor=1.50(面積), 中位半徑=31.5px, 外擴=7.1px
+2026-07-22 03:11:59,321 - hybrid_pipeline - INFO - [89/121] 處理 tile: tile_x6912_y0
+2026-07-22 03:11:59,362 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=113, DISH=71, matched(1核)=58 (其中重疊=58), drop-out(競爭落敗)=19, 無候選(計入)=36, factor=1.50, min_reach=20.0
+2026-07-22 03:12:00,551 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=71, 黑點=161, 涉及細胞=113
+2026-07-22 03:12:00,673 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 31 個細胞
+2026-07-22 03:12:00,714 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 31 顆細胞, factor=1.50(面積), 中位半徑=31.4px, 外擴=7.0px
+2026-07-22 03:12:00,963 - m4_module.cell_crops - INFO - 匯出 60 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6144_y768/cells
+2026-07-22 03:12:00,964 - hybrid_pipeline - INFO - Tile tile_x6144_y768 完成: 核心擁有 60 細胞 (60 陽性), 2.48 秒
+2026-07-22 03:12:00,997 - hybrid_pipeline - INFO - [90/121] 處理 tile: tile_x6912_y1536
+2026-07-22 03:12:01,024 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=31, DISH=31, matched(1核)=22 (其中重疊=22), drop-out(競爭落敗)=0, 無候選(計入)=9, factor=1.50, min_reach=20.0
+2026-07-22 03:12:01,467 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=18, 黑點=42, 涉及細胞=31
+2026-07-22 03:12:01,609 - m4_module.cell_crops - INFO - 匯出 11 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y0/cells
+2026-07-22 03:12:01,609 - hybrid_pipeline - INFO - Tile tile_x6912_y0 完成: 核心擁有 11 細胞 (11 陽性), 2.29 秒
+2026-07-22 03:12:01,756 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 102 個細胞
+2026-07-22 03:12:01,812 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 102 顆細胞, factor=1.50(面積), 中位半徑=26.5px, 外擴=6.0px
+2026-07-22 03:12:02,086 - hybrid_pipeline - INFO - [91/121] 處理 tile: tile_x6912_y2304
+2026-07-22 03:12:02,124 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=102, DISH=68, matched(1核)=48 (其中重疊=47), drop-out(競爭落敗)=25, 無候選(計入)=29, factor=1.50, min_reach=20.0
+2026-07-22 03:12:03,025 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=52, 黑點=102, 涉及細胞=102
+2026-07-22 03:12:03,181 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 87 個細胞
+2026-07-22 03:12:03,234 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 87 顆細胞, factor=1.50(面積), 中位半徑=27.9px, 外擴=6.3px
+2026-07-22 03:12:03,362 - m4_module.cell_crops - INFO - 匯出 30 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y1536/cells
+2026-07-22 03:12:03,362 - hybrid_pipeline - INFO - Tile tile_x6912_y1536 完成: 核心擁有 30 細胞 (30 陽性), 2.37 秒
+2026-07-22 03:12:03,512 - hybrid_pipeline - INFO - [92/121] 處理 tile: tile_x6912_y3072
+2026-07-22 03:12:03,550 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=87, DISH=66, matched(1核)=49 (其中重疊=49), drop-out(競爭落敗)=18, 無候選(計入)=20, factor=1.50, min_reach=20.0
+2026-07-22 03:12:04,432 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=56, 黑點=124, 涉及細胞=87
+2026-07-22 03:12:04,549 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 5 個細胞
+2026-07-22 03:12:04,584 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 5 顆細胞, factor=1.50(面積), 中位半徑=25.8px, 外擴=5.8px
+2026-07-22 03:12:04,756 - m4_module.cell_crops - INFO - 匯出 23 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y2304/cells
+2026-07-22 03:12:04,756 - hybrid_pipeline - INFO - Tile tile_x6912_y2304 完成: 核心擁有 23 細胞 (23 陽性), 2.67 秒
+2026-07-22 03:12:04,859 - hybrid_pipeline - INFO - [93/121] 處理 tile: tile_x6912_y3840
+2026-07-22 03:12:04,890 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=5, DISH=9, matched(1核)=3 (其中重疊=3), drop-out(競爭落敗)=0, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-22 03:12:05,001 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=3, 黑點=3, 涉及細胞=5
+2026-07-22 03:12:05,075 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y3072/cells
+2026-07-22 03:12:05,075 - hybrid_pipeline - INFO - Tile tile_x6912_y3072 完成: 核心擁有 0 細胞 (0 陽性), 1.56 秒
+2026-07-22 03:12:05,211 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 1 個細胞
+2026-07-22 03:12:05,241 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 1 顆細胞, factor=1.50(面積), 中位半徑=25.4px, 外擴=5.7px
+2026-07-22 03:12:05,517 - hybrid_pipeline - INFO - [94/121] 處理 tile: tile_x6912_y4608
+2026-07-22 03:12:05,546 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=1, DISH=2, matched(1核)=0 (其中重疊=0), drop-out(競爭落敗)=0, 無候選(計入)=1, factor=1.50, min_reach=20.0
+2026-07-22 03:12:05,629 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=1
+2026-07-22 03:12:05,674 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y3840/cells
+2026-07-22 03:12:05,674 - hybrid_pipeline - INFO - Tile tile_x6912_y3840 完成: 核心擁有 0 細胞 (0 陽性), 0.81 秒
+2026-07-22 03:12:05,906 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 48 個細胞
+2026-07-22 03:12:05,951 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 48 顆細胞, factor=1.50(面積), 中位半徑=24.8px, 外擴=5.6px
+2026-07-22 03:12:06,224 - hybrid_pipeline - INFO - [95/121] 處理 tile: tile_x6912_y5376
+2026-07-22 03:12:06,256 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=48, DISH=40, matched(1核)=23 (其中重疊=23), drop-out(競爭落敗)=4, 無候選(計入)=21, factor=1.50, min_reach=20.0
+2026-07-22 03:12:06,624 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=15, 黑點=51, 涉及細胞=48
+2026-07-22 03:12:06,848 - m4_module.cell_crops - INFO - 匯出 23 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y4608/cells
+2026-07-22 03:12:06,848 - hybrid_pipeline - INFO - Tile tile_x6912_y4608 完成: 核心擁有 23 細胞 (23 陽性), 1.33 秒
+2026-07-22 03:12:06,863 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 43 個細胞
+2026-07-22 03:12:06,905 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 43 顆細胞, factor=1.50(面積), 中位半徑=29.1px, 外擴=6.5px
+2026-07-22 03:12:07,169 - hybrid_pipeline - INFO - [96/121] 處理 tile: tile_x6912_y6144
+2026-07-22 03:12:07,202 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=43, DISH=38, matched(1核)=32 (其中重疊=32), drop-out(競爭落敗)=6, 無候選(計入)=5, factor=1.50, min_reach=20.0
+2026-07-22 03:12:07,813 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=29, 黑點=76, 涉及細胞=43
+2026-07-22 03:12:08,020 - m4_module.cell_crops - INFO - 匯出 14 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y5376/cells
+2026-07-22 03:12:08,020 - hybrid_pipeline - INFO - Tile tile_x6912_y5376 完成: 核心擁有 14 細胞 (14 陽性), 1.80 秒
+2026-07-22 03:12:08,049 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 18 個細胞
+2026-07-22 03:12:08,086 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 18 顆細胞, factor=1.50(面積), 中位半徑=30.4px, 外擴=6.8px
+2026-07-22 03:12:08,441 - hybrid_pipeline - INFO - [97/121] 處理 tile: tile_x6912_y6912
+2026-07-22 03:12:08,472 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=18, DISH=13, matched(1核)=10 (其中重疊=10), drop-out(競爭落敗)=3, 無候選(計入)=5, factor=1.50, min_reach=20.0
+2026-07-22 03:12:08,671 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=7, 黑點=25, 涉及細胞=18
+2026-07-22 03:12:08,781 - m4_module.cell_crops - INFO - 匯出 5 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y6144/cells
+2026-07-22 03:12:08,781 - hybrid_pipeline - INFO - Tile tile_x6912_y6144 完成: 核心擁有 5 細胞 (5 陽性), 1.61 秒
+2026-07-22 03:12:08,884 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 4 個細胞
+2026-07-22 03:12:08,918 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 4 顆細胞, factor=1.50(面積), 中位半徑=22.7px, 外擴=5.1px
+2026-07-22 03:12:09,187 - hybrid_pipeline - INFO - [98/121] 處理 tile: tile_x6912_y7168
+2026-07-22 03:12:09,216 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=4, DISH=1, matched(1核)=1 (其中重疊=1), drop-out(競爭落敗)=0, 無候選(計入)=3, factor=1.50, min_reach=20.0
+2026-07-22 03:12:09,321 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=4
+2026-07-22 03:12:09,376 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y6912/cells
+2026-07-22 03:12:09,376 - hybrid_pipeline - INFO - Tile tile_x6912_y6912 完成: 核心擁有 0 細胞 (0 陽性), 0.93 秒
+2026-07-22 03:12:09,547 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 3 個細胞
+2026-07-22 03:12:09,579 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 3 顆細胞, factor=1.50(面積), 中位半徑=24.6px, 外擴=5.5px
+2026-07-22 03:12:09,842 - hybrid_pipeline - INFO - [99/121] 處理 tile: tile_x6912_y768
+2026-07-22 03:12:09,874 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=3, DISH=1, matched(1核)=1 (其中重疊=1), drop-out(競爭落敗)=0, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-22 03:12:09,981 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=3
+2026-07-22 03:12:10,043 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y7168/cells
+2026-07-22 03:12:10,043 - hybrid_pipeline - INFO - Tile tile_x6912_y7168 完成: 核心擁有 0 細胞 (0 陽性), 0.86 秒
+2026-07-22 03:12:10,248 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 61 個細胞
+2026-07-22 03:12:10,294 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 61 顆細胞, factor=1.50(面積), 中位半徑=29.6px, 外擴=6.7px
+2026-07-22 03:12:10,558 - hybrid_pipeline - INFO - [100/121] 處理 tile: tile_x7168_y0
+2026-07-22 03:12:10,591 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=61, DISH=35, matched(1核)=28 (其中重疊=28), drop-out(競爭落敗)=11, 無候選(計入)=22, factor=1.50, min_reach=20.0
+2026-07-22 03:12:11,104 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=31, 黑點=57, 涉及細胞=61
+2026-07-22 03:12:11,321 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 3 個細胞
+2026-07-22 03:12:11,346 - m4_module.cell_crops - INFO - 匯出 21 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x6912_y768/cells
+2026-07-22 03:12:11,346 - hybrid_pipeline - INFO - Tile tile_x6912_y768 完成: 核心擁有 21 細胞 (21 陽性), 1.50 秒
+2026-07-22 03:12:11,354 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 3 顆細胞, factor=1.50(面積), 中位半徑=20.1px, 外擴=4.5px
+2026-07-22 03:12:11,627 - hybrid_pipeline - INFO - [101/121] 處理 tile: tile_x7168_y1536
+2026-07-22 03:12:11,656 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=3, DISH=4, matched(1核)=1 (其中重疊=1), drop-out(競爭落敗)=0, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-22 03:12:11,775 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=2, 黑點=2, 涉及細胞=3
+2026-07-22 03:12:11,836 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y0/cells
+2026-07-22 03:12:11,836 - hybrid_pipeline - INFO - Tile tile_x7168_y0 完成: 核心擁有 0 細胞 (0 陽性), 1.28 秒
+2026-07-22 03:12:12,036 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 71 個細胞
+2026-07-22 03:12:12,083 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 71 顆細胞, factor=1.50(面積), 中位半徑=24.5px, 外擴=5.5px
+2026-07-22 03:12:12,356 - hybrid_pipeline - INFO - [102/121] 處理 tile: tile_x7168_y2304
+2026-07-22 03:12:12,391 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=71, DISH=52, matched(1核)=36 (其中重疊=36), drop-out(競爭落敗)=12, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-22 03:12:13,089 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=41, 黑點=80, 涉及細胞=71
+2026-07-22 03:12:13,320 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 57 個細胞
+2026-07-22 03:12:13,354 - m4_module.cell_crops - INFO - 匯出 39 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y1536/cells
+2026-07-22 03:12:13,354 - hybrid_pipeline - INFO - Tile tile_x7168_y1536 完成: 核心擁有 39 細胞 (39 陽性), 1.73 秒
+2026-07-22 03:12:13,367 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 57 顆細胞, factor=1.50(面積), 中位半徑=27.2px, 外擴=6.1px
+2026-07-22 03:12:13,643 - hybrid_pipeline - INFO - [103/121] 處理 tile: tile_x7168_y3072
+2026-07-22 03:12:13,677 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=57, DISH=43, matched(1核)=31 (其中重疊=31), drop-out(競爭落敗)=7, 無候選(計入)=19, factor=1.50, min_reach=20.0
+2026-07-22 03:12:14,260 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=33, 黑點=73, 涉及細胞=57
+2026-07-22 03:12:14,481 - m4_module.cell_crops - INFO - 匯出 29 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y2304/cells
+2026-07-22 03:12:14,481 - hybrid_pipeline - INFO - Tile tile_x7168_y2304 完成: 核心擁有 29 細胞 (29 陽性), 2.12 秒
+2026-07-22 03:12:14,484 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 1 個細胞
+2026-07-22 03:12:14,514 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 1 顆細胞, factor=1.50(面積), 中位半徑=25.9px, 外擴=5.8px
+2026-07-22 03:12:14,788 - hybrid_pipeline - INFO - [104/121] 處理 tile: tile_x7168_y3840
+2026-07-22 03:12:14,818 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=1, DISH=4, matched(1核)=0 (其中重疊=0), drop-out(競爭落敗)=0, 無候選(計入)=1, factor=1.50, min_reach=20.0
+2026-07-22 03:12:14,901 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=1
+2026-07-22 03:12:14,947 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y3072/cells
+2026-07-22 03:12:14,947 - hybrid_pipeline - INFO - Tile tile_x7168_y3072 完成: 核心擁有 0 細胞 (0 陽性), 1.30 秒
+2026-07-22 03:12:15,056 - cellpose.dynamics - INFO - No cell pixels found.
+2026-07-22 03:12:15,100 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 0 個細胞
+2026-07-22 03:12:15,465 - hybrid_pipeline - INFO - [105/121] 處理 tile: tile_x7168_y4608
+2026-07-22 03:12:15,574 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=0
+2026-07-22 03:12:15,607 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y3840/cells
+2026-07-22 03:12:15,607 - hybrid_pipeline - INFO - Tile tile_x7168_y3840 完成: 核心擁有 0 細胞 (0 陽性), 0.82 秒
+2026-07-22 03:12:15,828 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 19 個細胞
+2026-07-22 03:12:15,865 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 19 顆細胞, factor=1.50(面積), 中位半徑=22.2px, 外擴=5.0px
+2026-07-22 03:12:16,133 - hybrid_pipeline - INFO - [106/121] 處理 tile: tile_x7168_y5376
+2026-07-22 03:12:16,164 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=19, DISH=22, matched(1核)=13 (其中重疊=13), drop-out(競爭落敗)=0, 無候選(計入)=6, factor=1.50, min_reach=20.0
+2026-07-22 03:12:16,462 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=16, 黑點=41, 涉及細胞=19
+2026-07-22 03:12:16,577 - m4_module.cell_crops - INFO - 匯出 3 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y4608/cells
+2026-07-22 03:12:16,577 - hybrid_pipeline - INFO - Tile tile_x7168_y4608 完成: 核心擁有 3 細胞 (3 陽性), 1.11 秒
+2026-07-22 03:12:16,688 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 14 個細胞
+2026-07-22 03:12:16,721 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 14 顆細胞, factor=1.50(面積), 中位半徑=23.6px, 外擴=5.3px
+2026-07-22 03:12:16,990 - hybrid_pipeline - INFO - [107/121] 處理 tile: tile_x7168_y6144
+2026-07-22 03:12:17,016 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=14, DISH=14, matched(1核)=12 (其中重疊=12), drop-out(競爭落敗)=1, 無候選(計入)=1, factor=1.50, min_reach=20.0
+2026-07-22 03:12:17,237 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=11, 黑點=30, 涉及細胞=14
+2026-07-22 03:12:17,331 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y5376/cells
+2026-07-22 03:12:17,331 - hybrid_pipeline - INFO - Tile tile_x7168_y5376 完成: 核心擁有 0 細胞 (0 陽性), 1.20 秒
+2026-07-22 03:12:17,451 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 1 個細胞
+2026-07-22 03:12:17,481 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 1 顆細胞, factor=1.50(面積), 中位半徑=26.2px, 外擴=5.9px
+2026-07-22 03:12:17,748 - hybrid_pipeline - INFO - [108/121] 處理 tile: tile_x7168_y6912
+2026-07-22 03:12:17,778 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=1, DISH=3, matched(1核)=1 (其中重疊=1), drop-out(競爭落敗)=0, 無候選(計入)=0, factor=1.50, min_reach=20.0
+2026-07-22 03:12:17,889 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=2, 涉及細胞=1
+2026-07-22 03:12:17,950 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y6144/cells
+2026-07-22 03:12:17,950 - hybrid_pipeline - INFO - Tile tile_x7168_y6144 完成: 核心擁有 0 細胞 (0 陽性), 0.96 秒
+2026-07-22 03:12:18,111 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 4 個細胞
+2026-07-22 03:12:18,144 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 4 顆細胞, factor=1.50(面積), 中位半徑=22.7px, 外擴=5.1px
+2026-07-22 03:12:18,412 - hybrid_pipeline - INFO - [109/121] 處理 tile: tile_x7168_y7168
+2026-07-22 03:12:18,446 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=4, DISH=1, matched(1核)=1 (其中重疊=1), drop-out(競爭落敗)=0, 無候選(計入)=3, factor=1.50, min_reach=20.0
+2026-07-22 03:12:18,558 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=0, 黑點=0, 涉及細胞=4
+2026-07-22 03:12:18,618 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y6912/cells
+2026-07-22 03:12:18,618 - hybrid_pipeline - INFO - Tile tile_x7168_y6912 完成: 核心擁有 0 細胞 (0 陽性), 0.87 秒
+2026-07-22 03:12:18,776 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 5 個細胞
+2026-07-22 03:12:18,809 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 5 顆細胞, factor=1.50(面積), 中位半徑=21.4px, 外擴=4.8px
+2026-07-22 03:12:19,082 - hybrid_pipeline - INFO - [110/121] 處理 tile: tile_x7168_y768
+2026-07-22 03:12:19,107 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=5, DISH=2, matched(1核)=2 (其中重疊=2), drop-out(競爭落敗)=1, 無候選(計入)=2, factor=1.50, min_reach=20.0
+2026-07-22 03:12:19,222 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=2, 黑點=2, 涉及細胞=5
+2026-07-22 03:12:19,282 - m4_module.cell_crops - INFO - 匯出 5 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y7168/cells
+2026-07-22 03:12:19,282 - hybrid_pipeline - INFO - Tile tile_x7168_y7168 完成: 核心擁有 5 細胞 (5 陽性), 0.87 秒
+2026-07-22 03:12:19,480 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 28 個細胞
+2026-07-22 03:12:19,517 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 28 顆細胞, factor=1.50(面積), 中位半徑=26.2px, 外擴=5.9px
+2026-07-22 03:12:19,789 - hybrid_pipeline - INFO - [111/121] 處理 tile: tile_x768_y0
+2026-07-22 03:12:19,823 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=28, DISH=23, matched(1核)=14 (其中重疊=14), drop-out(競爭落敗)=6, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:12:20,112 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=14, 黑點=23, 涉及細胞=28
+2026-07-22 03:12:20,256 - m4_module.cell_crops - INFO - 匯出 13 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x7168_y768/cells
+2026-07-22 03:12:20,256 - hybrid_pipeline - INFO - Tile tile_x7168_y768 完成: 核心擁有 13 細胞 (13 陽性), 1.17 秒
+2026-07-22 03:12:20,396 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 130 個細胞
+2026-07-22 03:12:20,455 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 130 顆細胞, factor=1.50(面積), 中位半徑=26.7px, 外擴=6.0px
+2026-07-22 03:12:20,730 - hybrid_pipeline - INFO - [112/121] 處理 tile: tile_x768_y1536
+2026-07-22 03:12:20,769 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=130, DISH=95, matched(1核)=72 (其中重疊=72), drop-out(競爭落敗)=27, 無候選(計入)=31, factor=1.50, min_reach=20.0
+2026-07-22 03:12:22,248 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=90, 黑點=195, 涉及細胞=130
+2026-07-22 03:12:22,402 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 40 個細胞
+2026-07-22 03:12:22,453 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 40 顆細胞, factor=1.50(面積), 中位半徑=24.9px, 外擴=5.6px
+2026-07-22 03:12:22,668 - m4_module.cell_crops - INFO - 匯出 84 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y0/cells
+2026-07-22 03:12:22,668 - hybrid_pipeline - INFO - Tile tile_x768_y0 完成: 核心擁有 84 細胞 (84 陽性), 2.88 秒
+2026-07-22 03:12:22,823 - hybrid_pipeline - INFO - [113/121] 處理 tile: tile_x768_y2304
+2026-07-22 03:12:22,857 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=40, DISH=33, matched(1核)=21 (其中重疊=21), drop-out(競爭落敗)=8, 無候選(計入)=11, factor=1.50, min_reach=20.0
+2026-07-22 03:12:23,370 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=25, 黑點=66, 涉及細胞=40
+2026-07-22 03:12:23,559 - m4_module.cell_crops - INFO - 匯出 6 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y1536/cells
+2026-07-22 03:12:23,559 - hybrid_pipeline - INFO - Tile tile_x768_y1536 完成: 核心擁有 6 細胞 (6 陽性), 2.83 秒
+2026-07-22 03:12:23,631 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 62 個細胞
+2026-07-22 03:12:23,677 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 62 顆細胞, factor=1.50(面積), 中位半徑=27.9px, 外擴=6.3px
+2026-07-22 03:12:23,954 - hybrid_pipeline - INFO - [114/121] 處理 tile: tile_x768_y3072
+2026-07-22 03:12:23,988 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=62, DISH=42, matched(1核)=35 (其中重疊=35), drop-out(競爭落敗)=11, 無候選(計入)=16, factor=1.50, min_reach=20.0
+2026-07-22 03:12:24,582 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=35, 黑點=62, 涉及細胞=62
+2026-07-22 03:12:24,779 - m4_module.cell_crops - INFO - 匯出 31 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y2304/cells
+2026-07-22 03:12:24,780 - hybrid_pipeline - INFO - Tile tile_x768_y2304 完成: 核心擁有 31 細胞 (31 陽性), 1.96 秒
+2026-07-22 03:12:24,835 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 75 個細胞
+2026-07-22 03:12:24,888 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 75 顆細胞, factor=1.50(面積), 中位半徑=33.3px, 外擴=7.5px
+2026-07-22 03:12:25,161 - hybrid_pipeline - INFO - [115/121] 處理 tile: tile_x768_y3840
+2026-07-22 03:12:25,196 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=75, DISH=53, matched(1核)=44 (其中重疊=44), drop-out(競爭落敗)=14, 無候選(計入)=17, factor=1.50, min_reach=20.0
+2026-07-22 03:12:26,027 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=51, 黑點=102, 涉及細胞=75
+2026-07-22 03:12:26,199 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 103 個細胞
+2026-07-22 03:12:26,254 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 103 顆細胞, factor=1.50(面積), 中位半徑=29.5px, 外擴=6.6px
+2026-07-22 03:12:26,311 - m4_module.cell_crops - INFO - 匯出 41 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y3072/cells
+2026-07-22 03:12:26,311 - hybrid_pipeline - INFO - Tile tile_x768_y3072 完成: 核心擁有 41 細胞 (41 陽性), 2.36 秒
+2026-07-22 03:12:26,527 - hybrid_pipeline - INFO - [116/121] 處理 tile: tile_x768_y4608
+2026-07-22 03:12:26,564 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=103, DISH=71, matched(1核)=57 (其中重疊=57), drop-out(競爭落敗)=23, 無候選(計入)=23, factor=1.50, min_reach=20.0
+2026-07-22 03:12:27,719 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=56, 黑點=139, 涉及細胞=103
+2026-07-22 03:12:27,993 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 103 個細胞
+2026-07-22 03:12:28,057 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 103 顆細胞, factor=1.50(面積), 中位半徑=29.8px, 外擴=6.7px
+2026-07-22 03:12:28,057 - m4_module.cell_crops - INFO - 匯出 73 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y3840/cells
+2026-07-22 03:12:28,057 - hybrid_pipeline - INFO - Tile tile_x768_y3840 完成: 核心擁有 73 細胞 (73 陽性), 2.90 秒
+2026-07-22 03:12:28,327 - hybrid_pipeline - INFO - [117/121] 處理 tile: tile_x768_y5376
+2026-07-22 03:12:28,367 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=103, DISH=73, matched(1核)=60 (其中重疊=60), drop-out(競爭落敗)=18, 無候選(計入)=25, factor=1.50, min_reach=20.0
+2026-07-22 03:12:29,462 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=56, 黑點=136, 涉及細胞=103
+2026-07-22 03:12:29,670 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 85 個細胞
+2026-07-22 03:12:29,726 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 85 顆細胞, factor=1.50(面積), 中位半徑=32.6px, 外擴=7.3px
+2026-07-22 03:12:29,825 - m4_module.cell_crops - INFO - 匯出 53 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y4608/cells
+2026-07-22 03:12:29,825 - hybrid_pipeline - INFO - Tile tile_x768_y4608 完成: 核心擁有 53 細胞 (53 陽性), 3.30 秒
+2026-07-22 03:12:29,998 - hybrid_pipeline - INFO - [118/121] 處理 tile: tile_x768_y6144
+2026-07-22 03:12:30,033 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=85, DISH=83, matched(1核)=60 (其中重疊=60), drop-out(競爭落敗)=8, 無候選(計入)=17, factor=1.50, min_reach=20.0
+2026-07-22 03:12:31,092 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=67, 黑點=153, 涉及細胞=85
+2026-07-22 03:12:31,235 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 48 個細胞
+2026-07-22 03:12:31,284 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 48 顆細胞, factor=1.50(面積), 中位半徑=29.1px, 外擴=6.5px
+2026-07-22 03:12:31,458 - m4_module.cell_crops - INFO - 匯出 51 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y5376/cells
+2026-07-22 03:12:31,458 - hybrid_pipeline - INFO - Tile tile_x768_y5376 完成: 核心擁有 51 細胞 (51 陽性), 3.13 秒
+2026-07-22 03:12:31,566 - hybrid_pipeline - INFO - [119/121] 處理 tile: tile_x768_y6912
+2026-07-22 03:12:31,600 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=48, DISH=44, matched(1核)=32 (其中重疊=32), drop-out(競爭落敗)=7, 無候選(計入)=9, factor=1.50, min_reach=20.0
+2026-07-22 03:12:32,192 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=44, 黑點=85, 涉及細胞=48
+2026-07-22 03:12:32,394 - m4_module.cell_crops - INFO - 匯出 29 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y6144/cells
+2026-07-22 03:12:32,394 - hybrid_pipeline - INFO - Tile tile_x768_y6144 完成: 核心擁有 29 細胞 (29 陽性), 2.40 秒
+2026-07-22 03:12:32,418 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 22 個細胞
+2026-07-22 03:12:32,459 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 22 顆細胞, factor=1.50(面積), 中位半徑=21.7px, 外擴=4.9px
+2026-07-22 03:12:32,726 - hybrid_pipeline - INFO - [120/121] 處理 tile: tile_x768_y7168
+2026-07-22 03:12:32,757 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=22, DISH=23, matched(1核)=11 (其中重疊=11), drop-out(競爭落敗)=3, 無候選(計入)=8, factor=1.50, min_reach=20.0
+2026-07-22 03:12:32,977 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=10, 黑點=26, 涉及細胞=22
+2026-07-22 03:12:33,102 - m4_module.cell_crops - INFO - 匯出 0 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y6912/cells
+2026-07-22 03:12:33,102 - hybrid_pipeline - INFO - Tile tile_x768_y6912 完成: 核心擁有 0 細胞 (0 陽性), 1.54 秒
+2026-07-22 03:12:33,227 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 31 個細胞
+2026-07-22 03:12:33,270 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 31 顆細胞, factor=1.50(面積), 中位半徑=30.3px, 外擴=6.8px
+2026-07-22 03:12:33,618 - hybrid_pipeline - INFO - [121/121] 處理 tile: tile_x768_y768
+2026-07-22 03:12:33,650 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=31, DISH=36, matched(1核)=16 (其中重疊=16), drop-out(競爭落敗)=4, 無候選(計入)=11, factor=1.50, min_reach=20.0
+2026-07-22 03:12:33,983 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=10, 黑點=35, 涉及細胞=31
+2026-07-22 03:12:34,158 - m4_module.cell_crops - INFO - 匯出 18 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y7168/cells
+2026-07-22 03:12:34,158 - hybrid_pipeline - INFO - Tile tile_x768_y7168 完成: 核心擁有 18 細胞 (18 陽性), 1.43 秒
+2026-07-22 03:12:34,226 - m3_module.m3_cells_generator - INFO - All-positive 標註完成: 79 個細胞
+2026-07-22 03:12:34,275 - m3_module.m3_cells_generator - INFO - enlarge_cell_instances: 79 顆細胞, factor=1.50(面積), 中位半徑=25.0px, 外擴=5.6px
+2026-07-22 03:12:34,583 - m3_module.m3_elastic_matching - INFO - elastic_dish_nucleus_matching(overlap-first): IHC=79, DISH=48, matched(1核)=38 (其中重疊=38), drop-out(競爭落敗)=17, 無候選(計入)=24, factor=1.50, min_reach=20.0
+2026-07-22 03:12:35,353 - m3_module.m3_dot_detection - INFO - detect_all_dots: 紅點=38, 黑點=102, 涉及細胞=79
+2026-07-22 03:12:35,626 - m4_module.cell_crops - INFO - 匯出 47 張 per-cell 影像至 /tmp/claude-1004/-data-taro-Projects-tsgh/e7a5f857-fd76-4fb3-bacf-790fd1832cc3/scratchpad/work/exp2_med_n8/cell_crops/tile_x768_y768/cells
+2026-07-22 03:12:35,626 - hybrid_pipeline - INFO - Tile tile_x768_y768 完成: 核心擁有 47 細胞 (47 陽性), 2.01 秒
+2026-07-22 03:12:35,718 - m4_module.csv - INFO - CSV 匯出完成: report.csv (3650 列)
+2026-07-22 03:12:35,718 - m4_module.csv - INFO - Summary 報告輸出: summary.txt (670 valid cells)
+2026-07-22 03:12:37,108 - hybrid_pipeline - INFO - overlay_slide.tiff 縫合完成: 8192×8192 px
+2026-07-22 03:12:37,114 - hybrid_pipeline - INFO - 批次完成 — run_id=b9d02da2 | 總計=121 | 成功=103 | 跳過=18
+[perf_measure] skip wrap: hybrid_pipeline.segment_masked_dish not found
+{
+  "label": "exp2_med_n8",
+  "n_tiles": 121,
+  "grid": {
+    "cols": 11,
+    "rows": 11
+  },
+  "wall": {
+    "end_to_end_total_s": 159.086,
+    "phaseA_precut_s": 5.588,
+    "runbatch_BCD_s": 153.498
+  },
+  "disk_bytes": {
+    "precut_scratch": 281197092,
+    "analysis_output": 1432260908
+  },
+  "stats": {
+    "success": 103,
+    "skipped": 18
+  },
+  "timings": {
+    "init_unet": {
+      "n": 1,
+      "t": 1.2210309829679318
+    },
+    "init_cellpose_m2": {
+      "n": 1,
+      "t": 0.6808388049830683
+    },
+    "init_cellpose_m3b": {
+      "n": 1,
+      "t": 0.5012575240107253
+    },
+    "B2r_tile_read": {
+      "n": 242,
+      "t": 1.9057459440664388
+    },
+    "B1_unet_coremask": {
+      "n": 121,
+      "t": 4.650017178908456
+    },
+    "BM1_apply_mask": {
+      "n": 119,
+      "t": 1.9500507797929458
+    },
+    "BM1_overlay_dish": {
+      "n": 119,
+      "t": 1.5183863939600997
+    },
+    "BM1_fuse": {
+      "n": 119,
+      "t": 1.1038238332839683
+    },
+    "B1_m3b_cellpose": {
+      "n": 238,
+      "t": 125.02864700910868
+    },
+    "Bs_clear_edge": {
+      "n": 119,
+      "t": 1.5933445519767702
+    },
+    "B3_build_results": {
+      "n": 119,
+      "t": 2.6517440779716708
+    },
+    "B3_enlarge_cells": {
+      "n": 119,
+      "t": 5.751310477848165
+    },
+    "B4_empty_cache": {
+      "n": 121,
+      "t": 0.4081691195606254
+    },
+    "B3_detect_dots": {
+      "n": 119,
+      "t": 81.0297226900002
+    },
+    "B3_merge_dots": {
+      "n": 119,
+      "t": 0.0030157220317050815
+    },
+    "Bs_filter_absolutize": {
+      "n": 119,
+      "t": 0.027351339056622237
+    },
+    "B2_png_encode": {
+      "n": 363,
+      "t": 23.407519806118216,
+      "bytes": 130868884
+    },
+    "B2_tiff_encode": {
+      "n": 363,
+      "t": 0.3094064123579301,
+      "bytes": 1216446896
+    },
+    "B2_render_overlay": {
+      "n": 119,
+      "t": 2.8015011905808933
+    },
+    "B2_percell_crops": {
+      "n": 119,
+      "t": 1.2973020177450962
+    },
+    "B4_gc_collect": {
+      "n": 16,
+      "t": 1.3115381660172716
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.0025427500368095934
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.00025578500935807824
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 1.395976351981517
+    }
+  },
+  "config_hash": "9e4b6866",
+  "gc_cadence": {
+    "gc_collect_every_n_tiles": 8,
+    "gc_freeze_after_init": false
+  },
+  "peak_cuda_reserved_gb": 9.355,
+  "peak_rss_gb": 3.066
+}
