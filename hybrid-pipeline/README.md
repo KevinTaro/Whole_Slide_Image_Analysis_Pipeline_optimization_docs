@@ -14,7 +14,7 @@
 1. **定位**：IHC(Her2)＋DISH 雙染色 WSI 的逐 tile 分析流水線 —— 讀圖 → 疊合 → Cellpose 分割 → 逐細胞 HER2/CEP17 點位計數與擴增判定 → 縫回整圖 → 匯出 CSV/視覺化。
 2. **最大瓶頸**：**Cellpose GPU 前向**（UNet++ core mask + M2/M3b 兩次 Cellpose）仍是 #1，但已歷經四輪優化：① 單 process 兩段式 pipeline/overlap（GPU 主執行緒 + CPU 背景執行緒重疊）、Cellpose 4.0.8→4.2.1.1（DINOv3 `cpdino` backbone + bfloat16）、`gc.freeze()`、CPU 前處理搬離 MAIN 臂、precut 串流化。累計 large/441-tile 錨點從 **848.0 s → 480.3 s（−43.4%）**；全 WSI 估算從 ~18.9h 壓到 **~10.5h**（皆為上限估計，見下）。目前 MAIN（GPU）臂只剩 **~15.9%** 餘裕可縮，縮更多就會把瓶頸換到 BG（CPU：`detect_all_dots` + PNG 編碼）臂。**最新排名、餘裕與下一步全部以 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) 為準**，本段只是導覽用摘要，過幾輪就會再過時。
 3. **GPU 限制（先讀）**：機器是 **RTX 5090（Blackwell, sm_120）**，**只能跑 cu130 的 torch**（實測 `torch 2.11.0+cu130`）。不能任意降 torch 版本，也不能用舊 CUDA wheel —— 改動依賴前務必看 [06-versions-dependencies.md](./06-versions-dependencies.md)。
-4. **還沒做完什麼**：見 [../BACKLOG.md](../BACKLOG.md) —— 未做/半做的優化項目、文件與 code 的已知落差，集中列在那一份，不散在各文件裡找。
+4. **還沒做完什麼**：見 [19-open-backlog.md](./19-open-backlog.md) —— 本資料夾範圍內未做/半做的優化項目、待驗證的正確性問題、文件與 code 的已知落差，集中列在那一份，不散在各文件裡找。（跨 hybrid-pipeline 與 UI 兩個資料夾的總表在 [../BACKLOG.md](../BACKLOG.md)。）
 
 ## 要接手優化，先讀這份（導覽表）
 
@@ -41,7 +41,8 @@
 | 動依賴前確認相容性（**部分版本已在後續輪更新，見 measurement 文件**） | [06-versions-dependencies.md](./06-versions-dependencies.md) | venv 實測版本 vs requirements vs pyproject 三方衝突；Blackwell 限制 |
 | 踩到怪坑（config 跑不動、幻影檔案…） | [07-gotchas-appendix.md](./07-gotchas-appendix.md) | codegraph 過期、config gitignore、未接線參數、失聯 spec docs（G2 已修復，見檔內更新） |
 | 看視覺化的流程與迴圈關係（**畫的是 pre-precut 架構**） | [pipeline-flow.html](./pipeline-flow.html) | M0 複雜迴圈、StitchAccumulator 去重、記憶體生命週期圖 |
-| **還沒做完 / 半做的優化與文件落差總表** | [../BACKLOG.md](../BACKLOG.md) | 跨 hybrid-pipeline 與 UI 兩個資料夾，唯一的「還欠什麼」清單 |
+| **本資料夾還沒做完 / 半做的優化、待驗證正確性、文件落差** | [19-open-backlog.md](./19-open-backlog.md) | 只引用本資料夾內的文件；效能項目依天花板排序、正確性待簽核項目、文件↔code 落差 |
+| 跨 hybrid-pipeline 與 UI 的總表 | [../BACKLOG.md](../BACKLOG.md) | 涵蓋範圍更廣（含 UI Phase 4/5），本資料夾內細節仍以 19 為準 |
 
 **建議閱讀順序**：先 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md)（現況與四輪演進，含每輪的「Re-sorted priority」）→ 依你要接手的項目挑對應的 10–18 → 需要架構/模塊細節再翻 `01/02`（記得套用上面的路徑遷移提醒）。`03/04` 只有歷史對照價值，不要當現況用。
 
