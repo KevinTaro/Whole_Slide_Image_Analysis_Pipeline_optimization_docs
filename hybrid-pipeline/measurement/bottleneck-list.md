@@ -440,6 +440,14 @@ The single-process floor is therefore `BG + outside = 389.3 s` (**1.23x** from 4
   into `Config`, so the `getattr(config, "cellpose_batch_size", 16)` fallback at
   `hybrid_pipeline.py:206,218` remains the only value ever used. Unchanged as a finding;
   strictly more headroom left on the table than when it was first recorded.
+- **Round 4 (2026-07-22) — the config is now wired, but the headroom turns out to be
+  unusable at this tile size.** A real `cellpose_batch_size` field was added and both
+  `getattr` fallbacks replaced. Sweeping 16/32/64 is **flat** in wall, per-call forward time
+  and VRAM alike: the `cpdino` backbone's `bsize=384` splits a 1024² tile into exactly 16
+  patches, so batch size 16 already runs them in a single batch. The ~29.8 GB of idle VRAM
+  cannot be spent this way — it would only become usable if `default_tile_size` grew to
+  ≥1536. The G-B "dead config" defect is fixed; the performance opportunity it implied does
+  not exist.
 
 ## Classification summary (plan §6)
 | class | bottlenecks |
@@ -564,19 +572,23 @@ Ranked by **critical-arm contribution × plausible reduction**, not by self-time
 > against changed from 34.0% to **15.9%**. Full reasoning:
 > [`../18-gpu-starvation-prerequisites-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md) §6.
 
-1. **Wire `cellpose_batch_size` into `Config`, then sweep — now the top open item.** Still
-   unwired (`getattr(config, "cellpose_batch_size", 16)`, no such field). Round 4 found the
-   reason it matters more than previously thought: at these tile sizes `segment_windowed` runs
-   **one window per call**, so this knob controls Cellpose's *internal* patch batching within a
-   single 1024² image (~25–36 patches, currently 16 at a time = 2–3 internal batches). That
-   targets the **intra-forward, launch-bound** idle, which round 4's cuda-Event work showed is
-   the *larger* half of all device idle and is unreachable by any pipeline-level restructuring.
-   Ceiling bounded by the new margin: **≤1.19x**. Step 1 must be a bit-exact no-op.
-2. **Cross-tile multiprocessing — scope only if #1 disappoints.** Unlike every single-process
+1. **`cellpose_batch_size` — wired (adopted), sweep measured NEGATIVE (closed).** The dead
+   config is fixed: a real `cellpose_batch_size: int = 16` field now feeds both segmenters
+   (**config hash `db2b7e6a` → `ad41c42f`**). The sweep it was a prerequisite for is a
+   **negative result and should not be re-run**: wall/per-call forward time/VRAM are flat
+   across 16/32/64 (per-call 517.6/519.0/518.6 ms, VRAM 2787 MB throughout). Cause, measured
+   with `cellpose.transforms.make_tiles`: the `cpdino` backbone uses `bsize=384`, so a 1024²
+   tile yields exactly **4×4 = 16 patches** — equal to the batch size already in use, i.e. one
+   batch, nothing left to batch. The hardcoded fallback 16 was accidentally optimal for this
+   tile size. **Only becomes live if `default_tile_size` grows to ≥1536** (25 patches). See
+   [`../18-...-implementation.md`](../18-gpu-starvation-prerequisites-implementation.md) §6.1.
+2. **Cross-tile multiprocessing — now the only remaining lever with a real ceiling.** Unlike every single-process
    lever it is not bounded by the `BG + outside = 389.3 s` floor (each process carries its own
    BG thread), so its ceiling is wider — roughly **1.23x–1.7x** — but it still requires solving
    fork-under-CUDA (per-process model reload: VRAM 2.79 GB × N, init 2.4 s × N) and carries the
-   largest correctness risk of anything remaining.
+   largest correctness risk of anything remaining. It is now the *only* lever that reaches the
+   **intra-forward, launch-bound** idle (the larger half of all device idle): #1 cannot touch it
+   at this tile size, and patching Cellpose internals was stop-lossed in `gil-contention-diag.md`.
 3. **⑨ isolate the `detect_all_dots` regression (optional, unchanged priority).** Note it moved
    on its own in round 4 (279.9 → 257.6 s) purely from ⑧'s thread relocation, so any isolation
    attempt must control for thread placement.
