@@ -2,25 +2,32 @@
 
 > 怎麼在本地把它跑起來、怎麼確認沒改壞。
 
-## 現有測試方式：沒有自動化測試
+## 現有測試方式：hybrid 目錄本身仍沒有自動化測試
 
-- **無 pytest、無 CI**。專案根目錄與 hybrid 目錄下**沒有 test 檔**（codegraph 列出的 `test_*.py` 是幻影，實際不存在 —— 見 [07](./07-gotchas-appendix.md)）。
-- 現有驗證方式是**手動 CLI 跑** + 目視檢查輸出圖：
+- **`backend/algorithms/hybrid/` 目錄下仍沒有 test 檔**（codegraph 列出的 `test_*.py` 是幻影，實際不存在 —— 見 [07](./07-gotchas-appendix.md)）。**注意這個結論範圍限定在 hybrid 目錄**：專案根目錄的 `backend/tests/`（`test_chunked_upload.py`/`test_module1_strips.py`/`test_openslide_before_pyvips.py`/`test_resume.py`）已有真的 pytest 測試，但涵蓋的是對齊/上傳/resume 相關子系統，不含 hybrid pipeline。
+- hybrid pipeline 唯一的自動化檢查是 `scripts/verify_gc_freeze.py`（非 pytest，獨立腳本）——驗證 `gc.freeze()` 的 cadence/pairing invariant（見 [15-gc-collect-frequency-implementation.md](./15-gc-collect-frequency-implementation.md) §4），不是 pipeline 輸出正確性測試。
+- 現有 pipeline 輸出驗證方式仍是**手動 CLI 跑** + `report.csv` 比對（見下方回歸基準）：
   - `python hybrid_pipeline.py --batch --test`（跑 `test_picture/` 內的小圖）
   - `python hybrid_pipeline.py --ihc <tile> --dish <tile>`（單對）
-- `elastic_matching_v3_explainer.html` 底部提到的 `/tmp/test_nucleus_centric.py`、`/tmp/test_detect_wiring.py` 是當時一次性驗證腳本，**放在 /tmp、不在 repo**，別預期能找到。
+- `docs/algo/elastic_matching_v3_explainer.html` 底部提到的 `/tmp/test_nucleus_centric.py`、`/tmp/test_detect_wiring.py` 是當時一次性驗證腳本，**放在 /tmp、不在 repo**，別預期能找到。
 
 ## 本地跑法（詳細步驟）
 
+> ⚠️ **路徑已更新**：程式碼已從 `cell_mask/hybrid/` 搬到 `backend/algorithms/hybrid/`（UI
+> Phase 1 目錄重構），venv 也已改在本 repo 根目錄下的 `.venv/`，不再是舊的
+> `/home/sec312/project/tsgh/.venv`。下面已更新為目前路徑；若你機器上的實際路徑不同，
+> 以你自己 `ls -d .venv` / `git rev-parse --show-toplevel` 的結果為準，不要照抄。
+
 ```bash
 # 0. 進專案 venv（記憶：python/test 一律 source 這個 venv）
-source /home/sec312/project/tsgh/.venv/bin/activate
+cd <repo 根目錄>          # 例：/data/taro_Projects/tsgh
+source .venv/bin/activate
 
 # 1. 建 config（config.py 是 gitignored，不 cp 跑不動）
-cd /data/tsgh/cell_mask/hybrid
+cd backend/algorithms/hybrid
 cp config_example.py config.py
 
-# 2. ⚠️ 編 config.py：cp 完還要補檔尾（見下方警告），並填模型路徑/tile 目錄
+# 2. 編 config.py：填模型路徑/tile 目錄（G2 的「缺檔尾」問題已修復，見下方更新，cp 完可直接 import）
 #    - unet_model_path / cellpose_model_path / cellpose_dish_model_path
 #    - ihc_tile_dir / dish_tile_dir（或 ihc_test_dir / dish_test_dir）
 #    - output_dir / slide_id / model_version
@@ -29,9 +36,16 @@ cp config_example.py config.py
 python hybrid_pipeline.py --batch --test          # 用 test_picture 小圖（最快驗證）
 python hybrid_pipeline.py --batch                  # 正式 tile 目錄
 python hybrid_pipeline.py --ihc A.tiff --dish B.tiff --output out/   # 單對
+
+# 量測（round 3/4 用的正式量測腳本，非手動 cProfile）：
+python ../../../scripts/perf_measure.py --ihc <A.tiff> --dish <B.tiff> \
+  --output <out> --label <tag> --workers 8 --gpu-dmon --metrics-dir <m>
 ```
 
-> **⚠️ `cp config_example.py config.py` 之後還不能直接跑**：`config_example.py` 尾端**缺少** `compute_config_hash()` 函式與 `config = Config()` 這行，而 `hybrid_pipeline.py` 是 `from config import config, compute_config_hash`。直接 cp 會 `ImportError`。要從現有的 `config.py`（若已存在）或參考 [07](./07-gotchas-appendix.md) 手動補回這兩段。若機器上已有可跑的 `config.py`，別覆蓋它。
+> **更新（已修復）**：舊版 `config_example.py` 尾端曾缺少 `compute_config_hash()` 函式與
+> `config = Config()` 這行，導致 `cp` 完直接 `ImportError`（見 [07](./07-gotchas-appendix.md) G2）。
+> 現行 `config_example.py`（226 行，與 `config.py` 行數一致）已補上這兩段，`cp` 完可直接
+> import，不需再手動補檔尾。若你手上的是更舊的 checkout，仍可能踩到這個坑。
 
 ### 模型檔位置（已在 repo）
 ```
@@ -65,8 +79,8 @@ CLAUDE.md 定義的**權威回歸基準**：
 - **重要例外**：**GPU 推論本身非決定性**（Cellpose/UNet 前向跨 run 有微小抖動）。所以跨 run 比對要用 **noise floor（容忍閾值）** 而非精確相等；真正該 bit-identical 的是「同一份 mask 進去、縫合/去重/重編號」這段純資料邏輯。
 - 改 `m0_stitch` / `m0_reader` / 去重邏輯後，這條基準是你的護欄。
 
-## perf_report.html 怎麼重新產生
+## perf_report.html 怎麼重新產生（**已過時，改用 `scripts/perf_measure.py`**）
 
-- **目前沒有自動化腳本** —— `output/perf_report.html` 是**手動量測**產出的（`--batch --test` 3 tiles + cProfile + 資源取樣，再人工整理成 HTML）。
-- 要更新數字：手動包一層 `cProfile` 跑 `run_batch`、同時取樣 GPU/CPU/RAM（如 `nvidia-smi`/`psutil`），再更新 HTML。
-- **提醒**：現有數字量測於 2026-06-29，在 M0 記憶體優化 commit 之前（見 [03](./03-benchmarks-bottlenecks.md) 的量測時點說明）；瓶頸排名仍有效，絕對秒數建議重跑取得。
+- `docs/hybrid-pipeline/measurement/perf_report.html` 是**手動量測**產出的（`--batch --test` 3 tiles + cProfile + 資源取樣，再人工整理成 HTML），量測於 2026-06-29，在 M0 記憶體優化 commit 之前（見 [03](./03-benchmarks-bottlenecks.md) 的量測時點說明）。**不要再手動重現這份報告** —— 它已被下面的自動化腳本取代。
+- **現行量測方式是 `scripts/perf_measure.py`**（round 2–4 都用它）：非侵入式 monkeypatch 計時 + `nvidia-smi dmon`（`--gpu-dmon`）+ `psutil` 資源取樣，輸出 `*_timings.json` / `*_resource.csv` / `*_gpu_dmon.txt`。配套分析腳本：`scripts/aggregate_report.py`、`scripts/resource_analyze.py`、`scripts/arm_report.py`（雙臂模型 + 餘裕）、`scripts/gc_ablation_report.py`（正確性 veto，最近質心配對）。
+- 最新一輪的完整重現指令見 [18-gpu-starvation-prerequisites-implementation.md](./18-gpu-starvation-prerequisites-implementation.md) §9；現況數字一律以 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) 為準，不要再讀這份舊 HTML 當現況。
