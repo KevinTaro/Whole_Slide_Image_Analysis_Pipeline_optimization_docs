@@ -4,7 +4,13 @@
 
 ## G1. Codegraph 索引過期 —— 有「幻影檔案」
 
-- **現象**：`codegraph_files cell_mask/hybrid` 列出 **30 個檔**，但磁碟上實際只有 **20 個 .py**（19 個 git-tracked + gitignored 的 `config.py`）。index 停在某個舊狀態，包含已刪除/重命名/從未存在的檔。
+> ⚠️ **此節記錄的是舊路徑 `cell_mask/hybrid/` 底下的索引狀態**。該目錄本身後來又整個搬到
+> `backend/algorithms/hybrid/`（UI Phase 1 目錄重構），所以「index 落後於磁碟」這個病灶
+> 現在多了一層——先確認 `codegraph sync` 是否已經追上新路徑，再套用下面的診斷法（改查
+> `codegraph_files backend/algorithms/hybrid`）。核心教訓不變：**檔案是否存在一律以
+> `git ls-files`/`find` 為準**。
+
+- **現象（原始記錄，路徑已改）**：`codegraph_files cell_mask/hybrid` 列出 **30 個檔**，但磁碟上實際只有 **20 個 .py**（19 個 git-tracked + gitignored 的 `config.py`）。index 停在某個舊狀態，包含已刪除/重命名/從未存在的檔。
 - **驗證的幻影檔案清單（11 個，codegraph 有、磁碟沒有）**：
   ```
   heatmap_visualizer.py          image_io.py
@@ -19,15 +25,12 @@
 - **解決方式**：**檔案是否存在一律以 `git ls-files` / `find` 為準**，不要相信 codegraph 的檔案列表。查符號/呼叫關係時，若命中的檔在上面幻影清單裡，直接忽略。（codegraph 對「存在的檔」內的符號查詢仍可用；只是檔案集合過期。）
 - **附帶提醒**：`heatmap_visualizer.py` 同時被 `cell_mask/hybrid/CLAUDE.md` 的 Architecture 段落引用（描述成 standalone 驗證工具），但**該檔實際不存在** —— 是文件 + index 雙重失聯，別去找它。
 
-## G2. `config.py` 是 gitignored —— 不 cp 跑不動，且 cp 完還不夠
+## G2. `config.py` 是 gitignored —— 不 cp 跑不動（**檔尾缺段問題已修復**）
 
 - **現象**：clone 後直接 `python hybrid_pipeline.py ...` → `ModuleNotFoundError: No module named 'config'`（或 import 失敗）。
-- **診斷法**：`git check-ignore cell_mask/hybrid/config.py` → 命中（確認被 ignore）；`git ls-files ... config.py` → 空（確認沒進 git）。
+- **診斷法**：`git check-ignore backend/algorithms/hybrid/config.py` → 命中（確認被 ignore）；`git ls-files ... config.py` → 空（確認沒進 git）。
 - **解決方式**：`cp config_example.py config.py`，再填模型路徑/tile 目錄。
-- **⚠️ 但 cp 之後還會壞（重要）**：`config_example.py` 尾端**缺少** `compute_config_hash()` 函式與 `config = Config()` 這行（只到 `slide_id` 就結束），而 `hybrid_pipeline.py` 是 `from config import config, compute_config_hash`。所以**光 cp 會 `ImportError: cannot import name 'config'`**。
-  - **驗證**：`config_example.py` 212 行，結尾是 `slide_id`；正式 `config.py` 229 行，多出 `compute_config_hash(cfg)` 與 `config = Config()`。
-  - **解法**：cp 後在檔尾補上這兩段（或直接沿用機器上已存在、可跑的 `config.py`，別覆蓋）。附帶：`config_example.py` 用 `import torch`、正式 `config.py` 用 `from torch import cuda` —— 功能等價，別困惑。
-  - **順手可改善**：讓 `config_example.py` 補回檔尾兩段，使「cp 即可跑」名副其實。（本文檔不改 code，只標示。）
+- **✅ 已修復（原「cp 之後還會壞」的問題）**：本文件原先記錄 `config_example.py` 尾端缺少 `compute_config_hash()` 函式與 `config = Config()` 這行，導致光 cp 會 `ImportError: cannot import name 'config'`。**目前 HEAD 已補上這兩段**（`config_example.py` 與 `config.py` 皆為 226 行，結尾都是 `compute_config_hash(cfg)` + `config = Config()`），「cp 即可跑」現在名副其實，不需要再手動補檔尾。若你手上是更舊的 checkout（226 行以前）仍可能踩到，用 `tail -5 config_example.py` 確認是否已含 `config = Config()` 這行即可判斷。
 
 ## G3. `cellpose_batch_size` 沒接線到 Config
 
