@@ -13,6 +13,11 @@
 
 ## 1. Hybrid pipeline — performance, ranked by what the measurement record says is left
 
+> **Canonical, more detailed version of this section now lives in
+> [`hybrid-pipeline/19-open-backlog.md`](hybrid-pipeline/19-open-backlog.md)** (hybrid-pipeline-only
+> scope, references only documents inside that folder). Keep this section as a short mirror;
+> if the two drift apart, `19-open-backlog.md` wins.
+
 Full current numbers and the arm model live in
 [`hybrid-pipeline/measurement/bottleneck-list.md`](hybrid-pipeline/measurement/bottleneck-list.md)
 ("第 4 輪後重新排序的優先順序" section). Summary of what's actually open:
