@@ -28,6 +28,6 @@
 | 3 | **影像格式範圍**（.svs / .ndpi / .tiff 各多少） | 決定 WSI reader 需支援哪些格式 |
 | 4 | 是否需要 **多 case 管理 / 患者清單** | 影響 Phase 3 UI scope |
 | 5 | 醫師對 **UI 語言**偏好（繁中 / 英文 / 雙語） | 決定 i18n 要不要進 Phase 3 |
-| 6 | **`module3_roi_evaluation.py` / `module5_tile_generator.py` 歸類** | 影響 Phase 1 遷移對照（[03](03-directory-structure.md) 未對應清單） |
+| 6 | **`module3_roi_evaluation.py` 歸類** | 影響 Phase 1 遷移對照（[03](03-directory-structure.md) 未對應清單） |
 | 7 | 是否需要 **模型訓練 GUI**（不只推論，還要在 UI 內重訓 / 微調） | 大幅擴張 scope；預設**不做**，需明確要求才排進路線圖 |
 | 8 | Python format 工具 **ruff vs black** | 本文檔提議 ruff（lint+format 一把抓）；若團隊已慣用 black 需先統一，避免 format 戰爭 |
