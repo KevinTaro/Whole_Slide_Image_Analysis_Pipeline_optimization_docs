@@ -267,7 +267,14 @@ so MAIN has only 15.9% left to shed** before the background CPU arm becomes the 
 ## 6. Item 5 — sizing the three big levers against the residual
 
 This is doc 17 §4-5: the three levers may only be sized against what is *left* after items 1–4, not
-against the pre-round idle. What is left, measured:
+against the pre-round idle.
+
+**One of the three went past sizing.** §6.1 (batch size) was cheap enough to settle outright, so it
+was built and swept rather than estimated — and came back **negative**, which is why the ranking at
+the end of this section differs from the one §6.1's own (preserved, wrong) reasoning implied. §6.2 and
+§6.3 remain sizing only.
+
+What is left, measured:
 
 - **Provable inter-forward GPU idle: 6.07% of wall** (Event-based, §3) — the rest of the device idle
   is intra-forward and launch-bound, already stop-lossed.
