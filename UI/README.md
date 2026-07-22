@@ -1,21 +1,25 @@
 # UI 交接文檔
 
-> **一句話**：下一階段 UI＝**FastAPI（只綁 localhost）+ React Web UI + pywebview 打包成桌面 app**，但**現在還在 Phase 0**——只有共識、還沒寫任何一行 UI code。
+> **一句話**：下一階段 UI＝**FastAPI（只綁 localhost）+ React Web UI + pywebview 打包成桌面 app**。
+> **現況（2026-07-22）：Phase 1–3 已完工**——`backend/` 與 `frontend/` 都已存在並可跑（tile
+> server、單張/疊合檢視、pipeline 觸發面板），詳見 [07](07-phase-roadmap.md) 的狀態表、
+> [10](10-viewer-ui-implementation.md) 實作清單、[11](11-runbook-teammate.md) 跑法。
+> 未完成的是 **Phase 4（ROI/參數微調）** 與 **Phase 5（打包成桌面 app）**。
 
-這份文檔是給接手 UI 的成員的交接包。目標：**30 分鐘內掌握全貌**，知道「為什麼這樣設計」「哪些不能碰」「什麼時候開始動手」。
+這份文檔是給接手 UI 的成員的交接包。目標：**30 分鐘內掌握全貌**，知道「為什麼這樣設計」「哪些不能碰」「現在做到哪、下一步是什麼」。
 
 ---
 
-## Phase 0 現況（重要）
+## Phase 0 現況（**歷史記錄，已過時，保留供對照**）
 
-> ⚠️ **本節多數敘述已過時（2026-07-12）**：`backend/` 與 `frontend/` 都已存在，
-> tile server + React 切片工作台已能跑。UI 現況以 [10](10-viewer-ui-implementation.md)、
-> 跑法以 [11](11-runbook-teammate.md) 為準；下方保留原文供歷史對照。
+> ⚠️ **本節敘述的是 Phase 0（共識階段）的狀態，早已過時**：`backend/` 與 `frontend/` 都已存在，
+> tile server + React 切片工作台已能跑，Phase 1–3 已完工（見上方與 [07](07-phase-roadmap.md)）。
+> UI 現況以 [10](10-viewer-ui-implementation.md)、跑法以 [11](11-runbook-teammate.md) 為準；
+> 下方保留原文供歷史對照，**不要照下面的敘述行動**。
 
-- **repo 內還沒有 `backend/` 或 `frontend/` 資料夾**。本文所有目錄樹、endpoint、指令都是 **提議 / 未來式**，不是現況。
-- 目前所有功能都是 Python script / CLI（`thriple_image_layer/`、`cell_mask/hybrid/`）。
-- 演算法仍在**醫師驗證 + 迭代**中，**尚未定版**。UI 要等演算法進維護期才啟動（見 [07](07-phase-roadmap.md)）。
-- 所以：**現在讀這份文檔＝先建立共識**，不是叫你馬上開工。
+- ~~repo 內還沒有 `backend/` 或 `frontend/` 資料夾~~ —— 兩者皆已存在，見上方。
+- ~~目前所有功能都是 Python script / CLI（`thriple_image_layer/`、`cell_mask/hybrid/`）~~ —— 已搬進 `backend/algorithms/`，且已有 FastAPI 包裝（見 [07](07-phase-roadmap.md) Phase 2）。
+- 演算法仍在**醫師驗證 + 迭代**中，**尚未定版**（round 3 的 Cellpose 換模型結果仍待病理驗證，見 `docs/hybrid-pipeline/13-next-optimization-plan.md` §3）——這點依然成立，UI 開發是與演算法迭代**並行**推進的，不是等演算法定版才開始。
 
 ---
 
