@@ -11,7 +11,7 @@
 ### 1. `backend/algorithms/` 與 `backend/io/` **禁止 import 任何 web 框架**
 不得出現 `import fastapi` / `from fastapi ...` / `import flask` / `starlette` / `pydantic` 的 request model。
 **為什麼**：這條是「物理防火牆」的實作。只要演算法層碰不到 web 框架，它就永遠能被 CLI 獨立呼叫、永遠不會被 UI 綁架。這是 [01](01-architecture.md) 整個架構成立的前提。
-**適用範圍**：`cell_mask/hybrid/` 現有的 `m0_reader.py`/`m0_stitch.py`（chunked WSI 讀取/縫合）Phase 1 會整包搬入 `backend/algorithms/hybrid/`，介面不變（見 [03](03-directory-structure.md)）。搬遷後這條護欄一樣套用在它們身上——`backend/io/wsi_reader.py` 若包裝 `m0_reader.py`，包裝層本身也不得 import web 框架。
+**適用範圍**：原 `cell_mask/hybrid/` 的 `m0_reader.py`（chunked/precut WSI 讀取）已於 Phase 1 整包搬入 `backend/algorithms/hybrid/`，介面不變（見 [03](03-directory-structure.md)）。這條護欄一樣套用在它們身上——`backend/io/pyramid.py`（實際落地的 tile server 核心，見 [10](10-viewer-ui-implementation.md)）不 import 任何 web 框架，符合本條；若未來新增其他包裝層，包裝層本身也不得 import web 框架。
 
 ### 2. `frontend/` **不直接讀本機檔案路徑**
 前端拿到的是 `slide_id` / job id / URL，**不是** `D:\cases\xxx.svs`。要看影像一律透過 `/api/tiles/...`、要看結果透過 endpoint。
