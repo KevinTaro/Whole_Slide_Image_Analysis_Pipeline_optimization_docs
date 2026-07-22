@@ -1,7 +1,11 @@
 # 02 — 逐模塊參考
 
 > 每個模塊：檔案/入口 → I/O → 關鍵演算法 → 瓶頸 → 套件（**實測 venv 版本**）→ 可優化點。
-> 全部路徑相對 `cell_mask/hybrid/`。Invariant：模塊間傳遞的影像一律 RGB `uint8 (H,W,3)`；core mask `uint8{0,1}(H,W)`；instance mask `int32(H,W)` 背景 0、細胞 1..N。
+> 全部路徑相對 `backend/algorithms/hybrid/`（舊稱 `cell_mask/hybrid/`，該路徑已隨 UI Phase 1
+> 目錄重構移除，見 [README](./README.md) 頂部提醒）。Invariant：模塊間傳遞的影像一律 RGB `uint8 (H,W,3)`；core mask `uint8{0,1}(H,W)`；instance mask `int32(H,W)` 背景 0、細胞 1..N。
+>
+> ⚠️ **本文件描述的是 pre-precut 架構**（M0 讀取為逐 chunk 迭代器）。目前 HEAD 已改成
+> `precut_paired_tiles`/`PrecutStream` 先落地/串流磁碟 tile，詳見 [09](./09-measurement-analysis-plan.md) §0 的落差表與 [18](./18-gpu-starvation-prerequisites-implementation.md) §4.2。M2/M3 的模組級 I/O、參數、瓶頸分類本身大致仍成立，但引用的入口函式（如 `segment_masked_dish`）部分已在後續 commit 移除，改由 `segment_windowed` 統一承接——見 [`current-status-comparison.md`](./measurement/current-status-comparison.md) 開頭的 harness caveat。
 
 ---
 
