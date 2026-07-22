@@ -85,7 +85,7 @@ recording and costing even though `1/(1-p)` looks unexciting. Such items are mar
 | rank | item | self-time | % wall | **arm** | **ceiling if →0** | status |
 |--:|---|--:|--:|---|--:|---|
 | 1 | ① GPU forwards (2× Cellpose + UNet++) | 444.6 s | 77.5% | **MAIN (critical)** | **1.382x** | still PRIMARY; −23.2% vs overlap round |
-| 2 | ④ `gc.collect` per tile | 36.4 s | 6.3% | **MAIN (critical)** | **1.083x** | **sub-floor but actionable** — escalated |
+| 2 | ④ `gc.collect` per tile | 36.4 s | 6.3% | **MAIN (critical)** | **1.083x** | **RESOLVED (2026-07-22)** — `gc.freeze()` adopted, cost now 0.52 s; see item ④ update and [doc 16](../16-gc-collect-frequency-result.md) |
 | 3 | ⑧ main-arm CPU prep (`enlarge_cell_instances` + `build_all_positive_results`) | 28.4 s | 5.0% | **MAIN (critical)** | ~1.05x | **NEW** — pure CPU sitting on the GPU arm |
 | 4 | ⑤ precut A + stitch D | 25.6 s | 4.5% | **outside overlap** | ~1.05x | unchanged; wholly serial |
 | 5 | ② `detect_all_dots` | 292.9 s | 51.1% | BG (slack) | **1.013x** | hidden — but **+22.3% vs overlap round** (⑨) |
@@ -98,6 +98,12 @@ recording and costing even though `1/(1-p)` looks unexciting. Such items are mar
 critical path. At medium the margin is thinner still: **36.8%**. In other words ② and ③
 are **one more Cellpose-sized speedup away from being re-exposed**, exactly as this
 document predicted ("Still Class 5 backlog if B1 ever shrinks enough to re-expose it").
+
+> **Stale as of 2026-07-22:** this 34.0%/36.8% margin was measured *before* `gc.freeze()`
+> landed (item ④, resolved) and shrank MAIN's gc component from 36.4 s to ~0.5 s. MAIN
+> itself is a bit smaller now, which *tightens* this margin somewhat — re-measure the
+> actual MAIN/BG split before sizing ⑧ or the Priority 4 batch-size sweep against it; don't
+> reuse 34%/36.8% as-is.
 
 ---
 
@@ -282,6 +288,23 @@ document predicted ("Still Class 5 backlog if B1 ever shrinks enough to re-expos
   actionable, not stop-lossed** — the "only untried lever" note above stands, with the same
   caveat that it touches the memory-bounded invariant and needs RSS re-validation at 441 scale.
   Class 4 + 6. 信心: 實測直接量到 (three rounds).
+- **RESOLVED (2026-07-22) — `gc.freeze()` adopted, not the planned batching lever.** Full
+  record: [`15-gc-collect-frequency-implementation.md`](../15-gc-collect-frequency-implementation.md) /
+  [`16-gc-collect-frequency-result.md`](../16-gc-collect-frequency-result.md). Measurement found the
+  cost driver was **per-call scan volume** (the three resident GPU models being re-walked every
+  sweep), not call count — so "batch every N tiles" (the lever this entry called for) was aimed at
+  the wrong variable. `gc.freeze()` after model init instead cuts the *price* of each call
+  (83.2 ms → 1.2 ms, −98.6%) while leaving cadence untouched (still 441 calls, once per tile — the
+  memory-bounded invariant this entry flagged is therefore **not in play**, confirmed by the
+  invariant guard `scripts/verify_gc_freeze.py`). Result: gc cost 36.71 s → 0.52 s at the large
+  anchor; **1.069x attributable / 1.077x end-to-end**, essentially matching this entry's predicted
+  1.083x ceiling. The batching option (N=4/8/16, `gc.freeze()` off) was also built and measured —
+  it recovered the *same* price-per-call reduction only when combined with freeze, added nothing on
+  top of freeze alone (indistinguishable at large: 535.1 s vs 512.2–540.3 s freeze-alone range), and
+  raised peak RSS to the highest of any configuration tested (3.991 GB vs 3.925 GB adopted) — so it
+  was implemented, measured, and deleted rather than shipped. No config knob landed; the change is
+  unconditional. Correctness veto passed (max|Δ| = 0 for reddot/blackdot/score among matched cells).
+  This item is **closed** — see §"Re-sorted priority after round 3" below, item 2.
 
 ### ⑤ Phase A precut (2.43%) & Phase D overlay stitch (0.60%) — new stages
 - Both brand-new stages the old perf_report never covered. Precut A ~2.4% at every scale (real 8-thread parallel I/O, pyvips releases GIL). Stitch D ~0.6% — a single serial `pyvips` join+lzw+`tiffsave` after all analysis (read+join+compress fused in one C call, not separable by Python timing). At full WSI, D becomes a single serial ~minutes block but still < 1% of a ~19 h run. Class 5 (I/O); D also Class 3 (serial, could overlap analysis). 信心: 實測 + 外推.
@@ -447,14 +470,21 @@ Ranked by **critical-arm contribution × plausible reduction**, not by self-time
    forwards by more than **34%** buys nothing further until the BG arm also shrinks, because
    the background CPU arm becomes the critical path at that point. Any future GPU work should
    be sized against that 34% ceiling, not against the raw 77.5%.
-2. **`gc.collect` frequency reduction (④) — promoted from backlog to #2.** 36.4 s / 6.34%,
-   ceiling **1.083x**, on the critical arm, fixed per-tile cost, reducible to ~zero, and
-   independent of every other lever. ~44 min of a ~12.6 h full-WSI run. The one caveat
-   recorded in ④ stands (RSS grows between sweeps → needs re-validation at 441 scale).
-3. **⑧ Move the stranded CPU prep off the MAIN arm — new.** `enlarge_cell_instances` +
-   `build_all_positive_results` = 28.4 s / 4.96%, pure NumPy, no torch, and the BG arm has
-   151 s of slack to absorb them. Combined with #2 the arm model projects **~1.14x**
-   (573.7 → ~501 s) without touching the GPU at all. Cheapest structural item on the list.
+2. **`gc.collect` frequency reduction (④) — DONE (2026-07-22).** Shipped as `gc.freeze()`
+   (Option C), not the batching lever this ranking assumed — see item ④'s update and
+   [doc 16](../16-gc-collect-frequency-result.md). Measured **1.069x attributable / 1.077x
+   end-to-end** at the large anchor, matching the 1.083x ceiling predicted here almost exactly.
+   The RSS re-validation caveat this entry called for was run and passed (peak RSS +1.1%,
+   0.14% of the 32 GB machine; sawtooth shape intact). **Removed from the open backlog.**
+3. **⑧ Move the stranded CPU prep off the MAIN arm — new, now the top open item.**
+   `enlarge_cell_instances` + `build_all_positive_results` = 28.4 s / 4.96%, pure NumPy, no
+   torch, and the BG arm has slack to absorb them. The **~1.14x combined (573.7 → ~501 s)**
+   projection below assumed both #2 and #3 landed; #2 alone is done and confirmed the
+   gc-side half of that projection (predicted −36.4 s, measured **−37.0 s** attributable —
+   effectively exact), so the remaining gap to ~501 s is entirely this item, still unbuilt.
+   **The MAIN/BG margin should be re-measured with `gc.freeze()` in place before sizing this
+   or Priority 4's batch-size sweep** — the 34% figure below predates the gc fix and the
+   arm balance has shifted now that gc's contribution is ~0 instead of 36.4 s.
 4. **⑤ Overlap precut A and stitch D with the B loop.** 25.6 s / 4.5% combined, wholly
    serial and wholly outside the overlap, so 100% critical path. A scales with tile count →
    at full-WSI this is the largest of the sub-floor items in absolute terms.
