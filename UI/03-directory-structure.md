@@ -11,7 +11,6 @@ tsgh/
 │   ├── module2_alignment.py          → algorithms/alignment/
 │   ├── module3_roi_evaluation.py     ⚠ 未對應（見下）
 │   ├── module4_thumbnail.py          → algorithms/thumbnail/
-│   ├── module5_tile_generator.py     ⚠ 未對應（見下）
 │   ├── run_full_pipeline.py          ⚠ CLI 入口，搬去哪待定
 │   ├── config.py（gitignored）/ config_example.py（tracked）
 │   └── artifacts/  output/
@@ -27,7 +26,7 @@ tsgh/
 │   └── unet_mask/                ⚠ 未對應（獨立於 hybrid）
 │
 ├── scripts/                      ← CLI / 工具，【保留，不進 UI】
-│   ├── tile_generator.py         ⚠ 與 module5_tile_generator.py 疑似重複
+│   ├── tile_generator.py         ⚠ 與 io/pyramid.py 職責重疊（見下）
 │   ├── tiff to png.py  check_tiff_size.py  cuda_test.py
 │
 ├── docs/                         ← 本文件所在【不動】
@@ -102,8 +101,7 @@ tsgh/
 | 項目 | 歧義 | 可能歸屬 |
 |---|---|---|
 | `thriple_image_layer/module3_roi_evaluation.py` | ROI 評估算演算法還是 API 職責？ | `algorithms/roi/` ？或併入 `api/roi.py` 的下游？ |
-| `thriple_image_layer/module5_tile_generator.py` | 切片生成與 `io/pyramid.py`、`api/tiles.py` 職責重疊 | `io/` ？還是廢棄（改用 DeepZoom）？ |
-| `scripts/tile_generator.py` | 與 `module5_tile_generator.py` **疑似重複**，兩份 tile generator | 需確認哪份是現役、能否合併 |
+| `scripts/tile_generator.py` | 切片生成與 `io/pyramid.py`、`api/tiles.py` 職責重疊 | `io/` ？還是廢棄（改用 DeepZoom）？ |
 | `thriple_image_layer/run_full_pipeline.py` | 全流程 CLI 入口 | 搬 `scripts/` 當 CLI 第二使用者？還是留原地？ |
 | `cell_mask/dish_mask/` | 獨立於 `hybrid/`，實驗性 / 舊版？ | 搬 `algorithms/` ？還是不搬（棄用）？ |
 | `cell_mask/unet_mask/` | 同上，與 `hybrid/unet_inference.py` 關係不明 | 需確認是否為 hybrid 的上游資產 |
