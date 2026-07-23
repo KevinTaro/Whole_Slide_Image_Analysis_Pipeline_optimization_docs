@@ -1,7 +1,8 @@
 # 19 — Open backlog: what's not done or only partially done
 
 > Single place to look for "what's still owed" in this pipeline, so it doesn't have to be
-> reconstructed by reading all of 01–18 + `measurement/*.md` every time. Compiled 2026-07-22
+> reconstructed by reading all of 01–21 + `measurement/*.md` every time. Compiled 2026-07-22,
+> last updated 2026-07-23 for round 5 (item 1),
 > by reading every document in this folder (`docs/hybrid-pipeline/`) and spot-checking the
 > claims against the current code — not from memory. **Every reference below is to another
 > document in this same folder.** When you pick an item up, re-read its source doc(s) first —
