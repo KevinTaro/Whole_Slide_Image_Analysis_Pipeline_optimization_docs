@@ -9,12 +9,13 @@
 > 與 `cell_mask/docs/6_30_report.md` 已不存在）。09 之後的文件已經在用新路徑；讀到
 > 舊文件裡的 `cell_mask/hybrid/...` 一律換算成 `backend/algorithms/hybrid/...`。
 
-## TL;DR（現況，2026-07-22 第 4 輪量測後）
+## TL;DR（現況，2026-07-23 第 5 輪量測後）
 
 1. **定位**：IHC(Her2)＋DISH 雙染色 WSI 的逐 tile 分析流水線 —— 讀圖 → 疊合 → Cellpose 分割 → 逐細胞 HER2/CEP17 點位計數與擴增判定 → 縫回整圖 → 匯出 CSV/視覺化。
-2. **最大瓶頸**：**Cellpose GPU 前向**（UNet++ core mask + M2/M3b 兩次 Cellpose）仍是 #1，但已歷經四輪優化：① 單 process 兩段式 pipeline/overlap（GPU 主執行緒 + CPU 背景執行緒重疊）、Cellpose 4.0.8→4.2.1.1（DINOv3 `cpdino` backbone + bfloat16）、`gc.freeze()`、CPU 前處理搬離 MAIN 臂、precut 串流化。累計 large/441-tile 錨點從 **848.0 s → 480.3 s（−43.4%）**；全 WSI 估算從 ~18.9h 壓到 **~10.5h**（皆為上限估計，見下）。目前 MAIN（GPU）臂只剩 **~15.9%** 餘裕可縮，縮更多就會把瓶頸換到 BG（CPU：`detect_all_dots` + PNG 編碼）臂。**最新排名、餘裕與下一步全部以 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) 為準**，本段只是導覽用摘要，過幾輪就會再過時。
-3. **GPU 限制（先讀）**：機器是 **RTX 5090（Blackwell, sm_120）**，**只能跑 cu130 的 torch**（實測 `torch 2.11.0+cu130`）。不能任意降 torch 版本，也不能用舊 CUDA wheel —— 改動依賴前務必看 [06-versions-dependencies.md](./06-versions-dependencies.md)。
-4. **還沒做完什麼**：見 [19-open-backlog.md](./19-open-backlog.md) —— 本資料夾範圍內未做/半做的優化項目、待驗證的正確性問題、文件與 code 的已知落差，集中列在那一份，不散在各文件裡找。（跨 hybrid-pipeline 與 UI 兩個資料夾的總表在 [../BACKLOG.md](../BACKLOG.md)。）
+2. **單 process 瓶頸**：**Cellpose GPU 前向**（UNet++ core mask + M2/M3b 兩次 Cellpose）仍是單 process 下的 #1，已歷經四輪優化：① 單 process 兩段式 pipeline/overlap（GPU 主執行緒 + CPU 背景執行緒重疊）、Cellpose 4.0.8→4.2.1.1（DINOv3 `cpdino` backbone + bfloat16）、`gc.freeze()`、CPU 前處理搬離 MAIN 臂、precut 串流化。累計 large/441-tile 錨點從 **848.0 s → 480.3 s（−43.4%）**；單 process 全 WSI 估算從 ~18.9h 壓到 **~10.5h**（皆為上限估計，見下）。MAIN（GPU）臂只剩 **~15.9%** 餘裕可縮，縮更多就會把瓶頸換到 BG（CPU：`detect_all_dots` + PNG 編碼）臂 —— 單 process 這條路線已經觸底。
+3. **第 5 輪新槓桿：跨 tile 多行程（`workers` 參數）**。round 5（doc 20 規劃 → doc 21 落地）建置了 `run_batch(..., workers=N)`，實測 **3.09x**（`workers=3`，large/441 錨點 482.8 s → 156.1 s；效率 103%），遠超原估的 1.23x–1.7x —— 原估只算了裝置閒置，漏算了 MAIN/BG 兩臂之間的 GIL 競爭（只有分行程才能回收）。全 WSI 估算壓到 **~3.3h**（`workers=3`）。正確性投票、fail-fast + 兄弟行程終止皆驗證通過；`workers=1` 仍是預設值，`backend/api/hybrid.py` 的單 tile 請求路徑不受影響。**尚未放行到生產** —— 卡在從未做過的完整 WSI 規模驗證（見 [19-open-backlog.md](./19-open-backlog.md) item 7）。**最新排名、餘裕與下一步全部以 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) 為準**，本段只是導覽用摘要，過幾輪就會再過時。
+4. **GPU 限制（先讀）**：機器是 **RTX 5090（Blackwell, sm_120）**，**只能跑 cu130 的 torch**（實測 `torch 2.11.0+cu130`）。不能任意降 torch 版本，也不能用舊 CUDA wheel —— 改動依賴前務必看 [06-versions-dependencies.md](./06-versions-dependencies.md)。
+5. **還沒做完什麼**：見 [19-open-backlog.md](./19-open-backlog.md) —— 本資料夾範圍內未做/半做的優化項目、待驗證的正確性問題、文件與 code 的已知落差，集中列在那一份，不散在各文件裡找。（跨 hybrid-pipeline 與 UI 兩個資料夾的總表在 [../BACKLOG.md](../BACKLOG.md)。）
 
 ## 要接手優化，先讀這份（導覽表）
 
@@ -36,7 +37,9 @@
 | Cellpose 換模型後的下一步優先序（round 3 之後） | [13-next-optimization-plan.md](./13-next-optimization-plan.md) | 雙臂模型（MAIN/BG）取代 self-time%排序；`gc.collect` 頻率、⑧ CPU 前處理搬離 MAIN、precut/stitch overlap、`cellpose_batch_size` 接線排序 |
 | `gc.collect` 頻率優化設計 + 落地 + 結果 | [14-gc-collect-frequency-plan.md](./14-gc-collect-frequency-plan.md) → [15-...-implementation.md](./15-gc-collect-frequency-implementation.md) → [16-...-result.md](./16-gc-collect-frequency-result.md) | **DONE**：不是原計畫的 batching，是 `gc.freeze()`；1.069–1.077x，符合預測天花板 |
 | GPU starvation 還剩什麼、三個「大槓桿」值不值得做之前要先關掉什麼 | [17-gpu-starvation-prerequisites-plan.md](./17-gpu-starvation-prerequisites-plan.md) | ⑧ 搬離 MAIN、precut/stitch overlap、`cellpose_batch_size` 接線 —— 三個都要先做，才能把跨 tile multiprocessing 這類大改動的天花板量準 |
-| 上面那份的落地與量測（**round 4，目前最新**） | [18-gpu-starvation-prerequisites-implementation.md](./18-gpu-starvation-prerequisites-implementation.md) | ⑧ 搬離 MAIN（-8.0%/-5.0%）、precut 串流化（再 -3.1%/-3.8%）、`cellpose_batch_size` 接線但掃描結果**負向**（tile size 下已無可加速空間）；跨 tile multiprocessing 是唯一還沒動、天花板最高的槓桿 |
+| 上面那份的落地與量測（round 4） | [18-gpu-starvation-prerequisites-implementation.md](./18-gpu-starvation-prerequisites-implementation.md) | ⑧ 搬離 MAIN（-8.0%/-5.0%）、precut 串流化（再 -3.1%/-3.8%）、`cellpose_batch_size` 接線但掃描結果**負向**（tile size 下已無可加速空間）；跨 tile multiprocessing 是唯一還沒動、天花板最高的槓桿 |
+| 跨 tile 多行程的候選方案設計（承接上一列） | [20-cross-tile-multiprocessing-plan.md](./20-cross-tile-multiprocessing-plan.md) | Candidate A–E 設計空間、7 條正確性不變量、實驗順序；**純規劃文件，未動 pipeline code** |
+| 上面那份的落地與量測（**round 5，目前最新**） | [21-cross-tile-multiprocessing-implementation.md](./21-cross-tile-multiprocessing-implementation.md) | 落地 Candidate D：`run_batch(..., workers=N)`、`spawn` worker pool、動態工作佇列；實測 **3.09x**（`workers=3`）、正確性投票與 fail-fast 皆通過；MPS（Candidate C）與加深 CPU 後段（Candidate A）皆停損；**尚未放行到生產**（卡在完整 WSI 規模驗證） |
 | 在本地把它跑起來、驗證沒改壞（**部分路徑已過時，見檔內提醒**） | [05-dev-testing-guide.md](./05-dev-testing-guide.md) | `cp config_example.py config.py` → 編 config → CLI 跑；回歸基準 |
 | 動依賴前確認相容性（**部分版本已在後續輪更新，見 measurement 文件**） | [06-versions-dependencies.md](./06-versions-dependencies.md) | venv 實測版本 vs requirements vs pyproject 三方衝突；Blackwell 限制 |
 | 踩到怪坑（config 跑不動、幻影檔案…） | [07-gotchas-appendix.md](./07-gotchas-appendix.md) | codegraph 過期、config gitignore、未接線參數、失聯 spec docs（G2 已修復，見檔內更新） |
@@ -44,7 +47,7 @@
 | **本資料夾還沒做完 / 半做的優化、待驗證正確性、文件落差** | [19-open-backlog.md](./19-open-backlog.md) | 只引用本資料夾內的文件；效能項目依天花板排序、正確性待簽核項目、文件↔code 落差 |
 | 跨 hybrid-pipeline 與 UI 的總表 | [../BACKLOG.md](../BACKLOG.md) | 涵蓋範圍更廣（含 UI Phase 4/5），本資料夾內細節仍以 19 為準 |
 
-**建議閱讀順序**：先 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md)（現況與四輪演進，含每輪的「Re-sorted priority」）→ 依你要接手的項目挑對應的 10–18 → 需要架構/模塊細節再翻 `01/02`（記得套用上面的路徑遷移提醒）。`03/04` 只有歷史對照價值，不要當現況用。
+**建議閱讀順序**：先 [measurement/bottleneck-list.md](./measurement/bottleneck-list.md)（現況與五輪演進，含每輪的「Re-sorted priority」）→ 依你要接手的項目挑對應的 10–21 → 需要架構/模塊細節再翻 `01/02`（記得套用上面的路徑遷移提醒）。`03/04` 只有歷史對照價值，不要當現況用。
 
 ## 參考地圖（既有資源，本文檔不重寫）
 
@@ -62,7 +65,6 @@
 ## 一句話現況
 
 管線功能完整、單 tile 正確性有回歸基準（單塊輸入 bit-identical 於 pre-M0 路徑）；
-**記憶體已靠分塊/串流架構壓下來**（RSS 隨累積細胞數成長、非隨 tile 數線性成長，VRAM 於 441-tile 錨點穩定在 ~2.8GB/32GB）；
-GPU 前向已歷經四輪優化（overlap pipeline + Cellpose 換模型 + `gc.freeze()` + CPU 前處理搬離 MAIN 臂 + precut 串流化），
-剩下的**速度**問題集中在：GPU 前向本身（唯一還有大天花板的槓桿是跨 tile multiprocessing，但需解 fork-under-CUDA、風險最高）、
-以及 BG 臂（`detect_all_dots` + PNG 編碼）在 MAIN 臂繼續縮小後遲早被重新暴露。全 WSI 全圖單線程估算已從 ~18.9h 壓到 **~10.5h**（皆為 upper bound，真實切片組織密度較低會更快；且**從未在真正完整 WSI 上實測過**，見 [../BACKLOG.md](../BACKLOG.md)）。目前完整、按優先序排列的待辦清單見 [../BACKLOG.md](../BACKLOG.md)。
+**記憶體已靠分塊/串流架構壓下來**（RSS 隨累積細胞數成長、非隨 tile 數線性成長，VRAM 於 441-tile 錨點單 process 下穩定在 ~2.8GB/32GB，多 process 下隨 N 近線性成長，見 doc 21 §4.4）；
+GPU 前向單 process 已歷經四輪優化（overlap pipeline + Cellpose 換模型 + `gc.freeze()` + CPU 前處理搬離 MAIN 臂 + precut 串流化）並觸底（餘裕僅 15.9%）；
+round 5 **已建置並實測**跨 tile 多行程這個唯一剩下的大天花板槓桿（`workers=3` 實測 3.09x，見 [21-cross-tile-multiprocessing-implementation.md](./21-cross-tile-multiprocessing-implementation.md)），正確性投票通過，但**尚未放行到生產** —— 卡在從未做過的完整 WSI 規模驗證。單 process 全 WSI 全圖估算已從 ~18.9h 壓到 **~10.5h**；`workers=3` 下進一步壓到 **~3.3h**（皆為 upper bound，真實切片組織密度較低會更快；且**從未在真正完整 WSI 上實測過**，見 [../BACKLOG.md](../BACKLOG.md)）。目前完整、按優先序排列的待辦清單見 [../BACKLOG.md](../BACKLOG.md)。
