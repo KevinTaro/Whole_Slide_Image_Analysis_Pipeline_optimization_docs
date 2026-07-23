@@ -6,12 +6,14 @@
 > torch 2.10.0+cu130, {small 25 · medium 121 · large 441}-tile real WSI crops.
 > Primary numbers below are the **large (441-tile)** anchor = **848.0 s**.
 >
-> **Reading order (3 measured rounds — all preserved, none overwritten):** the ①–⑦ item
+> **Reading order (5 measured rounds — all preserved, none overwritten):** the ①–⑦ item
 > bodies below are the **original control-era record**; each carries dated `Update:` notes
 > for later rounds. For *current* status start at **"Round-3 anchors (2026-07-22)"** and
-> **"Current ranking"** immediately below, then **"Re-sorted priority after round 3"** at
-> the end. Round 3's anchor is **573.7 s** (large/441) — where a % below is quoted without
-> a round, it is against that round's own anchor, per plan §5.1.
+> **"Current ranking"** immediately below, then skip to **"Round-4 anchors"** and
+> **"Round-5 anchors"** and the **"Re-sorted priority after round 4"** at the end (the
+> round-3 one is superseded). Round 4's anchor is **480.3 s** (large/441, final `p3`
+> config); where a % below is quoted without a round, it is against that round's own
+> anchor, per plan §5.1.
 
 ## Anchors (control / "dumb-version" baselines — preserve, do not overwrite)
 
@@ -141,6 +143,57 @@ The single-process floor is therefore `BG + outside = 389.3 s` (**1.23x** from 4
 2. `peak_cuda_reserved_gb` is unreliable (one run reported 25.97 GB against a `dmon fb` peak of
    2787 MB, identical to every other run) — the same artifact class doc 13 warned about. Read
    VRAM from `dmon fb`.
+
+## Round-5 anchors (2026-07-23) — cross-tile multiprocessing (doc 20 Candidate D)
+
+> Adds the fifth measured round; **rounds 1–4 above are preserved verbatim.** Same machine,
+> crops, harness and checkpoints (SHA-256 identical), config hash **unchanged**
+> (`ad41c42f` — no config field was added this round), GPU idle before every launch,
+> `--gpu-dmon --workers 8`, n=2 at large (`workers=3` gets n=3), n=2 at medium.
+> Raw artifacts: `_metrics_r5/` (incl. `env_stamp_r5.txt`, `pip_freeze.txt`), per-run CSVs
+> in `runs_r5/`. Solution design: [`../20-cross-tile-multiprocessing-plan.md`](../20-cross-tile-multiprocessing-plan.md);
+> implementation + results: [`../21-cross-tile-multiprocessing-implementation.md`](../21-cross-tile-multiprocessing-implementation.md).
+
+| config | large/441 | medium/121 | speedup (large) | efficiency | FB peak | peak RSS |
+|---|--:|--:|--:|--:|--:|--:|
+| `workers=1` (= round-4 `p3`) | **482.8 s** | **138.1 s** | 1.00 | 100% | 2787 MB | 4.04 GB |
+| `workers=2` | **208.9 s** | **65.8 s** | **2.31** | 116% | 6233 MB | 6.52 GB |
+| **`workers=3` (recommended)** | **156.1 s** | **49.3 s** | **3.09** | 103% | 12354 MB | 9.26 GB |
+| `workers=4` | **137.4 s** | **45.0 s** | **3.51** | 88% | 20667 MB | 11.97 GB |
+
+The `workers=1` control reproduces the round-4 record (large 482.8 vs 480.3 s, medium 138.1 vs
+140.8 s), so the speedups above are against a real anchor, not a strawman. Full-WSI refit at
+`workers=3` on the two anchors: `wall ≈ 8.9 s + 0.3337 s/tile` ⇒ **~3.3 h** (was ~10.5 h);
+the same refit at `workers=1` gives 10.68 h, consistent with round 4's 10.52 h.
+
+**Far above doc 20's 1.23x–1.7x estimate — the reason is identified.** That estimate counted
+only device idle and omitted **GIL contention between the two arms**, a cost only separate
+processes can recover (thread-based designs can't touch it at all). Doc 18 §2 already
+demonstrated the same mechanism at small scale (moving ⑧ off MAIN made two *unmodified*
+buckets faster on their own). `workers=2`'s **116% superlinear efficiency** is that
+mechanism's signature: two processes doing more than 2x one process's work is impossible if
+device overlap were the only thing gained. Near-idle (SM≤3) fell **0.46 → 0.06**.
+
+**Correctness veto passed at all three anchors.** Same standard as doc 18 §2 — judged against
+the **same-code noise floor**, not exact equality: the `reddot 2 / blackdot 8 / score 4`
+signature is exactly the fingerprint doc 18 recorded between two runs of identical `p2` code;
+X-flips across every multiprocess config (3–18) stay **below** the same-code control's 21;
+only 1–2 of ~13,140 matched cells differ in any pairing. Tile outcomes are identical at every
+worker count (large 378/63, medium 103/18). At the small (25-tile) anchor every per-cell
+delta is **exactly zero**.
+
+**Memory-bounded invariant holds at N-process scale**: sawtooth shape intact (85–131
+drawdowns >50 MB per run, ramp fraction 0.48–0.57 vs the `w1` control's 0.54), no monotonic
+ramp. But **VRAM per process grows superlinearly** (2787 / 3117 / 4118 / 5167 MB) — this is
+what caps *N* and why `workers=3`, not `workers=4`, is the recommendation.
+
+**Two candidates closed this round, both with direct evidence:** CUDA MPS (Candidate C)
+**genuinely works** on this consumer RTX 5090 and gives +44% on the launch-bound
+micro-benchmark (1.45x → 2.09x), but is **flat end-to-end** — by the time the real pipeline
+reaches its knee it is no longer serialization-limited (SM 58–78%, near-idle 0.06–0.16).
+Deepening the CPU back-end pipeline (Candidate A), tested with the strictly cheaper
+thread-depth version of the same idea: **+2.8% slower** single-process, flat under
+multiprocessing. Both stopped out, not carried as backlog.
 
 ---
 
@@ -589,6 +642,17 @@ Ranked by **critical-arm contribution × plausible reduction**, not by self-time
    largest correctness risk of anything remaining. It is now the *only* lever that reaches the
    **intra-forward, launch-bound** idle (the larger half of all device idle): #1 cannot touch it
    at this tile size, and patching Cellpose internals was stop-lossed in `gil-contention-diag.md`.
+
+   > **DONE (round 5, 2026-07-23) — measured 3.09x, far above this item's 1.23x–1.7x estimate.**
+   > The ceiling estimate above was **low**: it counted only device idle and missed the GIL
+   > contention between the two arms, recoverable only by separate processes. Built and adopted
+   > Candidate D (`spawn` workers, per-process model reload, dynamic work queue, global
+   > renumbering still a single parent-side pass); `workers=1` remains the default and is
+   > behaviorally unchanged. Correctness veto passed at all three anchors; fail-fast + sibling
+   > termination verified by injection. Full record: **"Round-5 anchors"** above and
+   > [`../21-cross-tile-multiprocessing-implementation.md`](../21-cross-tile-multiprocessing-implementation.md).
+   > **Not cleared to ship to production** — per doc 20 §4, gated on the full-WSI-scale
+   > validation in `19-open-backlog.md` §1 item 7.
 3. **⑨ isolate the `detect_all_dots` regression (optional, unchanged priority).** Note it moved
    on its own in round 4 (279.9 → 257.6 s) purely from ⑧'s thread relocation, so any isolation
    attempt must control for thread placement.
