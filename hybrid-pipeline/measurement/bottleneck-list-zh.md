@@ -119,6 +119,18 @@ ramp fraction 0.48–0.57 vs 對照組 0.54），無單調爬升。但 **VRAM �
 （Candidate A）以更便宜的執行緒版直接測試其前提：單行程 **+2.8% 更慢**，`workers=3` 下持平。
 兩者皆停損，非 backlog。
 
+> **第 5b 輪更新（2026-07-23）— 上面 `workers=3` 建議已被更完整的上限搜索取代。**
+> 把 worker 數一路推到真正的極限（重跑找失敗率、不只跑一次）發現：`workers=5`／`workers=6`
+> 在大／中兩個規模上各跑 3 次**全部成功**（大規模 `workers=6` 三次分別 123.23／123.40／123.29 s，
+> 離散度極小）；`workers=7` 開始出現約 **25% 失敗率**（4 次中 1 次 OOM，某個 worker 單獨吃到
+> 7.7–9.4 GB，是穩態 ~2.8 GB 的 3–4 倍——CUDA allocator 碎片化，非決定性）；`workers=12` 起
+> 連模型都載不進去（`12 × 2.79 GB ≈ 33.5 GB` 已超過 32.6 GB 卡），這是唯一非機率性的硬上限。
+> 正確性投票在 `workers=5/6` 皆通過。**新建議值：`workers=6`**（大規模 123.3 s，比 `workers=3`
+> 再快 21%、比 `workers=4` 快 10.3%，且是本輪測到「兩個規模都零失敗」的最高值）；
+> 但 fail-fast 會整批作廢、風險隨地磚數上升，故**無人值守的完整 WSI 跑批仍建議 `workers=4`**
+> 而非 6。完整推導見
+> [`../21-cross-tile-multiprocessing-implementation.md`](../21-cross-tile-multiprocessing-implementation.md) §4.7。
+
 ## Amdahl 停損（方案 §5.2）— **針對重疊管線修訂**
 
 原規則，原文保留（仍規範上方控制組時期的排名）：
