@@ -359,10 +359,98 @@ round 1–4**: these are crops at ~85% tissue density, so all hour figures are u
 
 ### 4.6 Recommended configuration
 
-**`workers=3`.** It captures 88% of `workers=4`'s speedup (3.09x vs 3.51x) at 103% efficiency, uses
-12.4 GB of 32 GB VRAM and 9.3 GB RSS, and sits at the measured knee — marginal gain per added worker
-collapses from +1.31 → +0.78 → +0.42. `workers=4` is measured, correct and available; it is not the
-default because of the superlinear VRAM growth in §4.4 and the 88% efficiency.
+**Superseded by §4.7.** This subsection originally recommended `workers=3` from the N≤4 data alone.
+§4.7 extends the sweep to find this machine's actual ceiling and settles on **`workers=6`** as the
+value that minimizes wall-clock while staying inside the failure-free range this session could
+reproduce. Kept here as the record of what was recommended before the ceiling was found.
+
+### 4.7 Finding the actual limit — round 5b, 2026-07-23
+
+Doc 20 never sized *N* beyond "fits in 32 GB alongside model weights" (§1 item 5, §5). §4.1–4.6 only
+measured up to `workers=4`, which was itself picked from a knee in a four-point curve — not from
+knowing where the machine actually breaks. This section pushes `workers` until it breaks, on both
+anchors, with enough repeats to tell a real failure rate from a lucky or unlucky single run.
+
+**Method.** Same protocol as §0 (GPU confirmed idle between runs, same checkpoints, same config
+hash). The medium anchor (121 tiles, ~40 s/run) was used to explore quickly; the two candidates that
+looked best were then confirmed with 3 repeats at the large anchor (441 tiles) before being trusted.
+
+**Full sweep, medium anchor (121 tiles):**
+
+| workers | wall (s), all runs | success rate | note |
+|--:|---|--:|---|
+| 1–4 | see §4.1 | 100% (n=2 each) | — |
+| 5 | 42.77, 43.05, 42.43 | **3/3** | |
+| 6 | 42.23, 41.84, 42.62 | **3/3** | |
+| 7 | 42.02, 41.89, **OOM** | **2/3** | first observed failure |
+| 8 | 41.61 | 1/1 | not repeated |
+| 9 | **OOM** | 0/1 | |
+| 10 | 42.30, **OOM**, 42.40 | 2/3 | flaky, not a hard cutoff |
+| 11 | **OOM** ×3 | **0/3** | reliably broken |
+| 12, 14, 16, 20 | **OOM** ×1 each | 0/1 each | fails during model **load**, before any tile |
+
+**Full sweep, large anchor (441 tiles):**
+
+| workers | wall (s), all runs | success rate |
+|--:|---|--:|
+| 1–4 | see §4.1 | 100% (n=2–3 each) |
+| 5 | 127.39, 126.79, 129.60 | **3/3** |
+| 6 | 123.23, 123.40, 123.29 | **3/3** |
+| 7 | 121.22 | 1/1 (not repeated at this scale) |
+| 8 | **OOM** | 0/1 |
+
+**The ceiling is not a clean cutoff — it is a probability that rises with N, and independently with
+job size.** Three findings, in order of how much they should change how this number gets used:
+
+1. **A "success" at N=7/8/9/10 is not proof those values are safe — repeating them found failures
+   that single runs missed.** `workers=7` looked clean on its first outing (large anchor, 121.2 s)
+   and then failed on its very next run (medium anchor) with three individual worker processes
+   holding **7.7 / 7.7 / 9.4 GB** each — 3–4x their ~2.8 GB steady-state footprint. `workers=10`
+   alternated success/fail/success across three consecutive medium-anchor runs. This is allocator
+   behavior, not a deterministic function of N: PyTorch's own OOM message names the mechanism
+   (`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` to reduce fragmentation), consistent with
+   follow-up #3's already-flagged superlinear per-process VRAM growth (§4.4).
+2. **Risk scales with total tile count, not just N.** `workers=8` succeeded once on the 121-tile
+   medium crop but failed on the 441-tile large crop at the same worker count — more tiles means more
+   forward passes means more chances for an unlucky simultaneous multi-worker memory spike to land at
+   once. A full WSI is **~80x more tiles than the large crop**, so a value that "worked" once or twice
+   here carries meaningfully more exposure over a real slide than these numbers suggest.
+3. **The hard, deterministic wall is `workers=12`.** At and above 12, every trial fails **during
+   model loading**, before a single tile is processed: `2.79 GB × 12 ≈ 33.5 GB` already exceeds the
+   32.6 GB card before any per-tile activation spike is even possible. This is the one number in this
+   section that is not probabilistic.
+
+**Correctness veto — passed at `workers=5` and `workers=6`**, both anchors, same method as §4.3: all
+deltas inside the same-code noise floor (reddot ≤2, blackdot ≤8, score ≤4), cell counts within the
+established reference range, no signature distinguishable from ordinary GPU nondeterminism.
+
+**The answer to "what should I set for the shortest time":**
+
+| | wall (large, mean of 3) | vs `workers=4` | observed failures |
+|---|--:|--:|--:|
+| `workers=4` | 137.4 s | baseline | **0 / 5** (this + prior rounds) |
+| **`workers=6`** | **123.3 s** | **−10.3%** | **0 / 6** (3 medium + 3 large) |
+| `workers=7` | 121.2 s (1 run) | −11.8% | **1 / 4** (medium anchor, ~25%) |
+
+**Set `workers=6`.** It is the highest worker count this session could push to zero observed failures
+on *both* crop sizes (6 trials total), it is measurably faster than `workers=4` (−10.3% at large,
+−6.2% at medium), and `workers=7` is exactly where cracks start showing — a ~25% failure rate on the
+smaller crop, which fail-fast turns into a *full batch restart*, not a retry of one tile. Going past 6
+trades a single-digit percent further speedup for a real and rising chance of losing the entire run.
+
+**One caveat that should govern production, not just this benchmark: "0/6" is not "impossible to
+fail," and the risk compounds over a longer job.** Six trials is enough to distinguish `workers=6`
+from `workers=7`'s already-visible ~25% failure rate, not enough to bound `workers=6`'s true failure
+probability tightly, and finding (2) above means that probability is higher again over a full WSI's
+~35,700 tiles than over these 441-tile crops. Combined with `run_batch`'s fail-fast design (§1 item 2
+— any failure aborts and discards the *whole* batch, no partial resume), the practical guidance is:
+
+- **Batch jobs sized like these crops or smaller, where a restart is cheap**: `workers=6`.
+- **A full, unattended WSI run, where an OOM at tile 30,000 of 35,700 means starting over**:
+  `workers=4` is the more defensible choice until either (a) `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`
+  is verified to remove the fragmentation spikes finding (1) identified, or (b) `run_batch` gains
+  partial-resume/checkpointing so an OOM late in a long run does not discard completed tiles (neither
+  exists today — recorded as follow-up #7, §10).
 
 ## 5. Step 5 — Candidate C (CUDA MPS): **measured, works on this card, and stopped out**
 
@@ -501,6 +589,13 @@ for n in ('ihc','dish'):
 # step 5 -- MPS (Candidate C)
 export CUDA_MPS_PIPE_DIRECTORY=/tmp/mps_pipe CUDA_MPS_LOG_DIRECTORY=/tmp/mps_log
 nvidia-cuda-mps-control -d       # ... run as above ...      echo quit | nvidia-cuda-mps-control
+
+# §4.7 -- pushing N to find the ceiling (GPU idle-check loop as above, repeat 3x per N)
+for W in 5 6 7 8 9 10 11 12; do
+  .venv/bin/python scripts/perf_measure.py --ihc .../med_ihc.tiff --dish .../med_dish.tiff \
+      --output <out>/w${W} --label w${W}_med_r1 --workers 8 --gpu-dmon --stream-precut \
+      --mp-workers $W --metrics-dir <m>
+done
 ```
 
 ## 10. Follow-ups this round raised
@@ -533,3 +628,15 @@ nvidia-cuda-mps-control -d       # ... run as above ...      echo quit | nvidia-
 6. **`workers` has no CLI exposure on `hybrid_pipeline.py` itself.** Only `run_batch`'s argument and
    `perf_measure.py --mp-workers` reach it. Deliberate for now — the default must stay 1 until
    follow-up #4 clears — but a `--workers` CLI flag is the obvious next step once it does.
+7. **No partial-resume/checkpointing.** §4.7 found the practical ceiling is a *probability of OOM
+   that rises with N and with total tile count*, not a hard cutoff — and `run_batch`'s fail-fast
+   design (correctly, for correctness) discards the whole batch on any failure. For a full WSI this
+   means an OOM at tile 30,000 of 35,700 costs the entire run, not just the failed tile. This is the
+   real reason §4.7 recommends the more conservative `workers=4` for unattended full-slide runs rather
+   than the faster `workers=6` — the fix is either a persisted per-tile completion log `run_batch` can
+   resume from, or accepting the current all-or-nothing contract and choosing *N* conservatively.
+8. **`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` was never tried.** §4.7 traced the `workers≥7`
+   instability to individual worker processes' VRAM spiking 3–4x above their steady-state footprint —
+   allocator fragmentation, per PyTorch's own OOM message — not a clean function of aggregate demand.
+   This flag is PyTorch's documented mitigation for exactly that failure mode and was not tested this
+   round; if it removes the fragmentation spikes, the safe ceiling above `workers=6` could move.
