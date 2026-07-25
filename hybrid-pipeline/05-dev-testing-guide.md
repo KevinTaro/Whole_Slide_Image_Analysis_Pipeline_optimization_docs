@@ -7,8 +7,9 @@
 - **`backend/algorithms/hybrid/` 目錄下仍沒有 test 檔**（codegraph 列出的 `test_*.py` 是幻影，實際不存在 —— 見 [07](./07-gotchas-appendix.md)）。**注意這個結論範圍限定在 hybrid 目錄**：專案根目錄的 `backend/tests/`（`test_chunked_upload.py`/`test_module1_strips.py`/`test_openslide_before_pyvips.py`/`test_resume.py`）已有真的 pytest 測試，但涵蓋的是對齊/上傳/resume 相關子系統，不含 hybrid pipeline。
 - hybrid pipeline 唯一的自動化檢查是 `scripts/verify_gc_freeze.py`（非 pytest，獨立腳本）——驗證 `gc.freeze()` 的 cadence/pairing invariant（見 [15-gc-collect-frequency-implementation.md](./15-gc-collect-frequency-implementation.md) §4），不是 pipeline 輸出正確性測試。
 - 現有 pipeline 輸出驗證方式仍是**手動 CLI 跑** + `report.csv` 比對（見下方回歸基準）：
-  - `python hybrid_pipeline.py --batch --test`（跑 `test_picture/` 內的小圖）
-  - `python hybrid_pipeline.py --ihc <tile> --dish <tile>`（單對）
+  - `python hybrid_pipeline.py --test`（跑 `test_picture/` 內建 ROI 範例，走完整 precut+分析路徑）
+  - `python hybrid_pipeline.py --ihc <tile/ROI/WSI> --dish <tile/ROI/WSI>`（單對，任意大小）
+  - ⚠️ **`--batch` flag 不存在**：現行 `build_arg_parser()`（`hybrid_pipeline.py`）只有 `--test`／`--ihc`／`--dish`／`--output` 四個參數，沒有「對一整個 tile 目錄跑批次」的獨立模式 —— `--ihc`/`--dish` 本身就接受單 tile、ROI 或整張 WSI，內部會自動 `PrecutStream` 切好再送進 `run_batch()`。下面本節與模型檔小節先前寫的 `--batch ...` 是舊介面，已於本輪文件更新中修正為現行參數。
 - `docs/algo/elastic_matching_v3_explainer.html` 底部提到的 `/tmp/test_nucleus_centric.py`、`/tmp/test_detect_wiring.py` 是當時一次性驗證腳本，**放在 /tmp、不在 repo**，別預期能找到。
 
 ## 本地跑法（詳細步驟）
@@ -33,9 +34,8 @@ cp config_example.py config.py
 #    - output_dir / slide_id / model_version
 
 # 3. 跑
-python hybrid_pipeline.py --batch --test          # 用 test_picture 小圖（最快驗證）
-python hybrid_pipeline.py --batch                  # 正式 tile 目錄
-python hybrid_pipeline.py --ihc A.tiff --dish B.tiff --output out/   # 單對
+python hybrid_pipeline.py --test                                     # 用內建 test_picture ROI（最快驗證）
+python hybrid_pipeline.py --ihc A.tiff --dish B.tiff --output out/   # 單一 ROI/WSI 對，任意大小
 
 # 量測（round 3/4 用的正式量測腳本，非手動 cProfile）：
 python ../../../scripts/perf_measure.py --ihc <A.tiff> --dish <B.tiff> \
