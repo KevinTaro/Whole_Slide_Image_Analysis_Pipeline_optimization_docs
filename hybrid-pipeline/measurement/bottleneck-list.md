@@ -666,3 +666,49 @@ Ranked by **critical-arm contribution × plausible reduction**, not by self-time
 on its own with the Cellpose upgrade (578.9 → 444.6 s), so the anomaly it was meant to
 explain has largely dissolved. The 2026-07-11 stop-loss list ("Not next stage" above)
 otherwise still stands.
+
+---
+
+## Round-6 anchors (2026-07-25) — `detect_all_dots`'s joblib fan-out removed
+
+> Adds the sixth measured round; **rounds 1–5/5b above are preserved verbatim.** Same machine,
+> crops and checkpoints (SHA-256 identical), 20 CPU cores. **Config hash `ad41c42f` → `3d1087f2`**
+> (one field added: `dot_detect_n_jobs`). Raw artifacts: `_metrics_r6/` (incl. `env_stamp_r6.txt`,
+> `pip_freeze_r6.txt`). Full record: [`../23-next-optimization-cycle-implementation.md`](../23-next-optimization-cycle-implementation.md),
+> executing the plan in [`../22-next-optimization-cycle-plan.md`](../22-next-optimization-cycle-plan.md).
+
+| config | large/441, `n_jobs=-1` (old) | large/441, `n_jobs=1` (adopted) | Δ |
+|---|--:|--:|--:|
+| `workers=1` (**production default**) | 471.9 / 497.5 s (mean **484.7**) | 302.7 / 302.8 s (mean **302.7**) | **−37.5% = 1.60x** |
+| `workers=6` | 121.2 / 120.4 s (mean **120.8**) | **120.7 s** (n=1 valid; 1 run hit the known allocator-fragmentation OOM) | ~0% |
+
+**② `detect_all_dots` — the "already CPU-parallel" characterisation in this document was wrong,
+and had been since the control round.** `Parallel(n_jobs=-1, prefer='threads')` over ~35 cells/tile
+of small (~4 ms), largely Python-level tasks is **slower than serial at every process count**:
+721.5 ms/tile at 20 threads vs **260.3 ms/tile at `n_jobs=1`** (2.77x), monotonic in thread count
+(1/2/3/4/6/8/12/20 → 260.3/296.7/309.6/319.7/335.4/343.2/527.0/721.5 ms), with red/black dot counts
+**identical** at every setting. It is parallel in shape, not in effect — quickref anti-pattern #10.
+
+**① The +192.9 s absolute-seconds anomaly is now isolated, not just hypothesised.** This document
+recorded (2026-07-11) that B1 grew from 386.0 → 578.9 s when the two-arm overlap landed, and
+attributed it to *"GIL contention from the background CPU stage … **not proven**, high-confidence
+hypothesis"*, listing the isolating measurement as an open item. Removing the BG arm's surplus
+threads returns **−178.2 s** to that same bucket at `workers=1` (`B1_m3b_cellpose` 410.2 → 232.0 s)
+**with no change to any GPU code** — same magnitude and direction as the recorded growth. The
+mechanism is confirmed; the item is closed.
+
+**Arm model after the change (`workers=1`, large):** BG arm ~771 → ~322 ms/tile in isolation; the
+`BG/MAIN = 0.841` margin recorded in round 4 is therefore no longer the binding constraint, and
+②/③ are further from re-exposure than at any previous round — **not** closer.
+
+**Why `workers=6` gains nothing:** multiprocessing had already recovered this same GIL loss (it is
+why round 5 measured 3.09x against a 1.23–1.7x estimate). The two changes are alternative routes to
+the same recovery and **do not stack**. The gain lands squarely on `workers=1`, which is what the
+API path actually runs and what remains gated from `workers>1` by item 7.
+
+**Also measured this round and stop-lossed (do not re-propose):** cross-tile batching of the
+Cellpose forward (`eval` on a stacked `(N,H,W,3)` array genuinely reaches `core.run_net`'s
+multi-image path — but per-tile cost is flat-to-worse, ≤5.7% at G=2 and negative at G=4/8, while
+peak VRAM scales linearly 1.17 → 8.01 GB), and cross-tile batching of the UNet++ forward (strictly
+worse at every group size; `cell_mask/unet_mask/inference.py`'s `predict_batch` turned out to be a
+serial `for` loop, not a batched forward).
