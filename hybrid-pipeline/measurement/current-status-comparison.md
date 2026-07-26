@@ -438,3 +438,156 @@ uv pip freeze > "$MC/pip_freeze_actual.txt"   # do this every round
 Raw artifacts (preserved, three rounds side by side): `_metrics/` (r1 control),
 `_metrics_current/` (r2 overlap), `_metrics_cellpose421/` (r3). Pipeline outputs in
 `runs/`, `runs_current/`, `runs_cellpose421/`.
+
+---
+
+# 9. Rounds 4–6 (2026-07-22 to 2026-07-25) — condensed chain to round 6
+
+> **This document's detailed round-by-round record stops at round 3 above.** Rounds 4–7 are
+> recorded in full in [`bottleneck-list.md`](./bottleneck-list.md) (its "Round-4/5/6/7 anchors"
+> sections) — this section only condenses the wall-clock chain so this document stays a usable
+> single point of reference, and does not reproduce the per-bucket detail already recorded there.
+
+| round | change | large/441 wall | Δ vs previous | source |
+|---|---|--:|--:|---|
+| r3 (above) | Cellpose 4.2.1.1 `cpdino` swap | 573.7 s | −18.9% | §8 above |
+| r4 | ⑧ CPU prep off MAIN arm + precut streamed | **480.3 s** | −16.3% | [bottleneck-list "Round-4 anchors"](./bottleneck-list.md) |
+| r5 | cross-tile multiprocessing built (`workers=3` adopted) | **156.1 s** | −67.5% | [bottleneck-list "Round-5 anchors"](./bottleneck-list.md) |
+| r5b | worker-count ceiling found; `workers=6` recommended | **123.3 s** | −21.0% | [21-implementation §4.7](../21-cross-tile-multiprocessing-implementation.md) |
+| r6 | `detect_all_dots` joblib fan-out removed (`dot_detect_n_jobs=1`) — `workers=1` gets **1.60×** for free; recommendation revised down to `workers=4`/`5` (allocator OOM risk at ≥6) | `workers=1`: **302.7 s**; `workers=4`: **128.8 s** | −37.5% (`workers=1`) | [bottleneck-list "Round-6 anchors"](./bottleneck-list.md), [23-implementation](../23-next-optimization-cycle-implementation.md) |
+
+Cumulative, `workers=1`: **848.0 s → 302.7 s (−64.3%)** across six rounds, with none of it shipped
+to multi-worker production yet (`19-open-backlog.md` item 7 — full real-WSI validation — is still
+the gate). Correctness caveat from §8.6 still applies to every round from r3 onward: the retrained
+Cellpose checkpoints have not received clinical/pathologist sign-off.
+
+Rounds 4–6 also each measured and stop-lossed several candidates (`cellpose_batch_size` sweep,
+cross-tile Cellpose/UNet++ batching, CUDA MPS, deeper CPU pipelining) — see
+[`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md) for the complete list of
+what was tried and rejected versus what is still open, rather than duplicating that ledger here.
+
+---
+
+# 10. Round 7 (2026-07-26) — the composition premise was wrong, and current status is re-based on it
+
+> Executes [`24-gpu-encode-decode-loop-acceleration-plan.md`](../24-gpu-encode-decode-loop-acceleration-plan.md)'s
+> survey against measurement. Full record:
+> [`25-gpu-encode-decode-loop-acceleration-implementation.md`](../25-gpu-encode-decode-loop-acceleration-implementation.md).
+> Git `025f9a5`, config hash **`3d1087f2` unchanged**, same RTX 5090, torch 2.11.0+cu130.
+
+## 10.1 The headline is a correction, not a new optimization
+
+Every full-WSI projection since round 6 — including the "~5.3h at `workers=1`" figure this
+document's own §9 table cites — assumed the slide is **39% background / 61% tissue-bearing**, a
+number derived from a brightness thumbnail whose answer swings from 2.4% to 55.1% depending on an
+unstated grey-level threshold. Round 7 measured the pipeline's **own** definition of background
+(UNet++ core-mask forward returns empty) over **all 27,565 tiles of the real grid** — not sampled,
+not thumbnailed — and found:
+
+| | assumed (rounds 6–7-planning) | **measured, round 7** |
+|---|--:|--:|
+| background share | 39% | **55.82%** |
+| tissue share | 61% | **44.18%** |
+| background tiles | ~10,750 | **15,386** |
+| tissue tiles | 16,815 | **12,179** |
+
+This flips the direction of every composition-dependent conclusion in this document set: MAIN-arm
+costs (gated on tissue tiles) are smaller in absolute terms than every prior projection assumed, and
+the one BG-arm cost that scales with background-tile *count* (blank-tile placeholder writes) is
+larger. See §10.2.
+
+## 10.2 Composition-matched anchors and the arm model
+
+Two new 576-tile crops were cut at full resolution and measured at `workers=1`/`workers=4`
+(`--gpu-dmon`, GPU idle-verified before launch): `comp24` (73.4% background, brightness-proxy
+selected) and `match24` (55.9% background, selected from the exact measured map — matching the real
+slide's 55.8% almost exactly).
+
+| anchor | `workers=1` | `workers=4` | speedup | BG/MAIN | MAIN must shed |
+|---|--:|--:|--:|--:|--:|
+| large/441 (round 6, 14.1% background — **not** representative of the real slide) | 302.7 s | 128.8 s | 2.35× | 0.719 (round 3 tissue-dense figure; see bottleneck-list) | 28% |
+| comp24 (73.4% background) | 134.9 s | 65.5 s | 2.06× | 0.527 | 47.3% |
+| **match24 (55.9% background — matches the real slide)** | **188.8 s** | **88.3 s** | **2.14×** | **0.470** | **53.0%** |
+
+**Every tissue-density crop this project has measured before round 7 (12–14% background) badly
+understated the real slide's background share (55.8%), and therefore badly understated how much
+slack the BG arm actually has.** At the slide's real composition, `detect_all_dots`, PNG encode, and
+every other BG-arm candidate this document's §6/§3 previously flagged as "worth re-checking if the
+margin tightens" are now **further from being re-exposed than at any prior round**, because more
+tissue tiles load the GPU-forward-heavy MAIN arm faster than they load BG — the opposite of what a
+brightness-proxy-based "mostly background" story would have predicted.
+
+## 10.3 Per-bottleneck status, updated
+
+| # | item | round-3 status (§3 above) | **round-7 status** |
+|---|---|---|---|
+| ① GPU forwards | Fixed via Cellpose swap, 34% margin before BG re-exposed | **Margin now 47–53% at real composition** (was measured at 15.9%–28% on tissue-dense crops) — further from re-exposure, not closer. Round 6's `dot_detect_n_jobs=1` (see §9) also made MAIN itself 43.4% faster by removing GIL contention with the BG arm's surplus threads. |
+| ②③ `detect_all_dots` / PNG encode | Hidden, ceiling ~1.01–1.03× | **Ceiling confirmed 1.00× at real composition** — BG-arm candidates have *more* headroom than tissue-dense crops implied, not less. |
+| **Phase D slide stitch (new, round 7)** | Not separately sized before round 7 | **The one item that got *worse* than estimated.** Measured 322.7 s at 16.2 gigapixels — 1.8× doc 24's crop-based extrapolation, and superlinear (+40%/gigapixel at full scale vs. the 1–4 GP range). Runs once outside the worker pool, so its wall-clock **share doubles from `workers=1` to `workers=4`** (3.5% → 7.3%) as everything else shrinks. Ceiling 1.036×–1.078×, still below the actionable bar, but the strongest remaining candidate. |
+| **Background-tile placeholder writes (new, round 7 — Candidate F)** | Never separately measured (invisible at 14% background) | **Measured: 24 ms/tile, 7.5% of wall — zero wall-clock payoff** (BG arm has 47–53% slack). Real cost is disk, not time: ~157 GB/slide of identical uncompressed TIFF; `os.link` alternative is 272×–407× cheaper if ever wanted for storage reasons. |
+| `cellpose_batch_size` / cross-tile batching | Wired, sweep flat at existing tile size | Cross-tile batching re-tested at G=16 (round 7): still worse (+5.9–6.6%), 15.8 GB peak. Confirmed closed. |
+| GPU codec dependencies (new, round 7) | n/a | **Environment gate resolved.** nvImageCodec works here (19.2× faster lossless TIFF encode) and is the only viable path — for Phase D only. nvTIFF has no Python binding, cuCIM can't write, and CuPy (needed for every BG-arm GPU-port candidate) cannot run on this host without a `numpy<2` pin violation or a system CUDA toolkit install. |
+
+## 10.4 Full-WSI reprojection, rebuilt from measured rates and measured composition
+
+| round | figure | basis |
+|---|--:|---|
+| r1 control | ~18.9 h | 3-tile extrapolation, upper bound |
+| r2 overlap | ~15.5 h | — |
+| r3 cpdino | ~12.6 h | — |
+| r6 (§9) | ~5.3 h (`workers=1`) / ~2.2 h (`workers=3`) | blended per-tile rate, **assumed 39% background** |
+| **r7, measured composition** | **~2.6 h (`workers=1`) / ~1.25 h (`workers=4`)** | composition-matched crop rates × the slide's **measured** 55.8%/44.2% split, plus measured Phase D (322.7 s) |
+
+Still a rate-based extrapolation, not the real full-WSI run this document set has needed since
+[`09-measurement-analysis-plan.md`](../09-measurement-analysis-plan.md) §3.6 — see
+[`19-open-backlog.md`](../19-open-backlog.md) item 7, still open.
+
+## 10.5 What is still worth optimizing (round 7, ranked)
+
+1. **Phase D slide stitch — cheaper non-GPU knobs first** (`tiffsave` tile-size/pyramid-depth
+   parameters, not re-encoding constant background regions). Untested, free of new dependencies,
+   and the one candidate whose relative importance *grows* as multiprocessing shrinks everything
+   else. GPU port (nvImageCodec) is real but needs its own pyramid/container engineering — do the
+   cheap knobs first.
+2. **Full real-WSI validation** (`19-open-backlog.md` item 7) — still the single highest-leverage
+   item in this whole document set: it both closes the gate on shipping `workers>1` to production
+   and would replace every rate-based projection above with a real number.
+3. **`workers≥6` allocator-fragmentation OOM** — reliability defect, not sized as speed;
+   `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` still untried.
+4. Everything else this project has surveyed on the BG arm (`detect_all_dots`/CPU-prep GPU ports,
+   background-tile write dedup) is **confirmed closed, not weakened** by the composition
+   correction — see §10.3.
+
+**For the complete list of every candidate this project has discovered but not shipped** — what's
+still open, what was measured and rejected, and what's gated on something else — see
+[`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md), compiled 2026-07-26 by
+reading every document in this folder.
+
+## 10.6 Reproduce round 7
+
+```bash
+cd /data/taro_Projects/tsgh
+M=docs/hybrid-pipeline/measurement/_metrics_r7
+SLIDE=/data/nvmessd/storge_tsgh/<case>/output
+
+# the pipeline's own background rule, over the whole 27,565-tile grid (~25 min)
+.venv/bin/python scripts/core_mask_map.py --ihc $SLIDE/HER2_processed.tiff --out $M/core_mask_map.npz
+
+# cut the composition-matched crop from the exact map
+.venv/bin/python scripts/composition_crop.py --ihc $SLIDE/HER2_processed.tiff \
+    --dish $SLIDE/DISH_processed.tiff --grid 24 --map $M/core_mask_map.npz \
+    --out-ihc test_picture/_roi_crops/match24_ihc.tiff \
+    --out-dish test_picture/_roi_crops/match24_dish.tiff --report $M/match24_crop.json
+
+# Phase D at real scale (no inference needed)
+.venv/bin/python scripts/stitch_probe.py --overlay-src <run>/overlay_annotated \
+    --slide-w 141818 --slide-h 114366 --out $M/stitch_probe_full.json
+
+# full-WSI projection from measured rates + measured composition
+.venv/bin/python scripts/wsi_projection.py --timings $M/match_w1_r1_timings.json \
+    --background-share 0.5582 --stitch-s 322.7 --out $M/wsi_projection.json
+```
+
+Raw artifacts: `_metrics_r7/` (incl. `env_stamp_r7.txt`, `pip_freeze_r7.txt`,
+`core_mask_map.npz`). Full reproduction command set:
+[`25-gpu-encode-decode-loop-acceleration-implementation.md`](../25-gpu-encode-decode-loop-acceleration-implementation.md) §12.

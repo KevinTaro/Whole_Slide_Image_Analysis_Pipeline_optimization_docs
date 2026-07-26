@@ -6,14 +6,18 @@
 > torch 2.10.0+cu130, {small 25 · medium 121 · large 441}-tile real WSI crops.
 > Primary numbers below are the **large (441-tile)** anchor = **848.0 s**.
 >
-> **Reading order (5 measured rounds — all preserved, none overwritten):** the ①–⑦ item
+> **Reading order (7 measured rounds — all preserved, none overwritten):** the ①–⑦ item
 > bodies below are the **original control-era record**; each carries dated `Update:` notes
 > for later rounds. For *current* status start at **"Round-3 anchors (2026-07-22)"** and
 > **"Current ranking"** immediately below, then skip to **"Round-4 anchors"** and
 > **"Round-5 anchors"** and the **"Re-sorted priority after round 4"** at the end (the
 > round-3 one is superseded). Round 4's anchor is **480.3 s** (large/441, final `p3`
 > config); where a % below is quoted without a round, it is against that round's own
-> anchor, per plan §5.1.
+> anchor, per plan §5.1. **For the current state of the world, skip straight to "Round-6
+> anchors" and "Round-7 anchors" at the very end of this document** — round 7
+> (2026-07-26) overturned the tissue/background composition figure every projection
+> since round 6 was built on (55.8% background, not 39%), and re-sizes the BG-arm slack
+> that governs whether ②③ can ever be re-exposed.
 
 ## Anchors (control / "dumb-version" baselines — preserve, do not overwrite)
 
@@ -712,3 +716,181 @@ multi-image path — but per-tile cost is flat-to-worse, ≤5.7% at G=2 and nega
 peak VRAM scales linearly 1.17 → 8.01 GB), and cross-tile batching of the UNet++ forward (strictly
 worse at every group size; `cell_mask/unet_mask/inference.py`'s `predict_batch` turned out to be a
 serial `for` loop, not a batched forward).
+
+---
+
+## Round-7 anchors (2026-07-26) — the composition premise was wrong; Phase D is the one survivor
+
+> Adds the seventh measured round; **rounds 1–6 above are preserved verbatim.** Executes
+> [`24-gpu-encode-decode-loop-acceleration-plan.md`](../24-gpu-encode-decode-loop-acceleration-plan.md)'s
+> survey against measurement. Git `025f9a5`, config hash **`3d1087f2` unchanged** (no config field
+> added or altered this round), RTX 5090 / driver 580.173.02, 20 CPU cores, torch 2.11.0+cu130,
+> cellpose 4.2.1.1, numpy 1.26.4. Raw artifacts: `_metrics_r7/` (incl. `env_stamp_r7.txt`,
+> `pip_freeze_r7.txt`). Full record:
+> [`../25-gpu-encode-decode-loop-acceleration-implementation.md`](../25-gpu-encode-decode-loop-acceleration-implementation.md).
+
+**Headline: the 39%-background / 61%-tissue composition figure every round-6/round-7-planning
+projection was built on is wrong.** It came from a stride-768 brightness thumbnail whose answer
+swings from 2.4% to 55.1% background depending on a ±13 grey-level threshold choice nobody had
+stated precisely. Measured instead with the pipeline's **own** rule — a tile is background iff the
+UNet++ core-mask forward returns all-zero, exactly what `_process_one_chunk_gpu` uses to decide
+whether the two Cellpose forwards run at all — over **every one of the 27,565 cells in the real
+grid** (1,043.7 s wall, not sampled): the slide is **55.82% background / 44.18% tissue-bearing**.
+This is a measurement, not an estimate; it supersedes the 39%/61% figure everywhere it was used
+(`19-open-backlog.md` item 7, doc 24 §0.1/§0.4).
+
+### New anchors, selected to match the real composition
+
+Two 576-tile (24×24) crops were cut at full resolution from the same slide, one selected by the
+(inaccurate) brightness proxy, one selected directly from the exact core-mask map:
+
+| anchor | tiles | background share | selection method |
+|---|--:|--:|---|
+| small / medium / large (rounds 1–6) | 25 / 121 / 441 | 12.0% / 14.9% / 14.1% | hand-picked, tissue-dense |
+| **comp24** | 576 | **73.4%** (predicted 55.2% by the brightness proxy — the proxy's error is spatially correlated, so window-level error is much larger than tile-level error) | brightness proxy |
+| **match24** | 576 | **55.9%** (predicted 55.9%, realized 55.9% — exact) | selected from the measured core-mask map |
+| the real slide | 27,565 | **55.8%** (measured over every cell) | — |
+
+`match24` is the composition-matched anchor; `comp24` is kept as a second, independently-selected
+data point to bound the extrapolation's own uncertainty (§ below, 4% spread between the two).
+
+| anchor | `workers=1` | `workers=4` | speedup |
+|---|--:|--:|--:|
+| comp24 (73.4% background) | 134.91 s | 65.54 s | 2.06× |
+| **match24 (55.9% background, matches the real slide)** | **188.8 s** | **88.3 s** | **2.14×** |
+
+Multiprocessing gains *less* on a background-heavy workload than on the tissue-dense large/441
+crop (2.35× in round 6) — background tiles are cheap and their per-tile fixed costs don't
+parallelize away.
+
+### The arm model flips: BG has 47–53% slack, not 28% (round 4) or a negative margin
+
+At real composition, the two-arm model (`wall ≈ max(MAIN, BG) + outside`) gives:
+
+| anchor | MAIN | BG | outside | **BG/MAIN** | MAIN must shed |
+|---|--:|--:|--:|--:|--:|
+| comp24 (`workers=1`) | 127.2 s | 67.1 s | 7.0 s | **0.527** | 47.3% |
+| **match24 (`workers=1`)** | **187.4 s** | **88.0 s** | 7.5 s | **0.470** | **53.0%** |
+
+This is the opposite direction from every prior round's tissue-dense anchor (round 3: BG/MAIN 0.719
+→ MAIN must shed 28%; round 4: 15.9%). **At the slide's real composition, ②③ (`detect_all_dots`,
+PNG encode) and every other BG-arm candidate are further from re-exposure than at any previous
+round, not closer** — more tissue tiles load MAIN's Cellpose forwards faster than they load BG.
+**Consequence: any candidate whose work sits on the BG arm now has a wall-clock ceiling of 1.00×
+until MAIN sheds ~50% first** — this raises the bar doc 22/24 already declined B2/B3/B4 against
+(1.013×–1.05× estimated); the measured ceiling at real composition is worse for those candidates,
+not better.
+
+MAIN-arm breakdown (match24): Cellpose M2+M3b 85.5 s (62.6% of wall), UNet++ 16.0 s,
+`enlarge_cell_instances` 7.1 s, `_read_rgb` 5.1 s, M1 overlay glue 4.7 s,
+`build_all_positive_results` 4.1 s.
+BG-arm breakdown: `detect_all_dots` 26.0 s, PNG encode 25.6 s, **blank-tile writes 10.1 s** (new
+bucket this round — see Candidate F below), `render_overlay_image` 3.2 s, per-cell crops 1.7 s,
+TIFF encode 0.4 s.
+
+### Three new candidates from doc 24's survey — all measured, none built
+
+- **Candidate G (redundant per-call `mkdir(exist_ok=True)` in `_save_tile_array`)** — built,
+  measured, **reverted**. 3,462 mkdir calls / 576-tile anchor = 0.056% of wall (0.075 s); end-to-end
+  ablation reads **+0.63%/+0.80%** (nominally slower, inside the run-to-run spread). Concurrency
+  contention at `workers=4` is real (2.6 → 5.1–12 µs/call under 4 processes hammering the same
+  inode) but bounded (~2 s over a whole slide). Patch preserved verbatim in doc 25 §10 for one-edit
+  revival if the storage backend ever moves to a network filesystem, where the same call is ~1000×
+  more expensive.
+- **Candidate F (background-tile placeholder writes, `_write_blank_tile`)** — measured for the
+  first time: **24.07 ms/tile, 7.5% of wall** (comp24), all of it on the BG arm which has 47–53%
+  slack — **zero wall-clock payoff at any worker count**. Real cost is elsewhere: the two int32
+  label masks + RGB overlay a blank tile writes are **uncompressed** (`skimage.io.imsave`), so
+  423 background tiles in the comp24 anchor alone wrote **4.3 GB** of constant bytes — projecting to
+  **~157 GB per full slide**. The `os.link`-a-pre-encoded-template alternative is 272×–407× cheaper
+  and would remove nearly all of it, but that is a **storage decision, not a performance one** — not
+  decided here.
+- **Cross-tile Cellpose batching at G=16** (the one item doc 24 reopened) — closed again: **+6.6%
+  (M2) / +5.9% (M3b) slower** than G=1, and **15.8 GB peak, 48.6% of the 32.6 GB card, for one
+  process** — arithmetically incompatible with `workers=4` (4× would be 63 GB). `cellpose_batch_size`
+  stays 16.
+
+### Candidate A (Phase D slide stitch) — the one survivor, and the number was an underestimate
+
+Doc 24 ranked this the strongest remaining candidate and asked for one thing: measure it at real
+scale instead of extrapolating from a 441-tile crop. Done, via a standalone probe that rebuilds the
+real tile grid and materializes real overlay tiles without running any inference:
+
+| slide | gigapixels | tiles | **stitch wall** | s/gigapixel |
+|---|--:|--:|--:|--:|
+| 35,840 × 28,928 | 1.04 | 1,786 | 14.63 s | 14.11 |
+| 71,168 × 57,344 | 4.08 | 6,975 | 57.80 s | 14.16 |
+| **141,818 × 114,366 (the real slide)** | **16.22** | **27,565** | **322.7 s** | **19.90** |
+
+**The real cost is 5.4 minutes, not the ~3 minutes doc 24 extrapolated — 1.8× the estimate — and it
+is superlinear**, not flat: the 1 GP/4 GP points agree to within 0.4%, then the real slide jumps
++40% per gigapixel. A linear extrapolation from any crop-sized measurement systematically
+*underestimates* this stage. At `workers=1` this is 3.5% of wall (ceiling 1.036×); at `workers=4`
+its **share doubles to 7.3%** (ceiling 1.078×) because it is the one cost that runs once, in the
+parent process, entirely outside the worker pool and therefore does not parallelize away — its
+share of wall *grows*, not shrinks, as multiprocessing shrinks everything else. Still below the
+playbook's bar on its own. The GPU route (nvImageCodec) is real (19.2× faster encode, verified
+bit-identical, lossless LZW) but produces no pyramid/BigTIFF — a genuine engineering project, not a
+drop-in — so the recommended next step is the cheaper, dependency-free knobs first (`tiffsave`
+tile-size/pyramid-depth parameters, not re-encoding constant background regions), see
+[DISCOVERED-NOT-IMPLEMENTED.md](../DISCOVERED-NOT-IMPLEMENTED.md) item 5.
+
+A robustness finding alongside this: `_stitch_overlay_slide` opens all 27,565 tiles as pyvips
+images at once with no `RLIMIT_NOFILE` check; it only completed here because this host's soft limit
+is 1,048,576 — a host with the common 1,024 limit would fail after the entire slide had already been
+analysed.
+
+### GPU-library environment gate (doc 24 §3/§4 item 4) — resolved to "no" for everything except Candidate A
+
+Tested in a throwaway venv, never the project venv (round 3's bundled `uv sync` regression is still
+unexplained, so any new GPU dependency gets its own isolated spike):
+
+| package | installs | imports | usable here |
+|---|---|---|---|
+| `nvidia-nvimgcodec-cu13` | ✅ | ✅ | **yes** — the only one that works; 19.2× the pipeline's pyvips encode, verified lossless LZW |
+| `nvidia-nvtiff-cu13` | ✅ | ❌ | **no Python binding at all** — wheel ships shared libraries only |
+| `cucim-cu13` | ✅ | ✅ | **read-only** — `CuImage` exposes no `write` |
+| `cupy-cuda13x` (13.6.0) | ✅ | ✅ (detects sm_120 correctly) | **no** — first kernel JIT fails, no CUDA toolkit on this host, only driver + torch's bundled libs |
+| `cupy-cuda13x` (14.1.1) | ✅ | ❌ | **no** — needs numpy≥2 ABI, project is pinned `numpy<2` |
+| `nvidia-nvcomp-cu13` | ✅ | ✅ | usable, but no LZW codec (LZ4/GDeflate/Zstd/ANS only) |
+
+This closes Candidates B/D/E/F on environment grounds even before their 1.00×-ceiling measurement
+does: CuPy, the dependency every one of them would need, cannot run on this host today without
+either a numpy 2 migration (touches valis/opencv/scikit-image) or installing a system CUDA toolkit.
+VRAM cost per process if any of them were built anyway: ~0.5 GB (codec context) to ~1.2 GB (with
+working buffers) — negligible for Candidate A (parent-process-only) but ×N for anything inside the
+worker pool, against a card whose transient peak this round already touched **26.7 GB of 32.6 GB**
+at `workers=4`.
+
+### Full-WSI projection, rebuilt from measured rates and measured composition
+
+Re-weighting the `match24` per-population rates (tissue vs. background, not a blended rate) by the
+slide's **measured** populations (12,179 tissue + 15,386 background = 27,565 tiles):
+
+| estimate | value | why it differed |
+|---|--:|---|
+| round 5 (35,700-tile grid assumption) | ~10.5 h (`workers=3`) | wrong tile count |
+| round 6 official | ~5.3 h (`workers=1`) | blended per-tile rate from an 86%-tissue crop |
+| doc 24 back-of-envelope | 3.1–3.4 h (`workers=1`) | right method, wrong composition input (39%) |
+| **round 7, measured rates × measured composition** | **~2.6 h (`workers=1`) / ~1.25 h (`workers=4`)** | composition-matched crop, full-grid composition, measured Phase D |
+
+Same caveat as every prior round: still a rate-based extrapolation from one crop, not a substitute
+for the real full-WSI run ([`19-open-backlog.md`](../19-open-backlog.md) item 7, still open). The
+comp24 anchor's independent re-weighting lands at 2.70 h / 1.33 h — a 4% spread between two
+independently-selected crops, a fair indication of the method's own uncertainty.
+
+### Dispositions — doc 24 §4's ranked list, answered
+
+| doc 24 item | disposition |
+|---|---|
+| 1. composition-matched measurement at `workers=1`/`4` | **Done — overturned the premise.** Slide is 55.8% background, not 39%. BG/MAIN = 0.47–0.53. |
+| 2. size Candidate A at real scale | **Done.** 322.7 s, 1.8× the estimate, superlinear. Strongest remaining candidate, still below the bar alone. |
+| 3. prototype + measure Candidate G | **Done, stop-lossed.** 0.056% of wall, ablation reads negative. |
+| 4. environment + VRAM spike | **Done.** nvImageCodec works (Candidate A only); nvTIFF/cuCIM/CuPy do not clear for anything else. |
+| 5. Candidates B/D/E — do not build | **Confirmed, stronger than estimated** (1.00× ceiling at real composition). |
+| 6. cross-tile Cellpose batching at G=16 | **Done, closed again.** Worse on both models, 15.8 GB peak. |
+| (new) Candidate F | **Measured.** Zero wall payoff; ~157 GB/slide storage argument, undecided. |
+
+For the complete list of every item this project has discovered but not shipped — including the
+ones this round closed and the ones still open — see
+[`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md).
