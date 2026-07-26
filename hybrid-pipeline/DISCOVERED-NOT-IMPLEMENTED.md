@@ -74,7 +74,7 @@
 
 | # | Item | Status | Source |
 |---|---|---|---|
-| 39 | **Round-3 Cellpose checkpoint retrain (Cellpose 4.0.8→4.2.1.1 `cpdino` swap) needs pathologist/clinical sign-off** | 🟢 Open, pending since round 3, unresolved through round 7 — cell counts shifted +1.8–2.5% and one tile flipped success→skipped between round 2 and round 3; every performance win from round 3 onward rides on top of this unvalidated model swap | [13 §3](./13-next-optimization-plan.md), [bottleneck-list "Round 3" correctness note](./measurement/bottleneck-list.md), [19-backlog §2](./19-open-backlog.md), [23 §9](./23-next-optimization-cycle-implementation.md) |
+| 39 | **Round-3 Cellpose checkpoint retrain (Cellpose 4.0.8→4.2.1.1 `cpdino` swap) needs pathologist/clinical sign-off** | 🟢 Open, pending since round 3, unresolved through round 7 — cell counts shifted +1.8–2.5% and one tile flipped success→skipped between round 2 and round 3; every performance win from round 3 onward rides on top of this unvalidated model swap | [13 §3](./13-next-optimization-plan.md), [bottleneck-list-history "Round 3" correctness note](./measurement/bottleneck-list-history.md), [19-backlog §2](./19-open-backlog.md), [23 §9](./23-next-optimization-cycle-implementation.md) |
 
 ## 4. Measurement questions raised but never answered
 

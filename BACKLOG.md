@@ -5,7 +5,11 @@
 > every time. Compiled 2026-07-22, last updated 2026-07-26 for round 7 (§1 item 7 —
 the slide's tissue fraction is now measured over every grid cell, replacing round 6's
 brightness estimate; item 7b — new evidence at `workers=4`; new item 1b; four round-7
-stop-losses), by
+stop-losses), and re-synced 2026-07-26 after a documentation-only pass split the hybrid-pipeline
+`measurement/` docs: `bottleneck-list.md` and `current-status-comparison.md` were compacted to
+current-state-only (round-by-round narrative moved to `*-history.md` companions), and
+[`hybrid-pipeline/DISCOVERED-NOT-IMPLEMENTED.md`](hybrid-pipeline/DISCOVERED-NOT-IMPLEMENTED.md)
+was added as a full one-time audit of every candidate ever discovered but not shipped, by
 > reading every file under `docs/hybrid-pipeline/` and
 > `docs/UI/` (plus spot-checking the referenced code) — not from memory. Each item links back
 > to its source of truth; **when you actually pick one up, re-read that source doc first**,
@@ -20,17 +24,24 @@ stop-losses), by
 > **Canonical, more detailed version of this section now lives in
 > [`hybrid-pipeline/19-open-backlog.md`](hybrid-pipeline/19-open-backlog.md)** (hybrid-pipeline-only
 > scope, references only documents inside that folder). Keep this section as a short mirror;
-> if the two drift apart, `19-open-backlog.md` wins.
+> if the two drift apart, `19-open-backlog.md` wins. For the full one-time audit of every
+> candidate this project has discovered but never shipped (including minor items this short
+> mirror doesn't carry), see
+> [`hybrid-pipeline/DISCOVERED-NOT-IMPLEMENTED.md`](hybrid-pipeline/DISCOVERED-NOT-IMPLEMENTED.md).
 
-Full current numbers and the arm model live in
-[`hybrid-pipeline/measurement/bottleneck-list.md`](hybrid-pipeline/measurement/bottleneck-list.md)
-("第 4 輪後重新排序的優先順序" section). Summary of what's actually open:
+Full current numbers and per-item status live in
+[`hybrid-pipeline/measurement/bottleneck-list.md`](hybrid-pipeline/measurement/bottleneck-list.md)'s
+"All bottlenecks — status and result" table (compact, current-state-only). The round-by-round
+history that used to live there is now in
+[`hybrid-pipeline/measurement/bottleneck-list-history.md`](hybrid-pipeline/measurement/bottleneck-list-history.md).
+Summary of what's actually open:
 
 | # | Item | Status | Ceiling | Why it's still open |
 |---|---|---|---|---|
 | 0 | **`detect_all_dots` joblib fan-out removed (`dot_detect_n_jobs=1`)** | **BUILT, MEASURED, ADOPTED (round 6). Ships on today's production default — no gate needed.** | **1.60x measured** at `workers=1` (large 484.7 → 302.7 s); ~0% at `workers=6` | The `Parallel(n_jobs=-1, prefer='threads')` fan-out over ~35 tiny per-cell tasks was **slower than serial at every process count** (2.77x at 20 threads, identical dot counts), and its surplus threads starved the MAIN arm of the GIL — removing them made the **GPU forwards 43.4% faster with no GPU code change**. Record: [`23-next-optimization-cycle-implementation.md`](hybrid-pipeline/23-next-optimization-cycle-implementation.md) §4. |
 | 1 | **Cross-tile multiprocessing** | **BUILT, MEASURED, ADOPTED (round 5) — but gated on item 7 before production. Recommended worker count revised down in round 6.** | **3.09x measured** at `workers=3` (large, round 5), 3.51x at `workers=4` — vs the 1.23x–1.7x that was estimated | Built as `run_batch(..., workers=N)`: `spawn` workers, per-process model reload, dynamic work queue, global renumbering still a single parent-side pass. `workers=1` remains the default and is behaviorally unchanged, so the API path does not regress. Correctness veto passed at all three anchors; fail-fast + sibling-termination verified by injection. The estimate was low because it counted only device idle and omitted GIL contention between the two arms, which only separate processes can recover. See [`21-cross-tile-multiprocessing-implementation.md`](hybrid-pipeline/21-cross-tile-multiprocessing-implementation.md). **Round 6** re-swept `workers` with item 0's fix in place and moved the recommendation **down from round 5b's `workers=6` to `workers=4` (unattended) / `workers=5`** (restart-tolerant) — `workers≥6` hit a **2-in-6 CUDA allocator OOM** rate this round (see item 7b), and the curve is flat past `workers=5` anyway once item 0 is applied. See [`23-next-optimization-cycle-implementation.md`](hybrid-pipeline/23-next-optimization-cycle-implementation.md) §6. **Not cleared to ship** — see item 7. |
 | 1b | **Phase D slide stitch (`_stitch_overlay_slide`)** — the only fully serial block left | **NEW (round 7): sized, not built** | **1.036x at `workers=1`, 1.078x at `workers=4`** (share grows with worker count) | Measured at the real 16.22-gigapixel grid: **322.7 s**, 1.8× the previous extrapolation, and **superlinear** (14.11 / 14.16 s per gigapixel at 1 / 4 GP, 19.90 at 16.22 GP). Runs once in the parent process, outside the worker pool, so multiprocessing cannot touch it — 3.5% of wall at `workers=1`, **7.3% at `workers=4`**. GPU route partly answered: nvImageCodec encodes lossless LZW TIFF **19.2× faster** than this stage's pyvips call but emits no pyramid and no BigTIFF. Try `tiffsave` tile/pyramid parameters and skipping constant regions first — no new dependency. See [`25-...`](hybrid-pipeline/25-gpu-encode-decode-loop-acceleration-implementation.md) §5/§8. |
+| 1c | **No partial-resume/checkpointing for `run_batch`** | **NEW, never built** | reliability, not speed | Fail-fast discards the *whole* batch on any single-tile failure — an OOM at tile 25,000 of 27,565 costs the entire run. This is the real reason round 5b/6 recommend the more conservative `workers=4` for unattended jobs over the faster but flakier `workers=6`/`7`. See [`21-...`](hybrid-pipeline/21-cross-tile-multiprocessing-implementation.md) §10 follow-up #7. |
 | 2 | **`clear_slide_edge_cells`** — last CPU glue between M2/M3b forwards | Watch item, not actioned | 1.2% of wall today | It's the only thing left in the M2→M3b device-idle gap after item ⑧ moved out (gap closed 10.06 s → 1.66 s). Too small alone to justify a redesign; natural next candidate *if* someone revisits bubble-closing. See doc 18 §5 follow-up #5. |
 | 3 | **Isolate the `detect_all_dots` +22.3% regression (⑨)** | Optional, not done | 1.013x (no wall-clock payoff) | Leading hypothesis is the round-3 numpy/scikit-image/opencv downgrade, competing with retrained-checkpoint cell-geometry change — not isolated. Matters only because it eats the shrinking BG-arm margin, not because it can move wall today. Cheap to settle: rerun `detect_all_dots` over saved instance masks under both dependency sets. |
 | 4 | **CUDA-stream / pipeline-depth-2 bubble redesign** | **Closed, do not reopen without new evidence** | ≤1.065x after item ⑧ landed | Sized with `torch.cuda.Event` instrumentation (doc 18 §3) and found not worth the ordering/thread-safety/CUDA-stream-sync risk. Reopen only if the intra-forward launch-bound idle (the larger half of device idle) is ever fixed upstream. |
@@ -49,7 +60,7 @@ Full current numbers and the arm model live in
 
 | Item | Status | Source |
 |---|---|---|
-| **Round-3 Cellpose checkpoint retrain needs pathologist/clinical sign-off** | **Pending, unresolved as of round 5.** Cell counts shifted +1.8–2.5% and one tile flipped success→skipped between round 2 and round 3; this is a segmentation-quality change, not noise. All performance wins from round 3 onward — including round 5's cross-tile multiprocessing — ride on top of this unvalidated model swap. | [`13-next-optimization-plan.md`](hybrid-pipeline/13-next-optimization-plan.md) §3, `bottleneck-list.md` round-3 section |
+| **Round-3 Cellpose checkpoint retrain needs pathologist/clinical sign-off** | **Pending, unresolved through round 7.** Cell counts shifted +1.8–2.5% and one tile flipped success→skipped between round 2 and round 3; this is a segmentation-quality change, not noise. All performance wins from round 3 onward — including cross-tile multiprocessing and the round-7 composition correction — ride on top of this unvalidated model swap. | [`13-next-optimization-plan.md`](hybrid-pipeline/13-next-optimization-plan.md) §3, `bottleneck-list-history.md` round-3 section |
 | **UI Phase 1–3 shipped while the algorithm is still mid-iteration** | Not a defect, but explicitly noted as a departure from the original two-condition gate ("physician validation passed" + "algorithm in maintenance mode") — see [`UI/07-phase-roadmap.md`](UI/07-phase-roadmap.md) "啟動 Phase 1 的條件". Worth knowing before assuming the pipeline's I/O contract is stable. | `UI/07-phase-roadmap.md` |
 
 ## 3. Documentation ↔ code drift not yet fixed
@@ -85,7 +96,10 @@ pass — Phases 1–3 are done, table previously said "not started" for all of t
 
 - **Picking up hybrid-pipeline perf work** → start at §1 above, then
   [`hybrid-pipeline/measurement/bottleneck-list.md`](hybrid-pipeline/measurement/bottleneck-list.md)
-  for the full numeric record, then the specific doc 10–18 for the item you're taking.
+  for the current numeric record, then the specific doc 10–25 for the item you're taking. For the
+  round-by-round "how we got here" or a candidate this short list doesn't track, see
+  [`hybrid-pipeline/measurement/bottleneck-list-history.md`](hybrid-pipeline/measurement/bottleneck-list-history.md)
+  and [`hybrid-pipeline/DISCOVERED-NOT-IMPLEMENTED.md`](hybrid-pipeline/DISCOVERED-NOT-IMPLEMENTED.md).
 - **Picking up UI work** → §4 above, then [`UI/07-phase-roadmap.md`](UI/07-phase-roadmap.md).
 - **Doing a documentation pass** → §3 above lists the known-stale cross-references; re-run the
   same verification method used to build this file (`grep` the referenced path/symbol, confirm

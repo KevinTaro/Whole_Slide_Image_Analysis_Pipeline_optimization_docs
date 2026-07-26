@@ -26,8 +26,9 @@
 | 看實測效能數字、找瓶頸排名（**舊數字，2026-06-29，pre-refactor**） | [03-benchmarks-bottlenecks.md](./03-benchmarks-bottlenecks.md) | perf_report.html 的 cProfile Top、GPU/CPU/VRAM 利用率 |
 | 決定優先改哪裡、投報比（**舊數字，pre-refactor**） | [04-optimization-roadmap.md](./04-optimization-roadmap.md) | 短/中/長期優化 + 設計決策的深層原因 + 已棄用嘗試 |
 | 為什麼要重新規劃量測、新架構跟舊文件差在哪 | [08-problem-analysis.md](./08-problem-analysis.md) → [09-measurement-analysis-plan.md](./09-measurement-analysis-plan.md) | 只定位問題/規劃量測，不下解法結論 |
-| **看目前 HEAD 的實測瓶頸排名（最新一輪，取代 03/04 的舊數字）** | [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) | RTX 5090 實測，25/121/441-tile 真實 WSI；**已滾動 4 輪**（control→overlap→Cellpose 4.2.1.1→⑧/precut），每輪都保留在同一份文件裡，不要只看第一段 |
-| 三輪（含前兩輪）的完整 before/after 對照 | [measurement/current-status-comparison.md](./measurement/current-status-comparison.md) | control vs overlap vs round-3，逐項目狀態表 |
+| **看目前 HEAD 的實測瓶頸排名（現況精簡版，取代 03/04 的舊數字）** | [measurement/bottleneck-list.md](./measurement/bottleneck-list.md) | RTX 5090 實測；已精簡為「現況清單」——每個瓶頸一行、標結果與來源文件，不含逐輪敘事；完整 7 輪演進史搬到 [measurement/bottleneck-list-history.md](./measurement/bottleneck-list-history.md) |
+| baseline 與現況的完整 before/after 對照 | [measurement/current-status-comparison.md](./measurement/current-status-comparison.md) | 只留 control baseline vs 目前 HEAD 兩欄；逐輪歷史搬到 [measurement/current-status-comparison-history.md](./measurement/current-status-comparison-history.md) |
+| 已發現但從未落地／已停損的優化清單（一次性稽核，非常態維護） | [DISCOVERED-NOT-IMPLEMENTED.md](./DISCOVERED-NOT-IMPLEMENTED.md) | 讀完 01–25 全部文件整理出的「討論過但沒改 code」清單，逐項標狀態（open/gated/stop-lossed）與來源 |
 | 針對 GPU 序列瓶頸（①）的下一步方案設計 | [10-gpu-serial-pipeline-plan.md](./10-gpu-serial-pipeline-plan.md) | 承接 bottleneck-list.md①，playbook Analyze→Plan→Choose，含驗收標準 |
 | 方案 (b) 的實作與量測結果（-18.5%，idle 0.494→0.154） | [measurement/pipeline-overlap-result.md](./measurement/pipeline-overlap-result.md) | 驗收 doc 10 §5 標準；含「為何沒到理論上限」的根因分析 |
 | stage 2：detect_all_dots 與主執行緒 GIL 競爭的下一步 | [11-gpu-pipeline-stage2-plan.md](./11-gpu-pipeline-stage2-plan.md) | 承接 pipeline-overlap-result.md 的剩餘 15.4% idle，先診斷再決定要不要動 joblib 後端 |
