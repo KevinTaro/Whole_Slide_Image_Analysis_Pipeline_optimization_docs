@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSGH | WSI analyze</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .step-active { border-color: #3b82f6; background-color: #eff6ff; }
+        .step-done { border-color: #10b981; background-color: #ecfdf5; }
+        .step-error { border-color: #ef4444; background-color: #fef2f2; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-tight">TSGH <span class="text-slate-400 font-normal">| WSI Alignment Pipeline</span></h1>
+        <div class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+            Backend: <span class="text-green-400">● 127.0.0.1:8000</span>
+        </div>
+    </header>
+
+    <main class="p-6 max-w-7xl mx-auto grid grid-cols-12 gap-6">
+
+        <!-- Left Column: Configuration -->
+        <section class="col-span-4 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-semibold mb-4 flex items-center">
+                <span class="bg-slate-100 p-1 rounded mr-2">⚙️</span> Configuration
+            </h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Input Directory</label>
+                    <input type="text" placeholder="/path/to/czi_files" class="w-full p-2 border rounded-md text-sm bg-slate-50">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Output Directory</label>
+                    <input type="text" placeholder="/path/to/output" class="w-full p-2 border rounded-md text-sm bg-slate-50">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Modalities</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="flex items-center text-sm p-2 border rounded cursor-pointer hover:bg-slate-50">
+                            <input type="checkbox" checked class="mr-2"> DAPI
+                        </label>
+                        <label class="flex items-center text-sm p-2 border rounded cursor-pointer hover:bg-slate-50">
+                            <input type="checkbox" checked class="mr-2"> CK
+                        </label>
+                        <label class="flex items-center text-sm p-2 border rounded cursor-pointer hover:bg-slate-50">
+                            <input type="checkbox" class="mr-2"> CD3
+                        </label>
+                        <label class="flex items-center text-sm p-2 border rounded cursor-pointer hover:bg-slate-50">
+                            <input type="checkbox" class="mr-2"> Other
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase mb-2">Alignment Params</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Max Iterations</label>
+                            <input type="number" value="100" class="w-full p-2 border rounded-md text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Tolerance</label>
+                            <input type="text" value="1e-6" class="w-full p-2 border rounded-md text-sm">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Middle Column: Pipeline Execution -->
+        <section class="col-span-5 space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-6 flex items-center">
+                    <span class="bg-slate-100 p-1 rounded mr-2">🚀</span> Execution Pipeline
+                </h2>
+
+                <div class="space-y-4">
+                    <!-- Step 1 -->
+                    <div class="flex items-center p-4 border-2 rounded-lg transition-all step-done">
+                        <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold mr-4">1</div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Preprocessing</h3>
+                            <p class="text-xs text-slate-500">Extracts and prepares CZI images</p>
+                        </div>
+                        <button class="px-4 py-2 bg-green-600 text-white text-sm rounded-md hover:bg-green-700">Completed</button>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="flex items-center p-4 border-2 rounded-lg transition-all step-active">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold mr-4">2</div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Image Alignment</h3>
+                            <p class="text-xs text-slate-500">Registration of modalities</p>
+                        </div>
+                        <button class="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 animate-pulse">Running...</button>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="flex items-center p-4 border-2 rounded-lg transition-all bg-white">
+                        <div class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold mr-4">3</div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">ROI Evaluation</h3>
+                            <p class="text-xs text-slate-500">Calculate overlap metrics</p>
+                        </div>
+                        <button class="px-4 py-2 bg-slate-200 text-slate-600 text-sm rounded-md cursor-not-allowed" disabled>Locked</button>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="flex items-center p-4 border-2 rounded-lg transition-all bg-white">
+                        <div class="w-8 h-8 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold mr-4">4</div>
+                        <div class="flex-1">
+                            <h3 class="font-medium">Thumbnail Generation</h3>
+                            <p class="text-xs text-slate-500">Create merged preview TIFFs</p>
+                        </div>
+                        <button class="px-4 py-2 bg-slate-200 text-slate-600 text-sm rounded-md cursor-not-allowed" disabled>Locked</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Preview Area -->
+            <div class="bg-slate-200 h-64 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-500 italic">
+                Result Preview (Images/CSV) will appear here after step completion
+            </div>
+        </section>
+
+        <!-- Right Column: Job Monitor -->
+        <section class="col-span-3 bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col h-full">
+            <h2 class="text-lg font-semibold mb-4 flex items-center">
+                <span class="bg-slate-100 p-1 rounded mr-2">📋</span> Job Monitor
+            </h2>
+
+            <div class="space-y-3 overflow-y-auto flex-1">
+                <!-- Job Item -->
+                <div class="p-3 border rounded-md text-xs bg-slate-50">
+                    <div class="flex justify-between mb-1">
+                        <span class="font-mono text-slate-400">job_8f2a1...</span>
+                        <span class="text-green-600 font-bold">DONE</span>
+                    </div>
+                    <div class="text-slate-600">Preprocess: /data/set_A</div>
+                </div>
+
+                <!-- Job Item -->
+                <div class="p-3 border rounded-md text-xs bg-blue-50 border-blue-200">
+                    <div class="flex justify-between mb-1">
+                        <span class="font-mono text-slate-400">job_3c1b9...</span>
+                        <span class="text-blue-600 font-bold animate-pulse">RUNNING</span>
+                    </div>
+                    <div class="text-slate-600">Align: /data/set_A</div>
+                </div>
+
+                <!-- Job Item -->
+                <div class="p-3 border rounded-md text-xs bg-red-50 border-red-200">
+                    <div class="flex justify-between mb-1">
+                        <span class="font-mono text-slate-400">job_a12d4...</span>
+                        <span class="text-red-600 font-bold">ERROR</span>
+                    </div>
+                    <div class="text-red-500 truncate">FileNotFoundError: ...</div>
+                </div>
+            </div>
+
+            <button class="mt-4 w-full py-2 text-sm text-slate-500 hover:text-slate-800 border border-slate-300 rounded-md transition-colors">
+                Clear History
+            </button>
+        </section>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto p-6 text-center text-slate-400 text-xs">
+        TSGH Backend Interface Prototype v0.1
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSGH | Hybrid IHC-DISH 分析流程（UI 示意）</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .step-active { border-color: #3b82f6; background-color: #eff6ff; }
+        .step-done   { border-color: #10b981; background-color: #ecfdf5; }
+        .step-pending{ border-color: #e2e8f0; background-color: #ffffff; }
+        /* 圈選用的 ROI 方框 */
+        #roiBox {
+            position: absolute; border: 2px solid #3b82f6;
+            background: rgba(59,130,246,.15); cursor: move;
+            box-shadow: 0 0 0 9999px rgba(15,23,42,.35);
+        }
+        #roiHandle {
+            position: absolute; right: -6px; bottom: -6px; width: 12px; height: 12px;
+            background: #3b82f6; border: 2px solid #fff; border-radius: 2px; cursor: nwse-resize;
+        }
+        /* 模擬組織切片的底圖 */
+        .tissue {
+            background:
+              radial-gradient(circle at 25% 30%, rgba(190,80,120,.45), transparent 12%),
+              radial-gradient(circle at 60% 55%, rgba(150,60,110,.40), transparent 14%),
+              radial-gradient(circle at 80% 25%, rgba(200,90,130,.35), transparent 10%),
+              radial-gradient(circle at 40% 75%, rgba(170,70,120,.40), transparent 13%),
+              radial-gradient(circle at 70% 80%, rgba(210,100,140,.30), transparent 11%),
+              linear-gradient(135deg, #f8e5ee, #f3d6e6);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans">
+
+    <!-- ===== Header ===== -->
+    <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-tight">
+            TSGH <span class="text-slate-400 font-normal">| Hybrid IHC-DISH 細胞分析</span>
+        </h1>
+        <div class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300">
+            Backend: <span class="text-green-400">● 127.0.0.1:8000</span>
+        </div>
+    </header>
+
+    <!-- ===== 流程步驟列（同時是切換檢視的 tab）===== -->
+    <div class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex items-center gap-2 text-sm">
+            <button data-screen="s1" class="stepBtn flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium">
+                <span class="dot w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span> 圈選 ROI
+            </button>
+            <span class="text-slate-300">→</span>
+            <button data-screen="s2" class="stepBtn flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium">
+                <span class="dot w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span> 分析中
+            </button>
+            <span class="text-slate-300">→</span>
+            <button data-screen="s3" class="stepBtn flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium">
+                <span class="dot w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">3</span> 結果
+            </button>
+            <span class="ml-auto text-xs text-slate-400 italic">示意用：點上方步驟可切換三個畫面</span>
+        </div>
+    </div>
+
+    <!-- ================= 畫面 1：圈選 ROI ================= -->
+    <main id="s1" class="screen active p-6 max-w-7xl mx-auto grid grid-cols-12 gap-6">
+
+        <!-- 切片檢視 + 圈選 -->
+        <section class="col-span-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-semibold mb-1 flex items-center">
+                <span class="bg-slate-100 p-1 rounded mr-2">🖼️</span> 切片檢視 · 拖曳框出要分析的範圍
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">
+                在切片上拖動藍框 / 右下角把手調整大小。IHC(Her2) 與 DISH 已像素對齊，只需圈一次。
+            </p>
+
+            <!-- 模擬 OpenSeadragon 檢視器 -->
+            <div id="viewer" class="tissue relative w-full h-[420px] rounded-lg overflow-hidden border border-slate-300 select-none">
+                <div class="absolute top-2 left-2 text-[10px] bg-slate-900/60 text-white px-2 py-0.5 rounded">
+                    OpenSeadragon · /api/tiles/HER2_slide_01.dzi
+                </div>
+                <!-- ROI 方框 -->
+                <div id="roiBox" style="left:120px; top:90px; width:220px; height:160px;">
+                    <div id="roiHandle"></div>
+                    <div class="absolute -top-6 left-0 text-[11px] font-mono bg-blue-600 text-white px-1.5 py-0.5 rounded whitespace-nowrap"
+                         id="roiTag">ROI</div>
+                </div>
+            </div>
+            <div class="mt-3 flex items-center gap-4 text-xs text-slate-500">
+                <span>🔍 滾輪縮放 · 拖曳平移（示意）</span>
+                <span class="ml-auto">單位：slide 像素（1 檢視px ≈ 20 slide px）</span>
+            </div>
+        </section>
+
+        <!-- 右側：輸入與開始 -->
+        <section class="col-span-4 space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="bg-slate-100 p-1 rounded mr-2">📥</span> 輸入切片
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">IHC (Her2)</label>
+                        <select class="w-full p-2 border rounded-md text-sm bg-slate-50">
+                            <option>HER2_slide_01.tiff</option>
+                            <option>HER2_slide_02.tiff</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-500 mb-1">DISH</label>
+                        <select class="w-full p-2 border rounded-md text-sm bg-slate-50">
+                            <option>DISH_slide_01.tiff</option>
+                            <option>DISH_slide_02.tiff</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md p-2">
+                        <span>✔</span> 兩張切片已像素對齊（crop="overlap"）
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="bg-slate-100 p-1 rounded mr-2">✂️</span> ROI 範圍
+                </h2>
+                <div class="grid grid-cols-2 gap-3 text-sm font-mono">
+                    <div class="bg-slate-50 border rounded p-2">x <span id="outX" class="text-blue-600 font-bold">2400</span></div>
+                    <div class="bg-slate-50 border rounded p-2">y <span id="outY" class="text-blue-600 font-bold">1800</span></div>
+                    <div class="bg-slate-50 border rounded p-2">w <span id="outW" class="text-blue-600 font-bold">4400</span></div>
+                    <div class="bg-slate-50 border rounded p-2">h <span id="outH" class="text-blue-600 font-bold">3200</span></div>
+                </div>
+                <div class="mt-3 text-xs text-slate-500">
+                    預估切成 <span id="outTiles" class="font-bold text-slate-700">20</span> 個 tile（1024px / 重疊裁切）
+                </div>
+            </div>
+
+            <button id="startBtn"
+                class="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl shadow-sm hover:bg-blue-700 transition-colors text-base">
+                🚀 開始分析
+            </button>
+            <p class="text-xs text-slate-400 text-center -mt-3">
+                按下後自動跑 M0→M1→M2→M3→M4 全流程，無需逐步操作
+            </p>
+        </section>
+    </main>
+
+    <!-- ================= 畫面 2：分析中 ================= -->
+    <main id="s2" class="screen p-6 max-w-7xl mx-auto grid grid-cols-12 gap-6">
+
+        <!-- Pipeline 進度 -->
+        <section class="col-span-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-semibold mb-6 flex items-center">
+                <span class="bg-slate-100 p-1 rounded mr-2">⚙️</span> Pipeline 執行中
+            </h2>
+
+            <div class="space-y-3">
+                <!-- M0 -->
+                <div class="flex items-center p-4 border-2 rounded-lg step-done">
+                    <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold mr-4">✓</div>
+                    <div class="flex-1">
+                        <h3 class="font-medium">M0 · 前處理</h3>
+                        <p class="text-xs text-slate-500">將 ROI 切成 1024px 重疊 tile（precut）</p>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-600">完成</span>
+                </div>
+                <!-- M1 -->
+                <div class="flex items-center p-4 border-2 rounded-lg step-done">
+                    <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold mr-4">✓</div>
+                    <div class="flex-1">
+                        <h3 class="font-medium">M1 · 疊合</h3>
+                        <p class="text-xs text-slate-500">UNet++ 產生 core mask → IHC/DISH 融合</p>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-600">完成</span>
+                </div>
+                <!-- M2 -->
+                <div class="flex items-center p-4 border-2 rounded-lg step-active">
+                    <div class="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold mr-4">2</div>
+                    <div class="flex-1">
+                        <h3 class="font-medium">M2 · 細胞分割</h3>
+                        <p class="text-xs text-slate-500">Cellpose 產生細胞 instance mask</p>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-600 animate-pulse">執行中…</span>
+                </div>
+                <!-- M3 -->
+                <div class="flex items-center p-4 border-2 rounded-lg step-pending">
+                    <div class="w-9 h-9 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold mr-4">3</div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-slate-500">M3 · 判讀</h3>
+                        <p class="text-xs text-slate-400">HER2/CEP17 訊號點偵測 + 擴增判定</p>
+                    </div>
+                    <span class="text-xs text-slate-400">等待中</span>
+                </div>
+                <!-- M4 -->
+                <div class="flex items-center p-4 border-2 rounded-lg step-pending">
+                    <div class="w-9 h-9 rounded-full bg-slate-300 text-white flex items-center justify-center font-bold mr-4">4</div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-slate-500">M4 · 匯出</h3>
+                        <p class="text-xs text-slate-400">合併 tile → overlay_slide.tiff + summary.txt + report.csv</p>
+                    </div>
+                    <span class="text-xs text-slate-400">等待中</span>
+                </div>
+            </div>
+
+            <!-- tile 進度條 -->
+            <div class="mt-6">
+                <div class="flex justify-between text-xs text-slate-500 mb-1">
+                    <span>Tile 進度</span><span>11 / 20</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-2.5">
+                    <div class="bg-blue-500 h-2.5 rounded-full" style="width:55%"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Job monitor -->
+        <section class="col-span-4 space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-lg font-semibold mb-4 flex items-center">
+                    <span class="bg-slate-100 p-1 rounded mr-2">📋</span> 任務狀態
+                </h2>
+                <dl class="text-sm space-y-3">
+                    <div class="flex justify-between"><dt class="text-slate-500">job_id</dt><dd class="font-mono text-slate-700">job_3c1b9…</dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-500">狀態</dt><dd class="text-blue-600 font-semibold animate-pulse">RUNNING</dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-500">已耗時</dt><dd class="font-mono text-slate-700">00:47</dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-500">輪詢</dt><dd class="text-slate-400">GET /api/jobs/{id} · 1.5s</dd></div>
+                </dl>
+                <button class="mt-5 w-full py-2 text-sm text-red-500 hover:text-red-700 border border-red-200 rounded-md transition-colors">
+                    取消任務
+                </button>
+            </div>
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-500 leading-relaxed">
+                進度為單一長任務：前端拿到 <code class="text-slate-700">job_id</code> 後每 1.5s 輪詢一次，
+                狀態變 <code class="text-emerald-700">done</code> 即跳到結果頁。
+                run_batch 逐 tile 串行（3 個 GPU 模型共用一個 CUDA context），任一 tile 出錯即整體失敗。
+            </div>
+        </section>
+    </main>
+
+    <!-- ================= 畫面 3：結果 ================= -->
+    <main id="s3" class="screen p-6 max-w-7xl mx-auto grid grid-cols-12 gap-6">
+
+        <!-- overlay_slide.tiff 檢視 -->
+        <section class="col-span-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-lg font-semibold mb-1 flex items-center">
+                <span class="bg-slate-100 p-1 rounded mr-2">🔬</span> overlay_slide.tiff · 標註結果
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">金字塔 TIFF，用 OpenSeadragon 檢視，可縮放到單一細胞。</p>
+
+            <!-- 模擬標註後的 overlay -->
+            <div class="tissue relative w-full h-[420px] rounded-lg overflow-hidden border border-slate-300">
+                <div class="absolute top-2 left-2 text-[10px] bg-slate-900/60 text-white px-2 py-0.5 rounded">
+                    OpenSeadragon · overlay_slide.tiff
+                </div>
+                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 800 420" preserveAspectRatio="none">
+                    <!-- 細胞邊界 + 細胞核輪廓 + 訊號點 -->
+                    <g fill="none" stroke-width="2">
+                        <circle cx="180" cy="150" r="42" stroke="#f59e0b"/>
+                        <circle cx="180" cy="150" r="26" stroke="#22d3ee"/>
+                        <circle cx="360" cy="230" r="48" stroke="#f59e0b"/>
+                        <circle cx="360" cy="230" r="30" stroke="#22d3ee"/>
+                        <circle cx="540" cy="130" r="40" stroke="#f59e0b"/>
+                        <circle cx="540" cy="130" r="24" stroke="#22d3ee"/>
+                        <circle cx="600" cy="300" r="46" stroke="#f59e0b"/>
+                        <circle cx="600" cy="300" r="28" stroke="#22d3ee"/>
+                    </g>
+                    <!-- HER2 (黑) 與 CEP17 (紅) 訊號點 -->
+                    <g>
+                        <circle cx="170" cy="140" r="3" fill="#111"/><circle cx="190" cy="155" r="3" fill="#111"/>
+                        <circle cx="178" cy="162" r="3" fill="#dc2626"/><circle cx="188" cy="140" r="3" fill="#dc2626"/>
+                        <circle cx="350" cy="222" r="3" fill="#111"/><circle cx="368" cy="235" r="3" fill="#111"/>
+                        <circle cx="360" cy="245" r="3" fill="#111"/><circle cx="356" cy="220" r="3" fill="#dc2626"/>
+                        <circle cx="532" cy="124" r="3" fill="#111"/><circle cx="548" cy="136" r="3" fill="#dc2626"/>
+                        <circle cx="592" cy="292" r="3" fill="#111"/><circle cx="610" cy="308" r="3" fill="#111"/>
+                        <circle cx="600" cy="312" r="3" fill="#dc2626"/>
+                    </g>
+                    <!-- 位移箭頭（drift arrow）與細胞編號 -->
+                    <line x1="360" y1="230" x2="392" y2="212" stroke="#16a34a" stroke-width="2"/>
+                    <text x="150" y="110" fill="#1e293b" font-size="12" font-family="monospace">#1</text>
+                    <text x="330" y="185" fill="#1e293b" font-size="12" font-family="monospace">#2</text>
+                    <text x="515" y="92"  fill="#1e293b" font-size="12" font-family="monospace">#3</text>
+                    <text x="575" y="258" fill="#1e293b" font-size="12" font-family="monospace">#4</text>
+                </svg>
+            </div>
+            <!-- 圖例 -->
+            <div class="mt-3 flex flex-wrap gap-4 text-xs text-slate-600">
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full border-2 border-amber-500"></span>細胞邊界</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full border-2 border-cyan-400"></span>細胞核輪廓 (DISH)</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-black"></span>HER2 訊號</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>CEP17 訊號</span>
+                <span class="flex items-center gap-1"><span class="w-4 h-0.5 bg-green-600"></span>位移箭頭</span>
+            </div>
+        </section>
+
+        <!-- summary.txt 報告 + 下載 -->
+        <section class="col-span-4 space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="bg-slate-800 text-white px-5 py-3 text-sm font-semibold">
+                    summary.txt · ASCO/CAP 2013 判讀
+                </div>
+                <div class="p-5 text-sm">
+                    <div class="text-center py-3 mb-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div class="text-xs text-slate-500">判讀結論</div>
+                        <div class="text-lg font-bold text-red-600">HER2 擴增陽性 (Amplified)</div>
+                    </div>
+                    <dl class="space-y-2">
+                        <div class="flex justify-between border-b border-slate-100 pb-1"><dt class="text-slate-500">HER2/CEP17 比值</dt><dd class="font-mono font-bold">3.42</dd></div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1"><dt class="text-slate-500">平均 HER2 拷貝數</dt><dd class="font-mono font-bold">7.85</dd></div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1"><dt class="text-slate-500">HER2 訊號總數</dt><dd class="font-mono">1256</dd></div>
+                        <div class="flex justify-between border-b border-slate-100 pb-1"><dt class="text-slate-500">CEP17 訊號總數</dt><dd class="font-mono">367</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500">有效腫瘤細胞數</dt><dd class="font-mono">160</dd></div>
+                    </dl>
+                    <div class="mt-4 pt-3 border-t">
+                        <div class="text-xs font-bold text-slate-400 uppercase mb-2">細胞分佈</div>
+                        <dl class="space-y-1 text-xs">
+                            <div class="flex justify-between"><dt>比值 &lt; 2</dt><dd class="font-mono">38 (24%)</dd></div>
+                            <div class="flex justify-between"><dt>比值 ≥ 2</dt><dd class="font-mono">122 (76%)</dd></div>
+                            <div class="flex justify-between"><dt>HER2 拷貝數 ≥ 6</dt><dd class="font-mono">104 (65%)</dd></div>
+                        </dl>
+                    </div>
+                    <p class="mt-3 text-[10px] text-slate-400 italic">※ 數值為示意，非真實結果</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                <h3 class="text-xs font-bold text-slate-400 uppercase mb-3">下載</h3>
+                <div class="space-y-2 text-sm">
+                    <a class="flex items-center justify-between p-2 border rounded-md hover:bg-slate-50"><span>🖼️ overlay_slide.tiff</span><span class="text-slate-400">6.4 MB</span></a>
+                    <a class="flex items-center justify-between p-2 border rounded-md hover:bg-slate-50"><span>📄 summary.txt</span><span class="text-slate-400">650 B</span></a>
+                    <a class="flex items-center justify-between p-2 border rounded-md hover:bg-slate-50"><span>📊 report.csv</span><span class="text-slate-400">13 KB</span></a>
+                </div>
+            </div>
+
+            <button data-screen="s1"
+                class="stepBtn w-full py-2.5 text-sm text-slate-600 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors">
+                ↺ 重新圈選 ROI
+            </button>
+        </section>
+    </main>
+
+    <!-- ===== 給協作者的對應說明 ===== -->
+    <section class="max-w-7xl mx-auto px-6 pb-10">
+        <details class="bg-white rounded-xl border border-slate-200 shadow-sm">
+            <summary class="cursor-pointer px-6 py-4 font-semibold text-slate-700">🧭 對應實作（給協作者）</summary>
+            <div class="px-6 pb-6 text-sm text-slate-600 space-y-3">
+                <p><b>整體：</b>沿用既有前端工作台（<code>frontend/</code>：React 19 + OpenSeadragon 6 + react-query + Tailwind v4）。這頁只多一個「Hybrid 分析」流程，不新造框架。</p>
+                <ul class="list-disc pl-5 space-y-1.5">
+                    <li><b>畫面 1（圈選）：</b>沿用 <code>SlideViewer.tsx</code> 的 OSD 檢視，加一個 ROI 矩形選取（OSD 有現成的框選 plugin / overlay，不要手搓）。切片清單來自 <code>GET /api/tiles</code>。ROI 座標是 slide 像素。</li>
+                    <li><b>「開始分析」：</b>對應 <code>PipelinePanel.tsx</code>，帶 IHC + DISH 的 slide_id 與 ROI 打 <code>POST /api/hybrid/tile</code>（現有 endpoint，走 precut + run_batch），回傳 <code>job_id</code>。</li>
+                    <li><b>畫面 2（分析中）：</b><code>useJob(jobId)</code> 每 1.5s 輪詢 <code>GET /api/jobs/{id}</code>（非 WebSocket，符合 05 資料流合約）。M0→M4 為單一長任務，串行、fail-fast。</li>
+                    <li><b>畫面 3（結果）：</b>完成後 <code>overlay_slide.tiff</code> 需先產 subifd=False 的 viewer 副本才能餵 OSD（見 09）；<code>summary.txt</code> 直接讀文字渲染成報告卡；<code>report.csv</code> 提供下載。</li>
+                </ul>
+                <p class="text-xs text-slate-400">護欄：前端只認 slide_id，永不碰檔案系統路徑；tile server 不做影像處理。詳見 04 / 05 / 10。</p>
+            </div>
+        </details>
+    </section>
+
+    <footer class="max-w-7xl mx-auto px-6 pb-8 text-center text-slate-400 text-xs">
+        TSGH · Hybrid 分析流程 UI 示意 v0.1 — 僅雛型，數值與影像為示意
+    </footer>
+
+    <script>
+        // ---- 步驟切換 ----
+        const screens = ['s1', 's2', 's3'];
+        function show(id) {
+            screens.forEach(s => document.getElementById(s).classList.toggle('active', s === id));
+            document.querySelectorAll('.stepBtn').forEach(b => {
+                const active = b.dataset.screen === id;
+                b.classList.toggle('bg-blue-50', active);
+                b.classList.toggle('text-blue-700', active);
+                const dot = b.querySelector('.dot');
+                if (dot) {
+                    dot.classList.toggle('bg-blue-600', active);
+                    dot.classList.toggle('text-white', active);
+                    dot.classList.toggle('bg-slate-200', !active);
+                    dot.classList.toggle('text-slate-500', !active);
+                }
+            });
+        }
+        document.querySelectorAll('.stepBtn').forEach(b => b.addEventListener('click', () => show(b.dataset.screen)));
+        document.getElementById('startBtn').addEventListener('click', () => show('s2'));
+
+        // ---- ROI 拖曳 / 縮放 + 座標讀出 ----
+        const SCALE = 20;                     // 1 檢視px ≈ 20 slide px（示意）
+        const viewer = document.getElementById('viewer');
+        const box = document.getElementById('roiBox');
+        const handle = document.getElementById('roiHandle');
+        const tag = document.getElementById('roiTag');
+
+        function updateReadout() {
+            const x = Math.round(box.offsetLeft * SCALE);
+            const y = Math.round(box.offsetTop * SCALE);
+            const w = Math.round(box.offsetWidth * SCALE);
+            const h = Math.round(box.offsetHeight * SCALE);
+            outX.textContent = x; outY.textContent = y;
+            outW.textContent = w; outH.textContent = h;
+            outTiles.textContent = Math.ceil(w / 1024) * Math.ceil(h / 1024);
+            tag.textContent = `ROI ${w}×${h}`;
+        }
+
+        let mode = null, sx, sy, ox, oy, ow, oh;
+        box.addEventListener('mousedown', e => {
+            if (e.target === handle) return;
+            mode = 'move'; sx = e.clientX; sy = e.clientY; ox = box.offsetLeft; oy = box.offsetTop;
+            e.preventDefault();
+        });
+        handle.addEventListener('mousedown', e => {
+            mode = 'resize'; sx = e.clientX; sy = e.clientY; ow = box.offsetWidth; oh = box.offsetHeight;
+            e.preventDefault(); e.stopPropagation();
+        });
+        window.addEventListener('mousemove', e => {
+            if (!mode) return;
+            const vw = viewer.clientWidth, vh = viewer.clientHeight;
+            if (mode === 'move') {
+                let nx = Math.max(0, Math.min(ox + e.clientX - sx, vw - box.offsetWidth));
+                let ny = Math.max(0, Math.min(oy + e.clientY - sy, vh - box.offsetHeight));
+                box.style.left = nx + 'px'; box.style.top = ny + 'px';
+            } else {
+                let nw = Math.max(40, Math.min(ow + e.clientX - sx, vw - box.offsetLeft));
+                let nh = Math.max(40, Math.min(oh + e.clientY - sy, vh - box.offsetTop));
+                box.style.width = nw + 'px'; box.style.height = nh + 'px';
+            }
+            updateReadout();
+        });
+        window.addEventListener('mouseup', () => mode = null);
+
+        // 初始
+        show('s1');
+        updateReadout();
+    </script>
+</body>
+</html>

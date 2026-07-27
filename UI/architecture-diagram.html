@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>下一階段 UI 架構圖 — FastAPI + React + pywebview</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --ink:#e8eaf0; --muted:#9aa3b2;
+    --green:#22c55e; --orange:#ff9f1c; --pink:#ff2da0; --blue:#3b82f6;
+    --red:#ef4444; --line:#2b303d; --good:#16a34a; --bad:#dc2626; --purple:#a78bfa;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,"Segoe UI","Noto Sans TC",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.7;padding:32px 18px 80px}
+  .wrap{max-width:1000px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 6px}
+  h2{font-size:20px;margin:36px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:20px 0 8px;color:#cbd3e1}
+  .sub{color:var(--muted);margin:0 0 8px}
+  .banner{background:linear-gradient(90deg,#172554,#1e3a8a);border:1px solid #2c4f8f;
+    border-radius:12px;padding:16px 18px;margin:18px 0;font-size:17px}
+  .banner b{color:#fde68a}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+  code{background:#0c0e14;border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font-family:"JetBrains Mono",Consolas,monospace;font-size:13px;color:#a5d6ff}
+  .leg{font-size:13px;color:var(--muted);margin-top:10px}
+  .foot{color:var(--muted);font-size:13px;margin-top:14px}
+  .dot{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:middle;margin:0 3px}
+
+  /* ---- 分層堆疊 ---- */
+  .stack{display:flex;flex-direction:column;align-items:stretch;gap:0;margin:14px 0}
+  .layer{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#13161f;position:relative}
+  .layer .lh{font-weight:700;font-size:15px;margin-bottom:3px}
+  .layer .ld{color:var(--muted);font-size:13px}
+  .layer.pc{border-top:3px solid var(--purple)}
+  .layer.fe{border-top:3px solid var(--blue)}
+  .layer.be{border-top:3px solid var(--green)}
+  .layer.fs{border-top:3px solid var(--orange)}
+  .conn{align-self:center;color:var(--muted);font-size:20px;line-height:1;margin:2px 0}
+  .fw{align-self:stretch;text-align:center;background:repeating-linear-gradient(45deg,#3a1216,#3a1216 10px,#2a0f12 10px,#2a0f12 20px);
+    border:1px dashed var(--red);border-radius:10px;color:#ff9aa6;font-weight:700;font-size:13px;padding:8px;margin:6px 0}
+  .inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
+  @media(max-width:760px){.inner{grid-template-columns:1fr}}
+  .sub-o{border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#0f131b;font-size:13px}
+  .sub-o b{font-size:13px}
+  .sub-o.api{border-left:3px solid var(--pink)}
+  .sub-o.algo{border-left:3px solid var(--green)}
+  .sub-o.io{border-left:3px solid var(--blue)}
+
+  /* ---- 流程步驟 ---- */
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;margin:14px 0}
+  .step{flex:1 1 150px;background:#13161f;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px}
+  .step .n{display:inline-flex;width:22px;height:22px;border-radius:6px;background:var(--blue);color:#fff;
+    align-items:center;justify-content:center;font-weight:700;font-size:12px;margin-bottom:6px}
+  .step.algo .n{background:var(--green)} .step.tiles .n{background:var(--pink)}
+  .arrow{align-self:center;color:#94a3b8;font-weight:800;font-size:18px}
+
+  /* ---- 座標邊界 ---- */
+  .coord{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+  .cbox{flex:1 1 200px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#13161f}
+  .cbox.vp{border-top:3px solid var(--blue)}
+  .cbox.conv{border-top:3px solid var(--pink);background:#1c1220}
+  .cbox.px{border-top:3px solid var(--green)}
+  .cbox .t{font-weight:700;margin-bottom:4px}
+  .cbox small{color:var(--muted)}
+
+  /* ---- 護欄紅線 ---- */
+  .rails{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+  @media(max-width:760px){.rails{grid-template-columns:1fr}}
+  .rail{border:1px solid var(--line);border-left:4px solid var(--red);border-radius:8px;padding:10px 12px;background:#13161f;font-size:13px}
+  .rail .no{display:inline-flex;width:20px;height:20px;border-radius:50%;border:2px solid var(--red);color:var(--red);
+    align-items:center;justify-content:center;font-weight:900;font-size:12px;margin-right:6px}
+  .rail b{color:#ffd9a0}
+  b.green{color:var(--green)} b.blue{color:var(--blue)} b.pink{color:var(--pink)} b.red{color:#ff9aa6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>下一階段 UI 架構圖</h1>
+  <p class="sub">FastAPI（localhost）+ React + pywebview　·　<b>Phase 0：尚無 backend/ frontend/</b>　·　搭配 <code>docs/UI/</code> 交接文檔閱讀</p>
+
+  <div class="banner">
+    一句話：<b>前端（TypeScript）↔ HTTP ↔ 後端（Python）三層物理分離；HTTP 是防火牆，演算法永遠不知道 web 存在。</b>
+  </div>
+
+  <!-- ============ 分層架構 ============ -->
+  <h2>1. 分層架構</h2>
+  <p class="sub">由上而下：醫師雙擊 → pywebview 視窗內嵌前端 → 跨 HTTP → FastAPI 後端（api / algorithms / io）→ 本機檔案。</p>
+
+  <div class="stack">
+    <div class="layer pc">
+      <div class="lh">🟪 doctor-pc　<span style="color:var(--purple)">雙擊 .exe</span></div>
+      <div class="ld">PyInstaller 打包；不要求裝 Python / node。影像全程留在這台機器。</div>
+    </div>
+    <div class="conn">▼</div>
+
+    <div class="layer fe">
+      <div class="lh">pywebview native window ▸ <b class="blue">frontend/</b>（React + OpenSeadragon）</div>
+      <div class="ld">Chromium 內嵌視圖。純 <b class="blue">TypeScript</b>，<b class="red">看不到 Python</b>、不讀本機路徑。</div>
+    </div>
+    <div class="conn">▼</div>
+
+    <div class="fw">◄─ HTTP 物理防火牆　127.0.0.1:PORT　（只綁 localhost，不對外）─►</div>
+    <div class="conn">▼</div>
+
+    <div class="layer be">
+      <div class="lh"><b class="green">backend/</b>　FastAPI（只綁 127.0.0.1）</div>
+      <div class="ld">Python 後端。</div>
+      <div class="inner">
+        <div class="sub-o api"><b class="pink">api/</b><br><small>HTTP endpoints＝唯一介面。只驗證＋呼叫＋回檔案路徑，不放演算法。</small></div>
+        <div class="sub-o algo"><b class="green">algorithms/</b><br><small>你的演算法（純函式，不動）。<b class="red">禁止 import fastapi</b>。可被 CLI 獨立呼叫。</small></div>
+        <div class="sub-o io"><b class="blue">io/</b><br><small>WSI 讀取、金字塔切片（openslide / pyvips，不手刻）。</small></div>
+      </div>
+    </div>
+    <div class="conn">▼</div>
+
+    <div class="layer fs">
+      <div class="lh">🟧 local filesystem</div>
+      <div class="ld">影像 + 結果檔，<b>不進 git</b>。大影像永遠留這，HTTP 上只跑輕量 JSON 與逐塊 JPEG。</div>
+    </div>
+  </div>
+  <p class="leg">
+    <span class="dot" style="background:var(--blue)"></span>前端（TS）
+    <span class="dot" style="background:var(--pink)"></span>api 轉譯層
+    <span class="dot" style="background:var(--green)"></span>algorithms 純函式
+    <span class="dot" style="background:var(--orange)"></span>filesystem
+    　—　紅色斜紋條＝HTTP 防火牆，兩層唯一的接觸面。
+  </p>
+
+  <!-- ============ 請求流程 ============ -->
+  <h2>2. 請求流程（跑一次 pipeline）</h2>
+  <div class="flow">
+    <div class="step"><span class="n">1</span><br>使用者點「跑 pipeline」</div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="n">2</span><br><b class="blue">frontend</b> <code>fetch POST /api/pipeline</code>　只送 <code>{slide_id, params}</code> JSON</div>
+    <span class="arrow">→</span>
+    <div class="step"><span class="n">3</span><br><b class="pink">api</b> Pydantic 驗證 → 呼叫 algorithms（傳檔案路徑＋JSON）</div>
+    <span class="arrow">→</span>
+    <div class="step algo"><span class="n">4</span><br><b class="green">algorithms</b> 純函式跑完 → 寫結果檔 → 回「路徑＋metadata」</div>
+    <span class="arrow">→</span>
+    <div class="step tiles"><span class="n">5</span><br><b class="pink">frontend</b> OpenSeadragon 向 <code>GET /api/tiles/{id}/{level}/{col}_{row}.jpg</code> 逐塊要圖</div>
+  </div>
+  <div class="card" style="font-size:13px">
+    <b>長任務</b>（跑數十分鐘）：步驟 3 立刻回 <code>{job_id}</code>，任務丟 <b>BackgroundTasks</b>；前端 <b>polling</b> <code>GET /api/jobs/{id}</code> 查進度。
+    <b class="red">不自刻 WebSocket</b>；真要即時進度條才升級 <b>SSE</b>。
+  </div>
+
+  <!-- ============ 座標轉換邊界 ============ -->
+  <h2>3. 座標轉換邊界</h2>
+  <p class="sub">兩套座標系，換算<b>只在一個檔</b>發生。演算法永遠不碰 viewport，前端永遠不碰 pixel。</p>
+  <div class="coord">
+    <div class="cbox vp">
+      <div class="t">🖥 瀏覽器端</div>
+      <small>DeepZoom <b class="blue">viewport 座標</b>（正規化 / tile 相對）。OpenSeadragon + Annotorious 畫 ROI。</small>
+    </div>
+    <span class="arrow">→ HTTP →</span>
+    <div class="cbox conv">
+      <div class="t">★ <code>backend/api/roi.py</code></div>
+      <small><b class="pink">唯一換算點</b>：viewport ⇄ pixel。牽涉金字塔 level / 縮放 / 原點對齊——集中在這裡，出錯只查一個檔、只寫一組測試。</small>
+    </div>
+    <span class="arrow">→</span>
+    <div class="cbox px">
+      <div class="t">⚙ 演算法端</div>
+      <small>原始影像 <b class="green">full-res pixel 座標</b>。<code>algorithms/</code> 只認這個。</small>
+    </div>
+  </div>
+
+  <!-- ============ 護欄紅線 ============ -->
+  <h2>4. 護欄紅線（7 條）</h2>
+  <p class="sub">維持「UI 與演算法結構性分離」的物理界線。踩線＝架構退化成一坨黏合的 code。<b class="red">✕</b>＝禁止。</p>
+  <div class="rails">
+    <div class="rail"><span class="no">✕</span><b>algorithms / io import web 框架</b><br><small>不得 <code>import fastapi</code> / <code>flask</code>。演算法要能被 CLI 獨立呼叫。</small></div>
+    <div class="rail"><span class="no">✕</span><b>frontend 直接讀本機路徑</b><br><small>只透過 <code>/api/tiles</code> 等 endpoint。前端拿 <code>slide_id</code> 不拿檔案路徑。</small></div>
+    <div class="rail"><span class="no">✕</span><b>api 層放演算法邏輯</b><br><small>只驗證＋呼叫＋回路徑。endpoint 內不得有 numpy 運算 / 影像處理。</small></div>
+    <div class="rail"><span class="no">✕</span><b>座標換算在 roi.py 以外</b><br><small>viewport⇄pixel 只在 <code>api/roi.py</code>。</small></div>
+    <div class="rail"><span class="no">✕</span><b>一次 PR 跨多層</b><br><small>改前端別同時改演算法。單層 PR 才能逐條 review。</small></div>
+    <div class="rail"><span class="no">✕</span><b>Phase 1 搬檔順手重構</b><br><small>只改 import path，函式內容不動。驗收：輸出 bit-identical。</small></div>
+    <div class="rail"><span class="no">✕</span><b>numpy array 跨 API 傳</b><br><small>邊界一律「檔案路徑 + JSON metadata」。大影像留 filesystem。</small></div>
+  </div>
+
+  <p class="foot">
+    完整說明見 <code>docs/UI/</code>：架構 [01]、版本 [02]、目錄 [03]、護欄 [04]、資料流 [05]、環境 [06]、路線圖 [07]、陷阱 [08]。
+    　·　本圖純靜態，無動畫。色票沿用 <code>docs/elastic_matching_v3_explainer.html</code>。
+  </p>
+
+</div>
+</body>
+</html>
