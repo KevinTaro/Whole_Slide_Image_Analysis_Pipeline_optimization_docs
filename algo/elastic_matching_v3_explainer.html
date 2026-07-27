@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DISH 核配對與計數 — 以核為中心（v3）</title>
+<title>DISH 核配對與計數 — 配對以細胞為中心 · 計數以核為中心（v4）</title>
 <style>
   :root{
     --bg:#0f1117; --card:#1a1d27; --ink:#e8eaf0; --muted:#9aa3b2;
@@ -53,80 +53,84 @@
 <body>
 <div class="wrap">
 
-  <h1>DISH 核配對與計數 — 以核為中心 (v3)</h1>
-  <p class="sub">cell_mask/hybrid · m3_elastic_matching.py + m3_dot_detection.py</p>
+  <h1>DISH 核配對與計數 — 配對以細胞為中心 · 計數以核為中心 (v4)</h1>
+  <p class="sub">backend/algorithms/hybrid · m3_module/m3_elastic_matching.py + m3_module/m3_dot_detection.py</p>
 
   <div class="banner">
-    一句話原則：<b>每顆 DISH 核屬於離它最近的那顆細胞；紅黑點只在那顆核裡計算，全部記給它的擁有者。</b>
+    一句話原則：<b>每顆 IHC 細胞認領至多 1 顆 DISH 核（壓在身上的優先、其次最近的）；
+    紅黑點只在那顆核裡計算，整顆核全記給它的擁有者。</b>
   </div>
 
-  <h2>0. 你回報的兩個問題</h2>
-  <table>
-    <tr><th>你看到的</th><th>根因</th><th>屬於</th></tr>
-    <tr>
-      <td><b>#392</b> 旁邊有橘色核卻沒配到，反而被遠處的 <b>#388</b> 搶走</td>
-      <td><b>配對</b>用「細胞向外膨脹去壓核」，大細胞膨脹得遠 → 跨界搶核；
-          真正最近的小細胞膨脹搆不到，連候選都排不上</td>
-      <td>Part A</td>
-    </tr>
-    <tr>
-      <td><b>#296</b> 已搶到核，<b>#279</b> 卻還算 2/2</td>
-      <td><b>計數</b>用「細胞領地」切點，一顆核跨在 296 / 279 兩顆的領地上，
-          落在 279 那半邊的點就被記給 279</td>
-      <td>Part B</td>
-    </tr>
-  </table>
-  <p class="sub">兩者其實是同一個原則的兩半：配對與計數都改成<b>以核為中心</b>。</p>
+  <div class="card" style="border-left:4px solid var(--orange)">
+    <b>本頁的狀態</b>：Part B（計數）自 v3 起未變，仍與程式一致。
+    <b>Part A（配對）於 v4 重寫</b>——v3 的「以核為中心、核找最近細胞」已被
+    「以細胞為中心 + 重疊優先 + reach」取代，連帶移除了「多核排除」這個結局。
+    參數表亦隨之更正。<b>程式永遠是唯一權威</b>：
+    <code>m3_module/m3_elastic_matching.py</code> 的 module docstring 與
+    <code>elastic_dish_nucleus_matching()</code> 的 docstring 描述的就是現行流程；
+    本頁若與其牴觸，以程式為準。
+  </div>
 
   <!-- ============ PART A ============ -->
-  <h2>Part A — 配對：每顆核配給「最近的細胞」</h2>
+  <h2>Part A — 配對：每顆細胞認領至多 1 顆核（重疊優先 · 最近優先）</h2>
 
   <div class="grid2">
     <div class="card old">
-      <span class="tag bad">舊：細胞膨脹搶核</span>
-      <p>每顆<b>細胞</b>依面積向外等向膨脹 <code>r ≈ 0.13·√面積</code>，壓到哪顆核就收為候選。</p>
-      <p><b style="color:#ff9aa6">不對稱：</b>大細胞膨脹得遠、搆得到遠核；小細胞膨脹得近、搆不到。
-         於是夾在中間的核被<b>較大的 388</b> 搶走，最近的<b>小 392</b> 反而不是候選。</p>
+      <span class="tag bad">v3（已淘汰）：核找最近細胞</span>
+      <p>每顆<b>核</b>量自己中心到附近各細胞<b>邊界</b>的距離，容忍值內最近者必勝，
+         核可以同時被算給多顆細胞 → 需要「多核排除」這個結局來收尾。</p>
+      <p><b style="color:#ff9aa6">問題：</b>純距離閘值無視「核其實壓在某顆綠框上」這個更強的物理證據，
+         仍會出現「附近有橘核卻配不到」。</p>
     </div>
     <div class="card new">
-      <span class="tag good">新：核找最近細胞</span>
-      <p>每顆<b>核</b>量自己中心到附近各細胞<b>邊界</b>的距離（核中心落在細胞內 = 0），
-         在容忍值 <code>max_dist_px</code> 內<b>最近者必勝</b>。</p>
-      <p><b class="green">對稱：</b>不管細胞大小，核一定歸給離它最近的那顆。392 最近 → 拿到核；388 較遠 → 搶不走。</p>
+      <span class="tag good">v4（現行）：細胞認領核，重疊優先</span>
+      <p>每顆<b>細胞</b>的候選有兩來源：<b>(a) 像素重疊</b>——與綠框有任一像素重疊的核；
+         <b>(b) reach 半徑</b>——<code>reach = max(√(factor·area/π), min_reach_px)</code>，
+         質心落在半徑內的核。</p>
+      <p><b class="green">一對一：</b>先把<b>重疊對</b>依質心距離升冪配並 lock，再配<b>僅 reach 對</b>。
+         每顆細胞至多 1 核，落敗者自動往下找仍可用的核 → <b>不再有「多核」結局</b>。</p>
     </div>
   </div>
 
-  <h3>同一個場景，兩種結果</h3>
-  <svg viewBox="0 0 920 230" width="100%" height="230">
-    <ellipse cx="300" cy="95" rx="26" ry="20" fill="#7a3b00" stroke="#ff9f1c" stroke-width="2"/>
-    <text x="300" y="99" fill="#ffd9a0" font-size="12" text-anchor="middle">核 N</text>
-    <rect x="248" y="20" width="60" height="42" rx="6" fill="#0f2a18" stroke="#22c55e" stroke-width="2"/>
-    <text x="278" y="46" fill="#86efac" font-size="12" text-anchor="middle">392 (近·小)</text>
-    <rect x="360" y="130" width="200" height="80" rx="8" fill="#13233f" stroke="#3b82f6" stroke-width="2"/>
-    <text x="460" y="174" fill="#9ec5ff" font-size="12" text-anchor="middle">388 (遠·大)</text>
-    <line x1="312" y1="108" x2="386" y2="150" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#ar)"/>
-    <text x="330" y="146" fill="#ff9aa6" font-size="12">舊：膨脹搶 → 388 ✗</text>
-    <line x1="296" y1="76" x2="282" y2="62" stroke="#22c55e" stroke-width="3" marker-end="url(#ag)"/>
-    <text x="120" y="60" fill="#86efac" font-size="12">新：最近者 → 392 ✓</text>
-    <text x="120" y="100" fill="#9aa3b2" font-size="12">核到 392 邊界 ≈ 4px</text>
-    <text x="120" y="120" fill="#9aa3b2" font-size="12">核到 388 邊界 ≈ 7px</text>
-    <text x="120" y="140" fill="#cbd3e1" font-size="12">→ 4 &lt; 7，核歸 392</text>
-    <defs>
-      <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ef4444"/></marker>
-      <marker id="ag" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#22c55e"/></marker>
-    </defs>
+  <h3>兩階段配對：壓在身上的先配</h3>
+  <svg viewBox="0 0 920 250" width="100%" height="250">
+    <rect x="90" y="40" width="110" height="80" rx="8" fill="#0f2a18" stroke="#22c55e" stroke-width="2"/>
+    <text x="145" y="32" fill="#86efac" font-size="12" text-anchor="middle">細胞 A</text>
+    <ellipse cx="180" cy="95" rx="30" ry="24" fill="#7a3b00" stroke="#ff9f1c" stroke-width="2"/>
+    <text x="180" y="99" fill="#ffd9a0" font-size="11" text-anchor="middle">核 1</text>
+    <text x="145" y="145" fill="#86efac" font-size="11" text-anchor="middle">核 1 壓在 A 上 → 重疊候選</text>
+
+    <rect x="330" y="40" width="110" height="80" rx="8" fill="#13233f" stroke="#3b82f6" stroke-width="2"/>
+    <text x="385" y="32" fill="#9ec5ff" font-size="12" text-anchor="middle">細胞 B</text>
+    <circle cx="385" cy="80" r="62" fill="none" stroke="#3b82f6" stroke-width="1.2" stroke-dasharray="4 4"/>
+    <text x="385" y="158" fill="#9ec5ff" font-size="11" text-anchor="middle">B 的 reach（虛線圓）也蓋到核 1</text>
+    <line x1="330" y1="88" x2="212" y2="94" stroke="#ef4444" stroke-width="2" stroke-dasharray="5 4"/>
+    <text x="240" y="182" fill="#ff9aa6" font-size="12">B 只是 reach 候選 → 第 2 階段才輪到</text>
+
+    <text x="560" y="60" fill="#cbd3e1" font-size="13">階段 1（重疊對）：</text>
+    <text x="560" y="84" fill="#86efac" font-size="13">A ↔ 核 1 配對並 lock ✓</text>
+    <text x="560" y="118" fill="#cbd3e1" font-size="13">階段 2（僅 reach 對）：</text>
+    <text x="560" y="142" fill="#9ec5ff" font-size="13">核 1 已被 lock → B 往下找別的核</text>
+    <text x="560" y="166" fill="#9aa3b2" font-size="13">B 若無其他候選 → drop-out（打 X）</text>
+    <text x="560" y="190" fill="#9aa3b2" font-size="13">B 若從頭就沒候選 → 0/0，照常計入</text>
   </svg>
 
-  <h3>程式邏輯（m3_elastic_matching.py）</h3>
-<pre><span class="c"># 對每顆 DISH 核：</span>
-for did in dish_ids:
-    cy, cx = 核 N 的 centroid
-    win = strict_instance_mask[ 以 (cy,cx) 為心、半徑 tol 的小視窗 ]
-    每個出現在視窗內的細胞 → 取「到核中心的最近 pixel 距離」= 邊界距離
-    cand = { 細胞 : 邊界距離 }  其中 距離 &lt;= tol          <span class="c"># 容忍值內才算候選</span>
-    had_feasible |= cand.keys()                          <span class="c"># 記錄「曾是某核候選」</span>
-    winner = <span class="g">min(cand, key=距離)</span>                          <span class="c"># ★ 最近者必勝</span>
-    result[winner].append(did)
+  <h3>程式邏輯（m3_module/m3_elastic_matching.py）</h3>
+<pre><span class="c"># Step 1：兩張 label mask 各算質心；細胞另算面積以決定 reach</span>
+cell_centroids, cell_areas = _centroids_and_areas(strict_instance_mask, ihc_ids)
+nuc_centroids, _           = _centroids_and_areas(dish_nucleus_mask, dish_ids)
+reach = <span class="g">max(sqrt(factor * area_c / pi), min_reach_px)</span>   <span class="c"># 每顆細胞一個</span>
+
+<span class="c"># Step 2：兩種候選來源</span>
+overlap = _overlap_pairs(strict_instance_mask, dish_nucleus_mask)  <span class="c"># 有像素重疊者</span>
+reach_pairs = { (c, d) : 核 d 質心落在細胞 c 的 reach 內 }
+
+<span class="c"># Step 3：重疊對先配，再配僅 reach 對；兩批都依質心距離升冪、貪婪一對一</span>
+for (c, d, dist) in sorted(overlap_pairs, key=dist) + sorted(reach_only, key=dist):
+    if c 未配 and d 未被 lock:
+        result[c] = [d];  lock(d)                    <span class="c"># ★ 每顆細胞至多 1 核</span>
+
+drop_out = { 曾出現在任何候選對、最終仍 0 核的細胞 }   <span class="c"># 競爭落敗者</span>
 </pre>
 
   <!-- ============ PART B ============ -->
@@ -177,51 +181,67 @@ for cid, 核bbox in 有核的細胞:
 </pre>
 
   <!-- ============ OUTCOMES ============ -->
-  <h2>四種結局（核數 → 怎麼算）</h2>
-  <div class="oc">
+  <h2>三種結局（核數 → 怎麼算）</h2>
+  <div class="oc" style="grid-template-columns:repeat(3,1fr)">
     <div class="o valid"><div class="h">核數 1 · valid</div>
       <small>正常細胞。在那顆核內計紅黑點、算 HER2/CEP17。</small></div>
-    <div class="o multi"><div class="h">核數 ≥2 · 多核</div>
-      <small>被 ≥2 顆核選中 → 排除、打 X、不計入（<code>multi_nucleus</code>）。</small></div>
     <div class="o drop"><div class="h">核數 0 · drop-out</div>
-      <small>曾是某核候選（在 tol 內）卻競爭落敗、無備援核 → 排除、打 X（<code>drop_out</code>）。</small></div>
+      <small>曾是某核的候選（重疊或 reach 內）卻競爭落敗、已無可用核 →
+             排除、打 X（<code>drop_out</code>）。</small></div>
     <div class="o keep"><div class="h">核數 0 · 無候選</div>
-      <small>從頭就不在任何核的 tol 內 → 沒核可算 → 顯示 <b>0/0</b>、<b>照常計入</b>。</small></div>
+      <small>從頭就不與任何核重疊、也不在任何 reach 內 → 沒核可算 →
+             顯示 <b>0/0</b>、<b>照常計入</b>。</small></div>
   </div>
+  <p class="sub">v3 的第四種結局「核數 ≥2 · 多核排除」<b>已不存在</b>：一對一配對下每顆細胞
+     至多認領 1 核，該情形在建構上不可能發生。</p>
   <p class="leg">
     <span class="dot" style="background:#ff9f1c"></span>橘色 = 沒被任何細胞配到的核（孤兒）
     <span class="dot" style="background:#ff2da0"></span>粉色 = 已配對的核
-    <span class="dot" style="background:#dc2626"></span>紅 X = 被排除（多核 / drop-out）
+    <span class="dot" style="background:#dc2626"></span>紅 X = 被排除（drop-out）
   </p>
 
   <!-- ============ PARAMS ============ -->
   <h2>參數</h2>
   <table>
     <tr><th>參數</th><th>意義</th><th>預設</th></tr>
-    <tr><td><code>dish_elastic_max_dist_px</code></td>
-        <td>核中心到細胞<b>邊界</b>的最大容忍距離（px）。≤ 此值才可能配給該細胞，最近者勝。
-            以核為中心配對的<b>唯一</b>距離閘值。</td><td>50</td></tr>
+    <tr><td><code>dish_elastic_expand_factor</code></td>
+        <td><b class="green">使用中</b>（v3 的本頁誤標為「已棄用」）：細胞面積放大倍數，
+            用以算 reach 半徑 <code>√(factor·area/π)</code>。
+            候選來源 (b) 的距離閘值。</td><td>1.5</td></tr>
+    <tr><td><code>dish_elastic_min_reach_px</code></td>
+        <td>reach 的<b>絕對下限</b>（px）。用來橋接「核與綠框完全無重疊、但很近」的純飄移情形；
+            0 = 不設下限，只靠面積公式與重疊候選。</td><td>20.0</td></tr>
+    <tr><td><code>cell_enlarge_area_factor</code></td>
+        <td>配對<b>之前</b>先把綠框實際往背景膨脹（<code>skimage.expand_labels</code>，
+            Voronoi 式外擴、細胞間不重疊）使等效面積放大此倍數，藉此蓋到更多核。
+            與 reach 會<b>疊加</b>；1.0 = 不放大。只影響配對與點偵測，
+            醫師檢視的 overlay 仍畫原始 M2 綠框。</td><td>1.5</td></tr>
     <tr><td><code>dish_elastic_exclude_zero</code></td>
         <td>是否把 drop-out（競爭落敗無備援）細胞打 X 排除。
             <b>不影響</b>「無候選 0/0」細胞——那種一律計入。</td><td>True</td></tr>
-    <tr><td><code>dot_blue_exclude_threshold</code></td>
-        <td>核數 ≥ 此值 → 多核排除。</td><td>2</td></tr>
-    <tr><td style="text-decoration:line-through;color:#777"><code>dish_elastic_expand_factor</code></td>
-        <td><b style="color:#ff9aa6">已棄用</b>：舊「細胞膨脹搶核」法的面積倍數，新版不再膨脹細胞，此參數無作用。</td><td>—</td></tr>
+    <tr><td><code>dish_nucleus_core_min_inside_ratio</code></td>
+        <td>DISH 核需落在 UNet++ <code>core_mask</code> 內的最小像素比例。
+            1.0 = 完全包含才留；&lt;1.0 容忍 mask 邊緣鋸齒。</td><td>0.97</td></tr>
   </table>
+  <p class="sub">v3 的本頁列出的 <code>dish_elastic_max_dist_px</code> 與
+     <code>dot_blue_exclude_threshold</code> <b>在現行 config 中皆不存在</b>——
+     它們隨「以核為中心」配對法與「多核排除」結局一併移除。</p>
 
-  <h2>改了哪些檔案</h2>
+  <h2>權威來源</h2>
   <table>
-    <tr><th>檔案</th><th>改動</th></tr>
-    <tr><td><code>m3_elastic_matching.py</code></td><td>整支重寫成以核為中心配最近細胞（移除細胞膨脹、union-find、linear_sum_assignment）。</td></tr>
-    <tr><td><code>m3_dot_detection.py</code></td><td>計數 ROI 改為 <code>_build_nucleus_owner_mask</code>（核區域）；所有 IHC 細胞都建結果（無核 → 0/0 計入）。</td></tr>
-    <tr><td><code>config.py / config_example.py</code></td><td><code>max_dist_px</code> 改為邊界距離語意；<code>expand_factor</code> 標記已棄用。</td></tr>
-    <tr><td><code>m4_export.py</code></td><td>per-cell crop 註解更新（計數 ROI 已與粉色核形狀一致、無核外漏算）。</td></tr>
+    <tr><th>問題</th><th>看哪裡</th></tr>
+    <tr><td>配對規則</td><td><code>m3_module/m3_elastic_matching.py</code> —— module docstring +
+        <code>elastic_dish_nucleus_matching()</code></td></tr>
+    <tr><td>計數 ROI / 點偵測</td><td><code>m3_module/m3_dot_detection.py</code> ——
+        <code>_build_nucleus_owner_mask()</code>、<code>detect_all_dots()</code></td></tr>
+    <tr><td>像素級紅黑點判定</td><td><code>m3_module/m3_dot_kernels.py</code></td></tr>
+    <tr><td>參數預設值</td><td><code>config_example.py</code>（<code>config.py</code> 為
+        site-local 複本，不進版控）</td></tr>
   </table>
 
-  <p class="foot">驗證：/tmp/test_nucleus_centric.py（配對最近者勝 + 計數不漏給鄰居）、
-     /tmp/test_detect_wiring.py（全細胞建結果、無核 0/0 計入）皆通過。
-     建議重跑 <code>python hybrid_pipeline.py --batch --test</code> 目視確認 392 拿到核、279 變 0/0。</p>
+  <p class="foot">本頁為概念說明，非規格書：任何與程式牴觸之處，<b>以程式為準</b>。
+     修改配對或計數邏輯時請一併更新此頁，否則它會再次漂移
+     （見 <code>docs/hybrid-pipeline/07-gotchas-appendix.md</code> G4）。</p>
 
 </div>
 </body>
