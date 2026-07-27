@@ -11,6 +11,48 @@
 > with **correctness as a veto** and **ablation as the price of admission** for any layer
 > that claims to help.
 
+> **Post-refactor location note (added 2026-07-27, after the M0 split).** Everything this
+> document *measured and decided* still stands — the M0 refactor was verified to be a pure
+> move (every relocated function body byte-identical except one relative-import depth fix).
+> Only the **file paths** below moved. `hybrid_pipeline.py` shed its M0 half into
+> `m0_module/`, fronted by the `m0_slide.py` facade:
+>
+> | Symbol | Was (as written below) | Now |
+> |---|---|---|
+> | `_ensure_nofile_limit`, `_join_overlay_tiles`, `_stitch_overlay_slide` | `hybrid_pipeline.py` | `m0_module/m0_stitch.py` |
+> | `_install_worker_probe`, `LAST_MP_WORKER_TIMINGS`, `_run_tiles_multiprocess`, `_mp_tile_worker` | `hybrid_pipeline.py` | `m0_module/m0_multiprocess.py` |
+> | `_checkpoint_*`, `_skip_completed` | `hybrid_pipeline.py` | `m0_module/m0_checkpoint.py` |
+> | `PrecutStream` | `m0_reader` | `m0_module/m0_reader.py`, via `m0_slide` |
+>
+> The refactor also **broke `scripts/perf_measure.py` in three separate ways**, all from the
+> same cause: the harness instruments by patching names in the *parent* namespace, and the
+> names it patches left that namespace. This is exactly the failure mode §4 was written to
+> fix, reintroduced on the parent path. All three are now fixed:
+>
+> 1. **`install_wrappers()` crashed outright.** `wrap_save_tile_array()` /
+>    `wrap_write_blank_tile()` read `HP._save_tile_array` / `HP._write_blank_tile` by
+>    *direct attribute access* (no `getattr` default), so any instrumented run died at
+>    startup with `AttributeError`. → repointed to `m0_tile_runner`.
+> 2. **15 of 22 per-stage buckets silently went empty.** `wrap()` uses
+>    `getattr(..., None)` and skips with a printed line rather than raising, so the run
+>    *completed* and wrote a metrics file with most buckets simply absent — a hollow
+>    measurement, the most dangerous outcome of the three. The per-tile M1→M4 calls now
+>    live in `m0_tile_runner`, which binds them as its own globals; patching the defining
+>    module (`m1_overlay` etc.) would *not* intercept an already-bound reference, so the
+>    shims must go on `m0_tile_runner`. → 13 `wrap`/`wrap_gpu` targets repointed there.
+> 3. **Every run lost its results at the final write.** `LAST_MP_WORKER_TIMINGS` was left
+>    un-re-exported while `perf_measure.py` read `HP.LAST_MP_WORKER_TIMINGS`
+>    *unconditionally* when assembling its result dict — `AttributeError` after the entire
+>    measurement, on the line before writing `{label}_timings.json`. Same
+>    lose-everything-at-the-final-write shape §1 exists to prevent. → re-exported through
+>    `m0_slide` into `hybrid_pipeline`; §4 is accurate again as written.
+>
+> Three wraps remain skipped, all **already dead before the refactor**, left as-is:
+> `segment_masked_dish` and `export_per_cell_images` (both removed in earlier rounds) and
+> `process_precut_tile` (superseded by the `_gpu`/`_cpu` split, whose boundary is instead
+> instrumented by `wrap_tile_boundary`). `HP.precut_paired_tiles` (§0 item 2, below) also
+> remains un-re-exported and still broken — unchanged, still reported rather than fixed.
+
 ---
 
 ## 0. Summary
@@ -59,7 +101,8 @@ the preflight rather than by looking for them:
    correctness concern, so the runner conforms the pair to their intersection (§6).
 2. **`perf_measure.py`'s non-stream path is broken.** It calls
    `HP.precut_paired_tiles`, which `hybrid_pipeline` does not re-export (only
-   `PrecutStream` is imported from `m0_reader`). Any run without `--stream-precut` dies
+   `PrecutStream` is imported from `m0_reader`, today via the `m0_slide` facade). Any run
+   without `--stream-precut` dies
    with `AttributeError` before doing work. Left as-is and reported rather than fixed —
    it is outside doc 26's scope and every round since 4 uses `--stream-precut`. See §10.
 
@@ -74,7 +117,8 @@ pyvips image *simultaneously* until the final `tiffsave` pulls data. Nothing che
 with the common 1,024 default the stitch dies **after the entire multi-hour analysis has
 completed** — the most expensive possible failure mode for this pipeline.
 
-**Change** (`backend/algorithms/hybrid/hybrid_pipeline.py`):
+**Change** (`backend/algorithms/hybrid/hybrid_pipeline.py`; now
+`backend/algorithms/hybrid/m0_module/m0_stitch.py`):
 
 - New `_ensure_nofile_limit(needed)`. If the soft limit is short it **raises the soft
   limit itself** (soft→hard needs no privilege, so on the overwhelming majority of hosts
@@ -270,7 +314,7 @@ intra-worker optimization was therefore unmeasurable.
 **Change**, in three small pieces that keep the pipeline free of any dependency on the
 measurement harness:
 
-1. `hybrid_pipeline._install_worker_probe()` reads `HYBRID_MP_WORKER_PROBE`
+1. `_install_worker_probe()` (now `m0_module.m0_multiprocess`) reads `HYBRID_MP_WORKER_PROBE`
    (`module:callable`), imports it and calls it — **before** the three `_init_*` model
    loads, so per-worker init is measured too. Unset (the normal case) it costs one
    `os.environ.get`. Probe failures log a warning and are swallowed: a broken measurement
