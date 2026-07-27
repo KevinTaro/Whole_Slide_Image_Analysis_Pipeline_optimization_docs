@@ -8,6 +8,18 @@
 > **Outcome: Option C (`gc.freeze()`) adopted — −37.0 s of main-thread work at the 441-tile anchor,
 > ≈1.07x end-to-end, landing exactly on this priority's Amdahl ceiling. Option A (fixed-N
 > `gc.collect()` batching) was implemented, measured, found to add nothing on top of C, and deleted.**
+>
+> **⚠️ Round-8 update (2026-07-27) — this win does not survive to full-slide scale.** The real
+> 27,565-tile end-to-end run found `gc.collect` back at **80.5 ms/call, 2,218.4 s = 16.1% of wall**
+> — essentially the pre-`gc.freeze()` per-call cost this document measured (§4.1: 83.2 ms/call).
+> `gc.freeze()` only exempts objects that exist *at freeze time*; `run_batch` then accumulates
+> `per_tile_owned` — **356,255 `CellAnalysisResult` dataclasses** by the end of a full slide —
+> created *after* the freeze, fully tracked, and rescanned on every one of 27,565 collections. On
+> the 441-tile crop this document measured, that list holds ~6,000 objects and the cost is
+> invisible; at full scale it is the third-largest item in the run. **Not yet fixed** — a plausible
+> cheap fix is to freeze again periodically, or keep the accumulating results out of GC's reach.
+> Now the single most attractive open item in the pipeline. See
+> [`27-remaining-work-implementation.md`](./27-remaining-work-implementation.md) §6.4.
 
 ## 1. Headline
 
