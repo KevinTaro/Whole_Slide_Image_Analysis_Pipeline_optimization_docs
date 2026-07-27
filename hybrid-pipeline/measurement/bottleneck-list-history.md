@@ -894,3 +894,96 @@ independently-selected crops, a fair indication of the method's own uncertainty.
 For the complete list of every item this project has discovered but not shipped — including the
 ones this round closed and the ones still open — see
 [`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md).
+
+---
+
+## Round-8 anchors (2026-07-27) — the first real full-slide run, and three "closed" numbers reopen
+
+> Adds the eighth measured round; **rounds 1–7 above are preserved verbatim.** Executes
+> [`26-remaining-work-implementation-plan.md`](../26-remaining-work-implementation-plan.md). Config
+> hash **`3d1087f2` unchanged**. Full record:
+> [`../27-remaining-work-implementation.md`](../27-remaining-work-implementation.md).
+
+**Headline: the item-7 full-WSI validation gate finally ran, and it reset the map rather than
+shipping a new optimization.** Every cheap Phase D `tiffsave` knob measured this round is dead
+(§ below) and the `workers≥6` allocator fix does not work — **zero performance changes were
+adopted this round**. But the first complete-slide run found that three numbers this project had
+already measured and closed, on crops, do not survive at production scale:
+
+| stage | crop-scale record | **full-slide, round 8** |
+|---|--:|--:|
+| `gc.collect` (doc 16, round 4) | ~0 (`gc.freeze()`, 1.083x ceiling) | **16.1% of wall** (2,218.4 s, back to 80.5 ms/call) |
+| tile read (doc 18 §6.3, round 4) | 1.22% of wall, ceiling 1.012x | **17.2% of wall** (2,368.5 s) |
+| Phase D stitch (doc 25, round 7) | 3.5%/7.3% of wall, ceiling 1.036x/1.078x | **8.6%/19.3% of wall** (1,185.4 s — 3.7× the synthetic probe's 322.7 s) |
+
+`gc.freeze()` only exempts objects live *at freeze time*; `run_batch` accumulates
+`per_tile_owned` (356,255 `CellAnalysisResult`s by the end of a slide) *after* the freeze, fully
+tracked, rescanned on all 27,565 collections — invisible on a 441-tile crop (~6,000 objects). Tile
+read was free on a crop because the ~49 GB precut scratch fit page cache; at full scale it doesn't.
+Phase D's synthetic probe replicated a small pool of real tiles via hard links, which compress and
+cache far better than 27,565 genuinely distinct ones.
+
+### Full real-WSI-scale validation — DONE, first time ever
+
+Ran on the conformed HER2/DISH pair (the two modalities' registered canvases differ — 141818×114366
+vs 141658×114415 — which `PrecutStream` fail-fasts on; `scripts/full_wsi_validate.py --conform`
+crops both to their intersection, 99.86% retained — a blocker no prior crop-based round could hit).
+
+| | `workers=1` | `workers=4` | round-7 projection |
+|---|--:|--:|--:|
+| end-to-end wall | **13,762 s = 3.82 h (+47%)** | **6,211 s = 1.73 h (+38%)** | 2.6 h / 1.25 h |
+| measured speedup | — | **2.216x** (in the 2.06x–2.17x predicted band) | — |
+| `report.csv` rows | 356,255 | 356,221 (**−0.01%**, veto passed) | — |
+| peak RSS | 61.13 GB | 61.67 GB | ~4 GB at crop scale |
+| peak GPU | 2,739 MB | 30,439 MB (93.3% of 32,607) | — |
+
+The composition prediction was right to within one tile (15,385 vs predicted 15,386 background
+tiles), so the +38–47% overrun is entirely in per-tile rates, not tissue/background mix — the three
+regressions in the table above account for it. **19-open-backlog item 7 closed; the `workers>1`
+production gate is satisfied**, with a VRAM caveat (93.3% of the card at `workers=4`, not a speed
+one) rather than the speed caveat every prior round expected.
+
+### Phase D `tiffsave` knob ablation — CLOSED, negative
+
+13 single-knob configs at 4.055 GP screening scale, against `BOUND_no_pyramid` and
+`BOUND_no_compression` bounds: tile size is monotonically **worse** (256/512/1024 → 0.948x/0.860x/
+0.686x); pyramid depth and `predictor=horizontal` are already the effective defaults (byte-identical
+output); `deflate` is 0.785x. The one winner, **`zstd` level 1 — 1.2331x and 13.8% smaller,
+verified lossless (pixel-identical at tile scale, byte-identical 2048² patches at slide scale)** —
+is **vetoed on correctness**: QuPath (via BioFormats) raises "cannot open" on a zstd-compressed
+TIFF, while the identical content under LZW opens fine. `_stitch_overlay_slide` stays on LZW, no
+knobs added. This closes 19 #1b's "cheaper things to try first" — nothing cheap is left, and the
+GPU port (nvImageCodec) now carries a hard new constraint: whatever it emits must be
+BioFormats-readable, ruling out the modern codecs a GPU encoder is fastest at.
+
+### `RLIMIT_NOFILE` guard, partial resume, worker-side timing, allocator knob — all built
+
+- **`_ensure_nofile_limit()`** raises the soft limit itself when the hard limit permits, else fails
+  loudly before opening anything (the stitch holds all 27,565 overlay tiles open simultaneously;
+  12,027 fds observed mid-stitch on the real run — this guard fired for real and passed silently). 7
+  tests.
+- **`run_batch(checkpoint=True)`** — opt-in, config-hash-guarded per-tile resume; cold vs. resumed
+  output byte-identical. Fail-fast unchanged. 12 tests.
+- **Per-bucket timing inside multiprocess workers** — `perf_measure.py` was parent-process-only, so
+  `workers>1` runs had zero worker-side visibility. An env-gated probe hook now reports 26
+  worker-side buckets (`--worker-timings`), keeping the pipeline free of any harness dependency.
+- **`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`** — built as `config.cuda_alloc_conf`, swept
+  12 runs (6 control / 6 treatment, interleaved) at `workers=6` on the round-6 defect's exact
+  reproduction anchor. **Does not reduce peak VRAM** (median 24,040 vs 22,968 MB — evidence
+  *against* the fragmentation hypothesis) and costs +2.0% wall; 0-in-6 vs 1-in-6 OOM is
+  statistically indistinguishable (p≈1.0). **Default stays off, `workers≤4–5` cap stays.** Also
+  found: `workers=6` is not faster than `workers=4` on this crop (65.46 vs 65.55 s) — removing the
+  only reason anyone would want the cap raised. Next step is root-causing the 24.76 GiB balloon
+  directly, not sweeping more allocator flags.
+
+### Documentation ↔ code drift — all seven closed
+
+`generate_ihc_core_mask` param rename, the two dead spec-doc references (plus a second, previously
+unlisted instance in `m3_dot_detection.py`), the elastic-matching explainer HTML updated to v4,
+`test_config_parity.py` (6 cases), `test_m0_stitch.py` (21 cases), and a codegraph phantom-file
+recheck (zero phantoms at the current path). 48 automated tests now exist where there were none. See
+[`../27-remaining-work-implementation.md`](../27-remaining-work-implementation.md) §7.
+
+For the complete list of every item this project has discovered but not shipped — including the
+ones round 8 closed, the ones it reopened, and the ones still open — see
+[`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md).
