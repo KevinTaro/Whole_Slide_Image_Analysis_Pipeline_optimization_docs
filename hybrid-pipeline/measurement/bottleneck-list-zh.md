@@ -549,3 +549,45 @@ ms/tile，即 20 執行緒比序列慢 **2.77x**，而紅黑點數**完全相同
 `core.run_net` 的多影像批次路徑，但每塊成本持平到更差：G=2 最多 −5.7%、G=4/8 轉負，而 VRAM 峰值
 線性成長 1.17 → 8.01 GB）；UNet++ 跨 tile 批次（每個組合都更差；
 `cell_mask/unet_mask/inference.py` 的 `predict_batch` 實際上是逐張 `for` 迴圈，不是批次前向）。
+
+---
+
+## 第 7 輪（2026-07-26）與第 8 輪（2026-07-27）摘要 — 完整英文版見本檔案開頭導覽
+
+> 本檔中文版的逐輪紀錄停在第 6 輪；第 7、8 輪只在此處做濃縮摘要，完整細節請讀英文版
+> [`bottleneck-list-history.md`](./bottleneck-list-history.md)（"Round-7 anchors" / "Round-8
+> anchors" 兩節）與 [`../25-...`](../25-gpu-encode-decode-loop-acceleration-implementation.md)、
+> [`../27-...`](../27-remaining-work-implementation.md)。
+
+**第 7 輪 — 組成前提是錯的。** 每一輪先前假設的「39% 背景 / 61% 組織」來自一張亮度縮圖，
+其答案在 ±13 灰階閾值內會從 2.4% 擺盪到 55.1%。改用 pipeline 自己的判準（UNet++ core mask
+全空）逐格量完整 27,565-tile 網格後，玻片實際是 **55.82% 背景 / 44.18% 組織**。這翻轉了雙臂
+模型的方向：在真實組成下 BG 臂餘裕是 **47–53%**（`match24` 錨點 `workers=1`：188.8 s，
+`workers=4`：88.3 s，加速 2.14x），比任何一輪組織密集裁切測到的都寬，doc 24 的 B/D/E/F 候選
+（`detect_all_dots`/CPU 前處理搬 GPU）因此全部以「wall 天花板 1.00x」關閉。唯一在真實規模下
+**變差**的是 Phase D 拼接：實測 **322.7 s**（16.22 GP），是先前外推值的 1.8 倍，且超線性。
+全 WSI 估算改用實測組成 + 實測 Phase D：**~2.6h（`workers=1`）/ ~1.25h（`workers=4`）**。
+
+**第 8 輪 — 本專案第一次真正跑完整片，放行 gate 已滿足，但沒有任何效能改動被採用。**
+真實 27,565-tile 整片：`workers=1` **3.82h**（比推算多 47%）、`workers=4` **1.73h**（多 38%），
+實測加速比 **2.216x**（落在預測區間內），正確性投票通過。組成預測準到只差一格 tile，所以
+超出推算的原因**完全在逐 tile 速率，不在組成**——而且是三個先前用裁切量過、以為已關閉的成本
+在整片規模下重新浮現：
+- **`gc.collect`**：`gc.freeze()` 的效益（第 4 輪測到近乎 0）在整片規模消失，回到
+  **16.1% wall**（2,218.4 s，80.5 ms/call）——因為 `run_batch` 累積的 356,255 個
+  `CellAnalysisResult` 是在 freeze **之後**建立、仍被追蹤，每次 `gc.collect` 都要重掃。
+- **tile read**：doc 18 §6.3 停損時測到 1.22% wall，整片規模因 ~49 GB 的 precut scratch
+  裝不進 page cache，變成 **17.2% wall**（2,368.5 s）。
+- **Phase D 拼接**：真實整片縫合花了 **1,185.4 s**（`workers=1` 佔 8.6% wall，`workers=4` 佔
+  19.3%），是合成探針測到的 322.7 s 的 3.7 倍——因為探針用少量真實 tile 複製出的檔案壓縮/快取
+  效果遠比 27,565 張互不相同的真實 tile 好。
+
+`tiffsave` 13 種旋鈕全部消融：tile size 越大越差、pyramid depth/predictor 早已是預設值、
+唯一贏家 `zstd`（1.2331x、省 13.8% 空間）因 **QuPath/BioFormats 開不了** 被正確性否決。
+`workers≥6` 的 allocator 氣球問題：`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` 已建置並
+掃描 12 次，**不會降低峰值 VRAM**（反而略高），也**不會**顯著降低 OOM 機率，預設維持關閉。
+另外建置了 `RLIMIT_NOFILE` 護欄（7 測試）、`run_batch(checkpoint=True)` 斷點續跑（12 測試）、
+worker 內 per-stage 計時（4 桶 → 26 桶）、以及全部 7 項文件↔code 漂移的關閉（新增共 48 個
+自動化測試）。**放行 `workers=4` 到生產**，但其在整片上量到 **93.3% 卡用量**（餘裕僅
+~2.2 GB），`workers≥5` 仍應等 allocator 氣球根治後再開放。完整記錄：
+[`../27-remaining-work-implementation.md`](../27-remaining-work-implementation.md)。
