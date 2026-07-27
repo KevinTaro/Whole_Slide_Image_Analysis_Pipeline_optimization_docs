@@ -591,3 +591,117 @@ SLIDE=/data/nvmessd/storge_tsgh/<case>/output
 Raw artifacts: `_metrics_r7/` (incl. `env_stamp_r7.txt`, `pip_freeze_r7.txt`,
 `core_mask_map.npz`). Full reproduction command set:
 [`25-gpu-encode-decode-loop-acceleration-implementation.md`](../25-gpu-encode-decode-loop-acceleration-implementation.md) §12.
+
+---
+
+# 11. Round 8 (2026-07-27) — the real full-slide run, and three "closed" crop-scale numbers reopen
+
+> Executes [`26-remaining-work-implementation-plan.md`](../26-remaining-work-implementation-plan.md).
+> Config hash **`3d1087f2` unchanged**. Full record:
+> [`27-remaining-work-implementation.md`](../27-remaining-work-implementation.md).
+
+## 11.1 Headline
+
+Every round-7 projection through §10 above was a **rate-based extrapolation from crops**. Round 8
+ran the real thing for the first time — both `workers=1` and `workers=4`, on the conformed
+HER2/DISH pair (the registration stage emits a different canvas per modality, 141818×114366 vs
+141658×114415, which `PrecutStream` fail-fasts on; `scripts/full_wsi_validate.py --conform` crops
+both to their intersection, 99.86% retained — a blocker no crop-based round could ever hit).
+
+| | `workers=1` | `workers=4` | round-7 projection |
+|---|--:|--:|--:|
+| end-to-end wall | **13,762 s = 3.82 h** | **6,211 s = 1.73 h** | 2.6 h / 1.25 h |
+| Δ vs projection | **+47%** | **+38%** | — |
+| measured speedup | — | **2.216x** | 2.06x–2.17x predicted |
+| `report.csv` rows | 356,255 | 356,221 (**−0.01%**, veto passed) | — |
+| peak RSS | 61.13 GB | 61.67 GB | ~4 GB at crop scale |
+| peak GPU | 2,739 MB | 30,439 MB (93.3% of 32,607) | — |
+
+The composition prediction was right to within one tile (15,385 vs predicted 15,386 background
+tiles) — so the +38–47% miss is entirely in per-tile rates, not the tissue/background mix.
+
+## 11.2 Three crop-scale numbers this project had already measured and closed do not survive at scale
+
+| stage | crop-scale record | **full-slide, round 8** |
+|---|--:|--:|
+| `gc.collect` (§9 r6 note; doc 16) | ~0 (`gc.freeze()`, 1.083x ceiling) | **16.1% of wall** (2,218.4 s, back to 80.5 ms/call) |
+| tile read (doc 18 §6.3) | 1.22% of wall, ceiling 1.012x | **17.2% of wall** (2,368.5 s) |
+| Phase D stitch (§10.3 above; doc 25) | 3.5%/7.3% of wall, ceiling 1.036x/1.078x | **8.6%/19.3% of wall** (1,185.4 s — 3.7× the synthetic probe's 322.7 s) |
+
+`gc.freeze()` only exempts objects live *at freeze time*; `run_batch` accumulates `per_tile_owned`
+(356,255 `CellAnalysisResult`s by the end of a slide) *after* the freeze, fully tracked, rescanned
+on all 27,565 collections — invisible on the 441-tile crop this document's §2 measured (~6,000
+objects). Tile read was free on a crop because the ~49 GB precut scratch fit page cache; at full
+scale it doesn't. Phase D's synthetic probe (§10.3) replicated a small pool of real tiles via hard
+links, which compress and cache far better than 27,565 genuinely distinct ones.
+
+## 11.3 Phase D `tiffsave` knob ablation — CLOSED, negative
+
+13 single-knob configs at 4.055 GP screening scale: tile size monotonically **worse**
+(256/512/1024 → 0.948x/0.860x/0.686x); pyramid depth and `predictor=horizontal` already the
+effective defaults (byte-identical output); `deflate` 0.785x. The one winner, **`zstd` level 1 —
+1.2331x, 13.8% smaller, verified lossless** — is **vetoed on correctness**: QuPath/BioFormats
+cannot open a zstd-compressed TIFF. `_stitch_overlay_slide` stays on LZW. This closes §10.5 item
+1's "cheaper knobs first" recommendation — nothing cheap is left, and the GPU port now carries a
+hard new constraint: its output must be BioFormats-readable.
+
+## 11.4 Reliability and measurement infrastructure built
+
+- **`RLIMIT_NOFILE` guard** — `_ensure_nofile_limit()` raises the soft limit itself when the hard
+  limit permits, else fails loudly before opening anything. Exercised for real on the full-slide
+  run (12,027 open fds observed mid-stitch) and passed silently.
+- **Partial resume** — `run_batch(checkpoint=True)`, opt-in, config-hash-guarded; cold vs. resumed
+  output byte-identical. Fail-fast unchanged.
+- **Per-worker timing** — `perf_measure.py --worker-timings` now reports 26 worker-side buckets
+  (was parent-process-only, 4 buckets, at `workers>1`).
+- **`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`** — swept 12 runs at `workers=6` on §9's
+  exact defect-reproduction anchor. Does **not** reduce peak VRAM (median 24,040 vs 22,968 MB
+  control — evidence against the fragmentation hypothesis), costs +2.0% wall, and 0-in-6 vs 1-in-6
+  OOM is statistically indistinguishable. Default stays off. Also: `workers=6` is not faster than
+  `workers=4` on this crop (65.46 vs 65.55 s).
+
+## 11.5 What this changes
+
+1. **§10.5 item 2 (full real-WSI validation) is closed.** The `workers>1` production gate is
+   satisfied. Recommendation: **ship `workers=4`**, with a VRAM caveat — 93.3% of the reference
+   card at peak, ~2.2 GB headroom — not the speed caveat every prior round expected.
+2. **§10.5 item 1 (Phase D cheap knobs) is closed, negative** — see §11.3. The GPU port is now the
+   only remaining Phase D route, and its ceiling is **~3x higher than §10.3 recorded** (19.3% of
+   wall at `workers=4`, not 7.3%) because both the stitch got slower than the probe predicted *and*
+   everything else got faster.
+3. **§10.5 item 3 (`workers≥6` allocator OOM) — candidate fix tried, did not clear it.** See §11.4.
+   Root-causing the 24.76 GiB balloon directly is now the live question, not more allocator flags.
+4. **Two of §10.3's "confirmed closed" BG-arm items don't apply here** — `gc.collect` and tile read
+   were never BG-arm/GPU-port candidates in the round-7 sense; they are MAIN-arm/outside costs that
+   this round found were mismeasured at crop scale, not re-litigated composition conclusions. See
+   §11.2.
+
+For the complete list of every item this project has discovered but not shipped — including what
+round 8 closed and what it reopened — see
+[`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md).
+
+## 11.6 Reproduce round 8
+
+```bash
+.venv/bin/python scripts/full_wsi_validate.py \
+  --ihc  /data/nvmessd/storge_tsgh/<case>/output/HER2_processed.tiff \
+  --dish /data/nvmessd/storge_tsgh/<case>/output/DISH_processed.tiff \
+  --output-root /home/taro/full_wsi_validation \
+  --conform --workers 1,4 --out /home/taro/full_wsi_validation/result.json
+
+# Phase D tiffsave ablation (add --only baseline,zstd_1 to confirm the winner at full scale)
+.venv/bin/python scripts/stitch_probe.py --overlay-src <dir of real overlay tiles> \
+    --pool 6 --ablate --slide-w 70909 --slide-h 57183 --out ablate_4gp.json
+
+# allocator sweep (refuses to start on a GPU that already has memory in use)
+.venv/bin/python scripts/alloc_conf_probe.py --ihc <crop_ihc> --dish <crop_dish> \
+    --workers 6 --repeats 6 --out alloc_conf_w6.json
+
+# tests
+.venv/bin/python -m pytest tests/ -q
+.venv/bin/python scripts/verify_mp_failfast.py --tiles-dir <precut scratch> --workers 3
+```
+
+Raw artifacts: `_metrics_r8/` (`stitch_ablate_4gp.json`, `alloc_conf_w6.json`,
+`worker_timings_probe.json`, `pip_freeze.txt`). Full record and reproduce commands:
+[`27-remaining-work-implementation.md`](../27-remaining-work-implementation.md) §11.
