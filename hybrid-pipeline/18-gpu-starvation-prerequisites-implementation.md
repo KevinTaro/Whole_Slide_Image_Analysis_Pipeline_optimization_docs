@@ -372,13 +372,20 @@ somehow stayed serial) **and roughly 1.7x** (if both arms scale and the device f
 ceiling of anything left, and also the largest correctness risk. **Scope it only if 6.1's sweep
 disappoints**, and re-measure the margin again first; 6.1 may claim part of the same idle.
 
-### 6.3 Moving tile/transform loading onto the GPU — **stopped out**
+### 6.3 Moving tile/transform loading onto the GPU — **stopped out (crop scale) — reopened at production scale, round 8**
 
 `B2r_tile_read` is **5.87 s = 1.22% of wall** at the large anchor post-`p3` (Amdahl ceiling **1.012x**
 at 100% elimination), and there is still no CPU→GPU transform pipeline to move — it would be new
 construction. Item 4 additionally removed the *other* I/O cost (precut A) by overlap rather than by
 device change. Nothing in the measured record supports building this. Recorded as stopped-out, not
 backlog.
+
+**⚠️ Round-8 update (2026-07-27) — this stop-loss does not hold at production scale.** The real
+27,565-tile full-slide run measured `B2r_tile_read` at **2,368.5 s = 17.2% of wall**, not 1.22%. The
+precut scratch at full-slide scale is ~49 GB and no longer fits page cache, so reads that were
+effectively free on this 441-tile crop become real disk I/O. The item sits on the arm with slack, so
+the ceiling needs re-deriving against the real arm split rather than reusing 1.012x. See
+[`27-remaining-work-implementation.md`](./27-remaining-work-implementation.md) §6.4.
 
 **Ranked recommendation (revised after 6.1 measured flat):**
 
