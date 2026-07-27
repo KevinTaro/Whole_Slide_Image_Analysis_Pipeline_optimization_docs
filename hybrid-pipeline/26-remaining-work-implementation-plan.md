@@ -1,5 +1,10 @@
 # 26 — Remaining work: implementation plan for everything not yet shipped
 
+> **Executed by [`27-remaining-work-implementation.md`](./27-remaining-work-implementation.md)
+> (round 8, 2026-07-27)** — that document is what actually landed, what it measured, and what
+> stayed open with the reason. This document remains the plan as originally compiled; read 27 for
+> current status.
+>
 > Compiled 2026-07-27 by reading [`measurement/bottleneck-list.md`](./measurement/bottleneck-list.md),
 > [`19-open-backlog.md`](./19-open-backlog.md), [`measurement/current-status-comparison.md`](./measurement/current-status-comparison.md),
 > [`DISCOVERED-NOT-IMPLEMENTED.md`](./DISCOVERED-NOT-IMPLEMENTED.md), and
