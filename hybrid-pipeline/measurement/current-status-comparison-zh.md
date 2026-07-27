@@ -363,3 +363,46 @@ uv pip freeze > "$MC/pip_freeze_actual.txt"   # 每一輪都要做
 
 原始工件（保留，三輪並列）：`_metrics/`（r1 控制組）、`_metrics_current/`（r2 重疊）、
 `_metrics_cellpose421/`（r3）。管線輸出在 `runs/`、`runs_current/`、`runs_cellpose421/`。
+
+---
+
+# 第 4–8 輪摘要（2026-07-22 至 2026-07-27）— 完整英文版見 [`current-status-comparison.md`](./current-status-comparison.md)
+
+> 本檔中文版的逐輪紀錄停在第 3 輪；第 4–8 輪只在此處做濃縮摘要。完整細節請讀英文版
+> [`current-status-comparison.md`](./current-status-comparison.md) §9–§11 與各輪原始文件
+> （18、21、23、25、27）。
+
+| 輪次 | 變更 | large/441 wall（或整片） | Δ | 來源 |
+|---|---|--:|--:|---|
+| r4 | ⑧ 純 CPU 前處理搬出 MAIN 臂 + 預切 A 串流化 | 480.3 s | −16.3% | doc 18 |
+| r5 | 跨 tile 多行程落地（採用 `workers=3`） | 156.1 s | −67.5% | doc 21 |
+| r5b | 找到 worker 數上限；建議改用 `workers=6` | 123.3 s | −21.0% | doc 21 §4.7 |
+| r6 | 拔掉 `detect_all_dots` 的 joblib 派工（`dot_detect_n_jobs=1`）；`workers=1` 免費拿到 1.60x；建議值下修到 `workers=4`/`5`（`workers≥6` 有 OOM 風險） | `workers=1`：302.7 s；`workers=4`：128.8 s | −37.5%（`workers=1`） | doc 23 |
+| r7 | **組成前提推翻**：玻片實測 55.8% 背景（非先前假設的 39%），Phase D 拼接實測 322.7 s（外推值的 1.8 倍、超線性）。全 WSI 估算改為 **~2.6h（`workers=1`）/ ~1.25h（`workers=4`）** | — | — | doc 25 |
+| **r8** | **本專案第一次跑完整真實 WSI**（見下） | `workers=1`：3.82h；`workers=4`：1.73h | 見下 | doc 27 |
+
+累計（`workers=1`）：**848.0 s → 302.7 s（−64.3%）**（裁切錨點），六輪皆未把多行程放行到生產，
+直到第 8 輪的完整 WSI 驗證通過。
+
+## 第 8 輪（2026-07-27）— 真實整片實測，三個「已關閉」的裁切數字重新開啟
+
+第 8 輪跑了本專案第一次真正的完整 WSI 端到端驗證（`workers=1` 與 `workers=4` 各一次，配準階段
+每個 modality 畫布尺寸不同，`PrecutStream` 會 fail-fast，需先用 `--conform` 裁到交集
+99.86%）：
+
+| | `workers=1` | `workers=4` | 第 7 輪推算值 |
+|---|--:|--:|--:|
+| 端到端 wall | **13,762 s = 3.82h** | **6,211 s = 1.73h** | 2.6h / 1.25h |
+| 相對推算值 | **+47%** | **+38%** | — |
+| 實測加速比 | — | **2.216x** | 2.06x–2.17x（預測區間內） |
+| `report.csv` 列數 | 356,255 | 356,221（**−0.01%**，正確性投票通過） | — |
+| 峰值 RSS | 61.13 GB | 61.67 GB | 裁切規模僅 ~4 GB |
+| 峰值 GPU | 2,739 MB | 30,439 MB（32,607 的 93.3%） | — |
+
+組成預測準到只差一格 tile，超出推算的原因**完全在逐 tile 速率，不在組成**——三個先前用裁切
+量過、以為已關閉的成本在整片規模重新浮現：`gc.collect`（16.1% wall，非近乎 0）、tile read
+（17.2%，非 1.22%）、Phase D 拼接（8.6%/19.3%，非 3.5%/7.3%）。**19-open-backlog item 7 已關閉，
+`workers>1` 放行 gate 已滿足**——但帶一個 VRAM 但書：`workers=4` 峰值用掉卡的 93.3%（餘裕僅
+~2.2 GB）。**建議放行 `workers=4`**，32 GB VRAM 應視為硬底線，`workers≥5` 仍應等
+`workers≥6` 的 allocator 氣球問題根治後再開放。完整記錄見
+[`../27-remaining-work-implementation.md`](../27-remaining-work-implementation.md) §6。
