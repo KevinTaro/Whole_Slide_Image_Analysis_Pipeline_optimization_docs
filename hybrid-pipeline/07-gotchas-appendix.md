@@ -2,8 +2,15 @@
 
 > 每個坑：現象 → 診斷法 → 解決方式。都是實測驗證過的。
 
-## G1. Codegraph 索引過期 —— 有「幻影檔案」
+## G1. Codegraph 索引過期 —— 有「幻影檔案」（**✅ round 8 已重新核對，零幻影**）
 
+> **round 8（2026-07-27）更新**：已對現行 `backend/algorithms/hybrid/` 路徑重新跑一次
+> `codegraph_files` vs `git ls-files`/磁碟樹的三方比對：indexed=20、git-tracked=22、
+> on-disk=37（不含 `__pycache__`），**幻影檔案（indexed 但磁碟沒有）= 0**。唯一「磁碟有但
+> 未 index」的是 gitignored 的 `config.py`（正確行為，非過期）。下方原始記錄是**舊路徑**
+> `cell_mask/hybrid/` 底下的幻影清單，已過時，保留供歷史對照；本節結論應視為已關閉。見
+> [`27-remaining-work-implementation.md`](./27-remaining-work-implementation.md) §7.4。
+>
 > ⚠️ **此節記錄的是舊路徑 `cell_mask/hybrid/` 底下的索引狀態**。該目錄本身後來又整個搬到
 > `backend/algorithms/hybrid/`（UI Phase 1 目錄重構），所以「index 落後於磁碟」這個病灶
 > 現在多了一層——先確認 `codegraph sync` 是否已經追上新路徑，再套用下面的診斷法（改查
@@ -39,7 +46,16 @@
 - **診斷法**：在 `config.py` 搜 `cellpose_batch_size`（找不到）；看 `hybrid_pipeline.py` 的 `getattr(config, "cellpose_batch_size", 16)` 確認是「軟讀取 + 預設」。
 - **解決方式**：先在 `Config` 加 `cellpose_batch_size: int = 32`（或想要的值），欄位存在後 `getattr` 才會拿到你設的值。**沒補欄位就調 config 是無效操作** —— 這是做 [04](./04-optimization-roadmap.md) S3 的前置。
 
-## G4. 程式碼註解引用的 spec docs 已不存在（+ 文件/code 漂移）
+## G4. 程式碼註解引用的 spec docs 已不存在（+ 文件/code 漂移）（**✅ round 8 已全部關閉**）
+
+> **round 8（2026-07-27）更新**：下面列出的失聯引用與 HTML 漂移**已全部修復**——
+> `docs/sdd-elastic-dish-matching.md` 的死引用已從 `m3_elastic_matching.py` 移除，並且在
+> `m3_module/m3_dot_detection.py` 找到並清掉了**第二個、本文件先前沒記錄到的同款死引用**；
+> `docs/dish_dot_detection_spec.md` 的死引用已從 `config.py`/`config_example.py` 移除；
+> `docs/algo/elastic_matching_v3_explainer.html` 已更新為 v4（以細胞為中心 + 重疊優先 +
+> reach，與現行 `m3_elastic_matching.py` 一致），過時的「多核排除」outcome 與錯誤的參數表
+> 皆已修正。完整記錄見 [`27-remaining-work-implementation.md`](./27-remaining-work-implementation.md) §7、§7.1。
+> 下面原始記錄保留供歷史對照。
 
 - **現象**：註解叫你「see docs/…」，但檔案找不到。
 - **失聯清單**：
@@ -49,7 +65,12 @@
 - **解決方式**：**以 code 為單一事實來源**，忽略失聯引用。
 - **⚠️ 更深的漂移（別被誤導）**：`m3_elastic_matching.py` 的 docstring 自己就註明「該文件描述舊『以核為中心』版本」。現行 code 是 **以細胞為中心 + 重疊優先 + reach**；但 `docs/elastic_matching_v3_explainer.html` 描述的是 **以核為中心 (v3)**。也就是**現存的 HTML 說明也和現行 code 對不齊**。改 M3 配對邏輯時，**讀 `m3_elastic_matching.py` 本體，不要照 HTML/失聯 spec**。同理 `dish_elastic_expand_factor` 在 HTML 標「已棄用」，但 code 仍用它算 reach —— 以 code 為準。
 
-## G5. `generate_ihc_core_mask` 參數名叫 `ihc_tile_path`，實際傳的是 ndarray
+## G5. `generate_ihc_core_mask` 參數名叫 `ihc_tile_path`，實際傳的是 ndarray（**✅ round 8 已關閉**）
+
+> **round 8（2026-07-27）更新**：形參已依下面「解決方式」建議更名為
+> `ihc_image: Union[np.ndarray, Path, str]`，呼叫端因型別對不上而加的
+> `# pyright: ignore[reportArgumentType]` 也一併移除。見
+> [`27-remaining-work-implementation.md`](./27-remaining-work-implementation.md) §7。下面原始記錄保留供歷史對照。
 
 - **現象**：`m1_overlay.generate_ihc_core_mask(ihc_tile_path: Path, ...)` 形參型別寫 `Path`，但 `hybrid_pipeline._process_one_chunk` 呼叫時傳的是 `chunk.ihc`（**numpy ndarray**）。型別標註對不上，新人會以為是 bug。
 - **這不是 bug**：函式內部把該參數交給 `unet_inferencer.predict_single(...)`，而 `predict_single` 的簽名是 `image: Union[np.ndarray, Path, str]` —— ndarray 完全支援（會走「已是陣列」分支）。呼叫端也已標 `# pyright: ignore[reportArgumentType]`，代表作者知道型別對不上但刻意為之。
