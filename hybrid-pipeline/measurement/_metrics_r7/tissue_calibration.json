@@ -1,0 +1,1771 @@
+{
+  "report": {
+    "n_sampled": 250,
+    "true_background_share": 0.58,
+    "ci95": [
+      0.5188,
+      0.6412
+    ],
+    "true_tissue_share": 0.42,
+    "best_brightness_threshold": {
+      "threshold": 191.0,
+      "accuracy": 0.884,
+      "predicted_bg_share": 0.552,
+      "false_bg": 11,
+      "false_tissue": 18
+    },
+    "elapsed_s": 15.0
+  },
+  "samples": [
+    {
+      "x": 139776,
+      "y": 78336,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 112128,
+      "y": 106752,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 141312,
+      "y": 14592,
+      "cell_mean": 169.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 28416,
+      "y": 26112,
+      "cell_mean": 164.0,
+      "core_px": 718011,
+      "background": false
+    },
+    {
+      "x": 83712,
+      "y": 9984,
+      "cell_mean": 168.0,
+      "core_px": 275499,
+      "background": false
+    },
+    {
+      "x": 73728,
+      "y": 99072,
+      "cell_mean": 200.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 99840,
+      "y": 108288,
+      "cell_mean": 194.0,
+      "core_px": 36851,
+      "background": false
+    },
+    {
+      "x": 117504,
+      "y": 46080,
+      "cell_mean": 129.0,
+      "core_px": 987209,
+      "background": false
+    },
+    {
+      "x": 27648,
+      "y": 9984,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 47616,
+      "y": 70656,
+      "cell_mean": 190.0,
+      "core_px": 7241,
+      "background": false
+    },
+    {
+      "x": 82944,
+      "y": 79872,
+      "cell_mean": 146.0,
+      "core_px": 646482,
+      "background": false
+    },
+    {
+      "x": 139008,
+      "y": 39936,
+      "cell_mean": 192.0,
+      "core_px": 15305,
+      "background": false
+    },
+    {
+      "x": 98304,
+      "y": 100608,
+      "cell_mean": 198.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 12288,
+      "y": 70656,
+      "cell_mean": 155.0,
+      "core_px": 4517,
+      "background": false
+    },
+    {
+      "x": 56064,
+      "y": 56832,
+      "cell_mean": 181.0,
+      "core_px": 463746,
+      "background": false
+    },
+    {
+      "x": 44544,
+      "y": 33792,
+      "cell_mean": 183.0,
+      "core_px": 482824,
+      "background": false
+    },
+    {
+      "x": 8448,
+      "y": 22272,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 70656,
+      "y": 47616,
+      "cell_mean": 193.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 87552,
+      "y": 47616,
+      "cell_mean": 195.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 108288,
+      "y": 63744,
+      "cell_mean": 135.0,
+      "core_px": 913910,
+      "background": false
+    },
+    {
+      "x": 35328,
+      "y": 44544,
+      "cell_mean": 185.0,
+      "core_px": 505446,
+      "background": false
+    },
+    {
+      "x": 3840,
+      "y": 69888,
+      "cell_mean": 196.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 53760,
+      "y": 13824,
+      "cell_mean": 173.0,
+      "core_px": 333616,
+      "background": false
+    },
+    {
+      "x": 77568,
+      "y": 64512,
+      "cell_mean": 164.0,
+      "core_px": 601368,
+      "background": false
+    },
+    {
+      "x": 49152,
+      "y": 101376,
+      "cell_mean": 185.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 62208,
+      "y": 22272,
+      "cell_mean": 190.0,
+      "core_px": 40346,
+      "background": false
+    },
+    {
+      "x": 77568,
+      "y": 105984,
+      "cell_mean": 197.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 96768,
+      "y": 6144,
+      "cell_mean": 193.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 5376,
+      "y": 65280,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 125184,
+      "y": 56064,
+      "cell_mean": 139.0,
+      "core_px": 629664,
+      "background": false
+    },
+    {
+      "x": 67584,
+      "y": 57600,
+      "cell_mean": 179.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 62208,
+      "y": 70656,
+      "cell_mean": 170.0,
+      "core_px": 649617,
+      "background": false
+    },
+    {
+      "x": 6912,
+      "y": 61440,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 88320,
+      "y": 76032,
+      "cell_mean": 128.0,
+      "core_px": 510732,
+      "background": false
+    },
+    {
+      "x": 125952,
+      "y": 8448,
+      "cell_mean": 198.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 79872,
+      "y": 26112,
+      "cell_mean": 185.0,
+      "core_px": 216535,
+      "background": false
+    },
+    {
+      "x": 44544,
+      "y": 61440,
+      "cell_mean": 191.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 43776,
+      "y": 33792,
+      "cell_mean": 186.0,
+      "core_px": 480508,
+      "background": false
+    },
+    {
+      "x": 95232,
+      "y": 14592,
+      "cell_mean": 129.0,
+      "core_px": 1048560,
+      "background": false
+    },
+    {
+      "x": 112128,
+      "y": 81408,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 86784,
+      "y": 68352,
+      "cell_mean": 185.0,
+      "core_px": 160558,
+      "background": false
+    },
+    {
+      "x": 63744,
+      "y": 9216,
+      "cell_mean": 124.0,
+      "core_px": 925451,
+      "background": false
+    },
+    {
+      "x": 7680,
+      "y": 86784,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 116736,
+      "y": 102912,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 9984,
+      "y": 90624,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 85248,
+      "y": 46848,
+      "cell_mean": 182.0,
+      "core_px": 417643,
+      "background": false
+    },
+    {
+      "x": 105216,
+      "y": 86784,
+      "cell_mean": 200.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 102912,
+      "y": 72960,
+      "cell_mean": 140.0,
+      "core_px": 930735,
+      "background": false
+    },
+    {
+      "x": 26112,
+      "y": 35328,
+      "cell_mean": 167.0,
+      "core_px": 554354,
+      "background": false
+    },
+    {
+      "x": 127488,
+      "y": 35328,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 31488,
+      "y": 768,
+      "cell_mean": 211.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 132096,
+      "y": 6912,
+      "cell_mean": 193.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 117504,
+      "y": 37632,
+      "cell_mean": 151.0,
+      "core_px": 689635,
+      "background": false
+    },
+    {
+      "x": 21504,
+      "y": 43008,
+      "cell_mean": 166.0,
+      "core_px": 376244,
+      "background": false
+    },
+    {
+      "x": 119808,
+      "y": 105216,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 62976,
+      "y": 69888,
+      "cell_mean": 182.0,
+      "core_px": 367766,
+      "background": false
+    },
+    {
+      "x": 55296,
+      "y": 54528,
+      "cell_mean": 184.0,
+      "core_px": 332783,
+      "background": false
+    },
+    {
+      "x": 58368,
+      "y": 71424,
+      "cell_mean": 201.0,
+      "core_px": 236469,
+      "background": false
+    },
+    {
+      "x": 116736,
+      "y": 102144,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 71424,
+      "y": 105984,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 104448,
+      "y": 59136,
+      "cell_mean": 172.0,
+      "core_px": 505075,
+      "background": false
+    },
+    {
+      "x": 109824,
+      "y": 15360,
+      "cell_mean": 185.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 7680,
+      "y": 105984,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 17664,
+      "y": 54528,
+      "cell_mean": 171.0,
+      "core_px": 450291,
+      "background": false
+    },
+    {
+      "x": 109824,
+      "y": 74496,
+      "cell_mean": 173.0,
+      "core_px": 254566,
+      "background": false
+    },
+    {
+      "x": 121344,
+      "y": 58368,
+      "cell_mean": 170.0,
+      "core_px": 210517,
+      "background": false
+    },
+    {
+      "x": 39168,
+      "y": 16896,
+      "cell_mean": 177.0,
+      "core_px": 313143,
+      "background": false
+    },
+    {
+      "x": 33024,
+      "y": 16896,
+      "cell_mean": 198.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 49920,
+      "y": 107520,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 43776,
+      "y": 93696,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 103680,
+      "y": 89088,
+      "cell_mean": 200.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 71424,
+      "y": 86016,
+      "cell_mean": 156.0,
+      "core_px": 660202,
+      "background": false
+    },
+    {
+      "x": 131328,
+      "y": 54528,
+      "cell_mean": 171.0,
+      "core_px": 144152,
+      "background": false
+    },
+    {
+      "x": 130560,
+      "y": 107520,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 64512,
+      "y": 34560,
+      "cell_mean": 190.0,
+      "core_px": 117532,
+      "background": false
+    },
+    {
+      "x": 81408,
+      "y": 42240,
+      "cell_mean": 196.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 120576,
+      "y": 82176,
+      "cell_mean": 192.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 96000,
+      "y": 86016,
+      "cell_mean": 146.0,
+      "core_px": 514508,
+      "background": false
+    },
+    {
+      "x": 85248,
+      "y": 22272,
+      "cell_mean": 152.0,
+      "core_px": 853613,
+      "background": false
+    },
+    {
+      "x": 101376,
+      "y": 96768,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 125952,
+      "y": 100608,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 20736,
+      "y": 26112,
+      "cell_mean": 201.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 18432,
+      "y": 48384,
+      "cell_mean": 165.0,
+      "core_px": 526687,
+      "background": false
+    },
+    {
+      "x": 112128,
+      "y": 0,
+      "cell_mean": 203.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 99072,
+      "y": 56064,
+      "cell_mean": 172.0,
+      "core_px": 278561,
+      "background": false
+    },
+    {
+      "x": 62208,
+      "y": 1536,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 94464,
+      "y": 36096,
+      "cell_mean": 192.0,
+      "core_px": 87035,
+      "background": false
+    },
+    {
+      "x": 67584,
+      "y": 26880,
+      "cell_mean": 143.0,
+      "core_px": 981167,
+      "background": false
+    },
+    {
+      "x": 31488,
+      "y": 3072,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 768,
+      "y": 95232,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 46848,
+      "y": 85248,
+      "cell_mean": 174.0,
+      "core_px": 235405,
+      "background": false
+    },
+    {
+      "x": 108288,
+      "y": 112896,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 54528,
+      "y": 94464,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 19200,
+      "y": 16896,
+      "cell_mean": 206.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 79104,
+      "y": 43776,
+      "cell_mean": 194.0,
+      "core_px": 5702,
+      "background": false
+    },
+    {
+      "x": 55296,
+      "y": 107520,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 1536,
+      "y": 16128,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 96000,
+      "y": 59904,
+      "cell_mean": 146.0,
+      "core_px": 915520,
+      "background": false
+    },
+    {
+      "x": 136704,
+      "y": 19200,
+      "cell_mean": 198.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 26880,
+      "y": 5376,
+      "cell_mean": 215.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 35328,
+      "y": 73728,
+      "cell_mean": 159.0,
+      "core_px": 966449,
+      "background": false
+    },
+    {
+      "x": 130560,
+      "y": 109824,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 45312,
+      "y": 109056,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 43008,
+      "y": 105984,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 74496,
+      "y": 46080,
+      "cell_mean": 195.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 61440,
+      "y": 77568,
+      "cell_mean": 175.0,
+      "core_px": 542887,
+      "background": false
+    },
+    {
+      "x": 84480,
+      "y": 96000,
+      "cell_mean": 203.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 129024,
+      "y": 39168,
+      "cell_mean": 199.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 26112,
+      "y": 79872,
+      "cell_mean": 184.0,
+      "core_px": 28979,
+      "background": false
+    },
+    {
+      "x": 119040,
+      "y": 29952,
+      "cell_mean": 183.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 71424,
+      "y": 76032,
+      "cell_mean": 184.0,
+      "core_px": 178840,
+      "background": false
+    },
+    {
+      "x": 82944,
+      "y": 107520,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 124416,
+      "y": 111360,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 37632,
+      "y": 2304,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 64512,
+      "y": 86784,
+      "cell_mean": 152.0,
+      "core_px": 516811,
+      "background": false
+    },
+    {
+      "x": 12288,
+      "y": 66048,
+      "cell_mean": 189.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 124416,
+      "y": 77568,
+      "cell_mean": 174.0,
+      "core_px": 7830,
+      "background": false
+    },
+    {
+      "x": 13824,
+      "y": 29952,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 72192,
+      "y": 99072,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 59904,
+      "y": 47616,
+      "cell_mean": 191.0,
+      "core_px": 4960,
+      "background": false
+    },
+    {
+      "x": 40704,
+      "y": 91392,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 101376,
+      "y": 56832,
+      "cell_mean": 159.0,
+      "core_px": 594076,
+      "background": false
+    },
+    {
+      "x": 119808,
+      "y": 73728,
+      "cell_mean": 186.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 86784,
+      "y": 41472,
+      "cell_mean": 193.0,
+      "core_px": 43938,
+      "background": false
+    },
+    {
+      "x": 109056,
+      "y": 50688,
+      "cell_mean": 137.0,
+      "core_px": 933726,
+      "background": false
+    },
+    {
+      "x": 53760,
+      "y": 1536,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 16896,
+      "y": 16896,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 92928,
+      "y": 11520,
+      "cell_mean": 181.0,
+      "core_px": 104993,
+      "background": false
+    },
+    {
+      "x": 56064,
+      "y": 105216,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 106752,
+      "y": 8448,
+      "cell_mean": 185.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 92928,
+      "y": 25344,
+      "cell_mean": 167.0,
+      "core_px": 537861,
+      "background": false
+    },
+    {
+      "x": 124416,
+      "y": 109824,
+      "cell_mean": 198.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 1536,
+      "y": 44544,
+      "cell_mean": 211.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 49920,
+      "y": 105984,
+      "cell_mean": 203.0,
+      "core_px": 1747,
+      "background": false
+    },
+    {
+      "x": 23040,
+      "y": 105984,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 52224,
+      "y": 49920,
+      "cell_mean": 181.0,
+      "core_px": 613789,
+      "background": false
+    },
+    {
+      "x": 86016,
+      "y": 97536,
+      "cell_mean": 206.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 25344,
+      "y": 41472,
+      "cell_mean": 170.0,
+      "core_px": 580744,
+      "background": false
+    },
+    {
+      "x": 17664,
+      "y": 83712,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 6912,
+      "y": 38400,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 49152,
+      "y": 58368,
+      "cell_mean": 180.0,
+      "core_px": 475663,
+      "background": false
+    },
+    {
+      "x": 29952,
+      "y": 5376,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 56064,
+      "y": 5376,
+      "cell_mean": 191.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 39168,
+      "y": 20736,
+      "cell_mean": 175.0,
+      "core_px": 474592,
+      "background": false
+    },
+    {
+      "x": 64512,
+      "y": 72192,
+      "cell_mean": 178.0,
+      "core_px": 173488,
+      "background": false
+    },
+    {
+      "x": 9984,
+      "y": 82176,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 125184,
+      "y": 42240,
+      "cell_mean": 185.0,
+      "core_px": 85382,
+      "background": false
+    },
+    {
+      "x": 29952,
+      "y": 56832,
+      "cell_mean": 182.0,
+      "core_px": 342151,
+      "background": false
+    },
+    {
+      "x": 27648,
+      "y": 92928,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 88320,
+      "y": 45312,
+      "cell_mean": 196.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 124416,
+      "y": 31488,
+      "cell_mean": 191.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 26112,
+      "y": 3072,
+      "cell_mean": 208.0,
+      "core_px": 9023,
+      "background": false
+    },
+    {
+      "x": 136704,
+      "y": 3072,
+      "cell_mean": 195.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 16896,
+      "y": 92160,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 7680,
+      "y": 29184,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 99072,
+      "y": 101376,
+      "cell_mean": 195.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 92928,
+      "y": 68352,
+      "cell_mean": 188.0,
+      "core_px": 120076,
+      "background": false
+    },
+    {
+      "x": 86784,
+      "y": 36864,
+      "cell_mean": 195.0,
+      "core_px": 2019,
+      "background": false
+    },
+    {
+      "x": 13056,
+      "y": 91392,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 91392,
+      "y": 89088,
+      "cell_mean": 182.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 99840,
+      "y": 28416,
+      "cell_mean": 158.0,
+      "core_px": 699535,
+      "background": false
+    },
+    {
+      "x": 131328,
+      "y": 62208,
+      "cell_mean": 201.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 86784,
+      "y": 105216,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 120576,
+      "y": 86016,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 55296,
+      "y": 86784,
+      "cell_mean": 172.0,
+      "core_px": 206314,
+      "background": false
+    },
+    {
+      "x": 96000,
+      "y": 56832,
+      "cell_mean": 185.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 25344,
+      "y": 76032,
+      "cell_mean": 150.0,
+      "core_px": 861802,
+      "background": false
+    },
+    {
+      "x": 89088,
+      "y": 59904,
+      "cell_mean": 180.0,
+      "core_px": 232972,
+      "background": false
+    },
+    {
+      "x": 65280,
+      "y": 110592,
+      "cell_mean": 211.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 11520,
+      "y": 43776,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 40704,
+      "y": 39168,
+      "cell_mean": 182.0,
+      "core_px": 590974,
+      "background": false
+    },
+    {
+      "x": 55296,
+      "y": 98304,
+      "cell_mean": 195.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 42240,
+      "y": 96000,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 52224,
+      "y": 105216,
+      "cell_mean": 157.0,
+      "core_px": 243380,
+      "background": false
+    },
+    {
+      "x": 49152,
+      "y": 82944,
+      "cell_mean": 165.0,
+      "core_px": 661802,
+      "background": false
+    },
+    {
+      "x": 13056,
+      "y": 99840,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 10752,
+      "y": 13056,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 113664,
+      "y": 7680,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 80640,
+      "y": 29184,
+      "cell_mean": 166.0,
+      "core_px": 610593,
+      "background": false
+    },
+    {
+      "x": 62976,
+      "y": 48384,
+      "cell_mean": 188.0,
+      "core_px": 202728,
+      "background": false
+    },
+    {
+      "x": 130560,
+      "y": 72960,
+      "cell_mean": 199.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 59904,
+      "y": 81408,
+      "cell_mean": 157.0,
+      "core_px": 722290,
+      "background": false
+    },
+    {
+      "x": 59904,
+      "y": 1536,
+      "cell_mean": 206.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 15360,
+      "y": 8448,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 56832,
+      "y": 0,
+      "cell_mean": 202.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 55296,
+      "y": 53760,
+      "cell_mean": 186.0,
+      "core_px": 228724,
+      "background": false
+    },
+    {
+      "x": 62208,
+      "y": 20736,
+      "cell_mean": 187.0,
+      "core_px": 65576,
+      "background": false
+    },
+    {
+      "x": 101376,
+      "y": 5376,
+      "cell_mean": 188.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 14592,
+      "y": 101376,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 119040,
+      "y": 6912,
+      "cell_mean": 194.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 26112,
+      "y": 52224,
+      "cell_mean": 180.0,
+      "core_px": 650792,
+      "background": false
+    },
+    {
+      "x": 56832,
+      "y": 45312,
+      "cell_mean": 188.0,
+      "core_px": 38530,
+      "background": false
+    },
+    {
+      "x": 65280,
+      "y": 9984,
+      "cell_mean": 154.0,
+      "core_px": 593379,
+      "background": false
+    },
+    {
+      "x": 3840,
+      "y": 4608,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 109056,
+      "y": 82176,
+      "cell_mean": 186.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 78336,
+      "y": 92160,
+      "cell_mean": 188.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 131328,
+      "y": 34560,
+      "cell_mean": 205.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 139008,
+      "y": 30720,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 6912,
+      "y": 72192,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 19200,
+      "y": 76032,
+      "cell_mean": 183.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 77568,
+      "y": 113664,
+      "cell_mean": 218.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 26880,
+      "y": 61440,
+      "cell_mean": 184.0,
+      "core_px": 291021,
+      "background": false
+    },
+    {
+      "x": 79872,
+      "y": 81408,
+      "cell_mean": 185.0,
+      "core_px": 34728,
+      "background": false
+    },
+    {
+      "x": 76800,
+      "y": 86016,
+      "cell_mean": 189.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 76800,
+      "y": 8448,
+      "cell_mean": 179.0,
+      "core_px": 260241,
+      "background": false
+    },
+    {
+      "x": 115200,
+      "y": 112896,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 84480,
+      "y": 29952,
+      "cell_mean": 170.0,
+      "core_px": 354432,
+      "background": false
+    },
+    {
+      "x": 89856,
+      "y": 110592,
+      "cell_mean": 206.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 127488,
+      "y": 29952,
+      "cell_mean": 192.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 125952,
+      "y": 19200,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 3072,
+      "y": 67584,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 94464,
+      "y": 80640,
+      "cell_mean": 186.0,
+      "core_px": 83507,
+      "background": false
+    },
+    {
+      "x": 99072,
+      "y": 25344,
+      "cell_mean": 140.0,
+      "core_px": 1027797,
+      "background": false
+    },
+    {
+      "x": 87552,
+      "y": 36864,
+      "cell_mean": 196.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 46080,
+      "y": 76032,
+      "cell_mean": 164.0,
+      "core_px": 658470,
+      "background": false
+    },
+    {
+      "x": 6912,
+      "y": 4608,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 49920,
+      "y": 102144,
+      "cell_mean": 179.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 3072,
+      "y": 86784,
+      "cell_mean": 206.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 141312,
+      "y": 45312,
+      "cell_mean": 178.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 102912,
+      "y": 62976,
+      "cell_mean": 167.0,
+      "core_px": 359908,
+      "background": false
+    },
+    {
+      "x": 90624,
+      "y": 64512,
+      "cell_mean": 142.0,
+      "core_px": 767946,
+      "background": false
+    },
+    {
+      "x": 52224,
+      "y": 71424,
+      "cell_mean": 186.0,
+      "core_px": 317237,
+      "background": false
+    },
+    {
+      "x": 125184,
+      "y": 49920,
+      "cell_mean": 179.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 45312,
+      "y": 52224,
+      "cell_mean": 182.0,
+      "core_px": 324319,
+      "background": false
+    },
+    {
+      "x": 4608,
+      "y": 71424,
+      "cell_mean": 207.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 102912,
+      "y": 13056,
+      "cell_mean": 170.0,
+      "core_px": 221159,
+      "background": false
+    },
+    {
+      "x": 26112,
+      "y": 1536,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 72192,
+      "y": 97536,
+      "cell_mean": 203.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 115200,
+      "y": 80640,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 48384,
+      "y": 89856,
+      "cell_mean": 204.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 96768,
+      "y": 65280,
+      "cell_mean": 170.0,
+      "core_px": 578530,
+      "background": false
+    },
+    {
+      "x": 129792,
+      "y": 99072,
+      "cell_mean": 209.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 117504,
+      "y": 102144,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 57600,
+      "y": 109824,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 1536,
+      "y": 94464,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 30720,
+      "y": 110592,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 99072,
+      "y": 76032,
+      "cell_mean": 126.0,
+      "core_px": 892232,
+      "background": false
+    },
+    {
+      "x": 112128,
+      "y": 101376,
+      "cell_mean": 197.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 99072,
+      "y": 57600,
+      "cell_mean": 140.0,
+      "core_px": 949109,
+      "background": false
+    },
+    {
+      "x": 81408,
+      "y": 40704,
+      "cell_mean": 197.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 108288,
+      "y": 59136,
+      "cell_mean": 110.0,
+      "core_px": 956022,
+      "background": false
+    },
+    {
+      "x": 34560,
+      "y": 9216,
+      "cell_mean": 193.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 13824,
+      "y": 49152,
+      "cell_mean": 170.0,
+      "core_px": 55583,
+      "background": false
+    },
+    {
+      "x": 19200,
+      "y": 96000,
+      "cell_mean": 206.0,
+      "core_px": 2221,
+      "background": false
+    },
+    {
+      "x": 16128,
+      "y": 111360,
+      "cell_mean": 212.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 74496,
+      "y": 112896,
+      "cell_mean": 213.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 134400,
+      "y": 82944,
+      "cell_mean": 208.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 107520,
+      "y": 43008,
+      "cell_mean": 166.0,
+      "core_px": 400644,
+      "background": false
+    },
+    {
+      "x": 49152,
+      "y": 95232,
+      "cell_mean": 191.0,
+      "core_px": 0,
+      "background": true
+    },
+    {
+      "x": 20736,
+      "y": 96000,
+      "cell_mean": 210.0,
+      "core_px": 0,
+      "background": true
+    }
+  ]
+}

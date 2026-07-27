@@ -1,0 +1,210 @@
+{
+  "slide": [
+    70909,
+    57183
+  ],
+  "gigapixels": 4.055,
+  "grid": [
+    92,
+    75
+  ],
+  "n_tiles": 6900,
+  "build": {
+    "n_positions": 6900,
+    "n_annotated": 3087,
+    "annotated_share": 0.4474,
+    "n_encoded_templates": 63,
+    "build_s": 0.16,
+    "input_bytes": 98474743
+  },
+  "rlimit_nofile": [
+    1048576,
+    1048576
+  ],
+  "ablations": [
+    {
+      "name": "baseline",
+      "note": "the shipped call: 128x128 tiles, full pyramid, LZW, BigTIFF",
+      "override": {},
+      "join_s": 2.43,
+      "encode_s": 57.022,
+      "total_s": 59.452,
+      "s_per_gigapixel": 14.662,
+      "output_bytes": 1835171149,
+      "speedup_vs_baseline": 1.0,
+      "size_vs_baseline": 1.0
+    },
+    {
+      "name": "tile_256",
+      "note": "fewer, larger tiles",
+      "override": {
+        "tile_width": 256,
+        "tile_height": 256
+      },
+      "join_s": 3.018,
+      "encode_s": 59.667,
+      "total_s": 62.685,
+      "s_per_gigapixel": 15.459,
+      "output_bytes": 1787612327,
+      "speedup_vs_baseline": 0.9484,
+      "size_vs_baseline": 0.9741
+    },
+    {
+      "name": "tile_512",
+      "note": "fewer, larger tiles",
+      "override": {
+        "tile_width": 512,
+        "tile_height": 512
+      },
+      "join_s": 3.016,
+      "encode_s": 66.097,
+      "total_s": 69.113,
+      "s_per_gigapixel": 17.045,
+      "output_bytes": 1781582527,
+      "speedup_vs_baseline": 0.8602,
+      "size_vs_baseline": 0.9708
+    },
+    {
+      "name": "tile_1024",
+      "note": "one tile per source tile core",
+      "override": {
+        "tile_width": 1024,
+        "tile_height": 1024
+      },
+      "join_s": 2.95,
+      "encode_s": 83.707,
+      "total_s": 86.657,
+      "s_per_gigapixel": 21.372,
+      "output_bytes": 1806389935,
+      "speedup_vs_baseline": 0.6861,
+      "size_vs_baseline": 0.9843
+    },
+    {
+      "name": "predictor_horizontal",
+      "note": "LZW with horizontal differencing (usually the big LZW win on photos)",
+      "override": {
+        "predictor": "horizontal"
+      },
+      "join_s": 3.109,
+      "encode_s": 56.207,
+      "total_s": 59.316,
+      "s_per_gigapixel": 14.629,
+      "output_bytes": 1835171149,
+      "speedup_vs_baseline": 1.0023,
+      "size_vs_baseline": 1.0
+    },
+    {
+      "name": "predictor_none",
+      "note": "LZW with no differencing",
+      "override": {
+        "predictor": "none"
+      },
+      "join_s": 3.017,
+      "encode_s": 55.595,
+      "total_s": 58.612,
+      "s_per_gigapixel": 14.455,
+      "output_bytes": 2380473893,
+      "speedup_vs_baseline": 1.0143,
+      "size_vs_baseline": 1.2971
+    },
+    {
+      "name": "depth_onetile",
+      "note": "stop the pyramid once a level fits one tile (fewer levels than the default)",
+      "override": {
+        "depth": "onetile"
+      },
+      "join_s": 3.073,
+      "encode_s": 56.013,
+      "total_s": 59.087,
+      "s_per_gigapixel": 14.572,
+      "output_bytes": 1835171149,
+      "speedup_vs_baseline": 1.0062,
+      "size_vs_baseline": 1.0
+    },
+    {
+      "name": "shrink_nearest",
+      "note": "cheapest downsample kernel for the pyramid levels",
+      "override": {
+        "region_shrink": "nearest"
+      },
+      "join_s": 3.031,
+      "encode_s": 55.095,
+      "total_s": 58.126,
+      "s_per_gigapixel": 14.335,
+      "output_bytes": 1784869653,
+      "speedup_vs_baseline": 1.0228,
+      "size_vs_baseline": 0.9726
+    },
+    {
+      "name": "subifd",
+      "note": "pyramid levels as sub-IFDs rather than pages",
+      "override": {
+        "subifd": true
+      },
+      "join_s": 3.05,
+      "encode_s": 56.64,
+      "total_s": 59.689,
+      "s_per_gigapixel": 14.721,
+      "output_bytes": 1835171249,
+      "speedup_vs_baseline": 0.996,
+      "size_vs_baseline": 1.0
+    },
+    {
+      "name": "deflate",
+      "note": "still lossless, different codec",
+      "override": {
+        "compression": "deflate"
+      },
+      "join_s": 3.195,
+      "encode_s": 72.535,
+      "total_s": 75.731,
+      "s_per_gigapixel": 18.677,
+      "output_bytes": 1615370685,
+      "speedup_vs_baseline": 0.785,
+      "size_vs_baseline": 0.8802
+    },
+    {
+      "name": "zstd_1",
+      "note": "still lossless, different codec",
+      "override": {
+        "compression": "zstd",
+        "level": 1
+      },
+      "join_s": 3.301,
+      "encode_s": 44.911,
+      "total_s": 48.212,
+      "s_per_gigapixel": 11.89,
+      "output_bytes": 1582498665,
+      "speedup_vs_baseline": 1.2331,
+      "size_vs_baseline": 0.8623
+    },
+    {
+      "name": "BOUND_no_pyramid",
+      "note": "VETOED (QuPath needs the pyramid) -- measures what pyramid generation costs",
+      "override": {
+        "pyramid": false
+      },
+      "join_s": 3.02,
+      "encode_s": 44.229,
+      "total_s": 47.249,
+      "s_per_gigapixel": 11.653,
+      "output_bytes": 1199957349,
+      "speedup_vs_baseline": 1.2583,
+      "size_vs_baseline": 0.6539
+    },
+    {
+      "name": "BOUND_no_compression",
+      "note": "VETOED (output size) -- measures what compression costs",
+      "override": {
+        "compression": "none"
+      },
+      "join_s": 3.122,
+      "encode_s": 43.956,
+      "total_s": 47.078,
+      "s_per_gigapixel": 11.61,
+      "output_bytes": 16247946879,
+      "speedup_vs_baseline": 1.2628,
+      "size_vs_baseline": 8.8536
+    }
+  ]
+}

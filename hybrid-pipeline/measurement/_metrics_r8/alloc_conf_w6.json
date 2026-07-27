@@ -1,0 +1,228 @@
+{
+  "workers": 6,
+  "repeats": 6,
+  "summary": {
+    "control": {
+      "runs": 6,
+      "failures": 1,
+      "oom_failures": 1,
+      "median_wall_s": 65.46,
+      "max_peak_gpu_mb": 27836.0,
+      "median_peak_gpu_mb": 22968.0
+    },
+    "expandable": {
+      "runs": 6,
+      "failures": 0,
+      "oom_failures": 0,
+      "median_wall_s": 66.8,
+      "max_peak_gpu_mb": 28700.0,
+      "median_peak_gpu_mb": 24040.0
+    }
+  },
+  "runs": [
+    {
+      "label": "control_w6_r1",
+      "alloc_conf": "",
+      "returncode": 1,
+      "driver_wall_s": 24.44,
+      "ok": false,
+      "oom": true,
+      "tail": [
+        "            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+        "  File \"/data/taro_Projects/tsgh/backend/algorithms/hybrid/hybrid_pipeline.py\", line 1233, in run_batch",
+        "    _run_tiles_multiprocess(",
+        "  File \"/data/taro_Projects/tsgh/backend/algorithms/hybrid/hybrid_pipeline.py\", line 966, in _run_tiles_multiprocess",
+        "    raise RuntimeError(f\"{payload}\uff1b\u6574\u6279 fail-fast \u4e2d\u6b62\u3002\")",
+        "RuntimeError: process_precut_tile \u65bc tile_x768_y0 \u5931\u6557\uff08\u8b80\u6a94 / \u7dad\u5ea6\u4e0d\u7b26\uff0c\u898b worker \u65e5\u8a8c\uff09\u3002\uff1b\u6574\u6279 fail-fast \u4e2d\u6b62\u3002"
+      ],
+      "condition": "control"
+    },
+    {
+      "label": "expandable_w6_r1",
+      "alloc_conf": "expandable_segments:True",
+      "returncode": 0,
+      "driver_wall_s": 64.33,
+      "ok": true,
+      "end_to_end_s": 62.922,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.839,
+      "effective_alloc_conf": "expandable_segments:True",
+      "peak_gpu_mb": 24040.0,
+      "condition": "expandable"
+    },
+    {
+      "label": "control_w6_r2",
+      "alloc_conf": "",
+      "returncode": 0,
+      "driver_wall_s": 63.25,
+      "ok": true,
+      "end_to_end_s": 61.815,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.785,
+      "effective_alloc_conf": "",
+      "peak_gpu_mb": 18660.0,
+      "condition": "control"
+    },
+    {
+      "label": "expandable_w6_r2",
+      "alloc_conf": "expandable_segments:True",
+      "returncode": 0,
+      "driver_wall_s": 64.1,
+      "ok": true,
+      "end_to_end_s": 62.636,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.936,
+      "effective_alloc_conf": "expandable_segments:True",
+      "peak_gpu_mb": 19000.0,
+      "condition": "expandable"
+    },
+    {
+      "label": "control_w6_r3",
+      "alloc_conf": "",
+      "returncode": 0,
+      "driver_wall_s": 67.18,
+      "ok": true,
+      "end_to_end_s": 65.757,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.815,
+      "effective_alloc_conf": "",
+      "peak_gpu_mb": 16052.0,
+      "condition": "control"
+    },
+    {
+      "label": "expandable_w6_r3",
+      "alloc_conf": "expandable_segments:True",
+      "returncode": 0,
+      "driver_wall_s": 67.93,
+      "ok": true,
+      "end_to_end_s": 66.483,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.824,
+      "effective_alloc_conf": "expandable_segments:True",
+      "peak_gpu_mb": 26000.0,
+      "condition": "expandable"
+    },
+    {
+      "label": "control_w6_r4",
+      "alloc_conf": "",
+      "returncode": 0,
+      "driver_wall_s": 64.35,
+      "ok": true,
+      "end_to_end_s": 62.901,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.762,
+      "effective_alloc_conf": "",
+      "peak_gpu_mb": 22968.0,
+      "condition": "control"
+    },
+    {
+      "label": "expandable_w6_r4",
+      "alloc_conf": "expandable_segments:True",
+      "returncode": 0,
+      "driver_wall_s": 68.26,
+      "ok": true,
+      "end_to_end_s": 66.803,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.812,
+      "effective_alloc_conf": "expandable_segments:True",
+      "peak_gpu_mb": 28700.0,
+      "condition": "expandable"
+    },
+    {
+      "label": "control_w6_r5",
+      "alloc_conf": "",
+      "returncode": 0,
+      "driver_wall_s": 67.86,
+      "ok": true,
+      "end_to_end_s": 66.376,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.835,
+      "effective_alloc_conf": "",
+      "peak_gpu_mb": 24734.0,
+      "condition": "control"
+    },
+    {
+      "label": "expandable_w6_r5",
+      "alloc_conf": "expandable_segments:True",
+      "returncode": 0,
+      "driver_wall_s": 68.96,
+      "ok": true,
+      "end_to_end_s": 67.369,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.879,
+      "effective_alloc_conf": "expandable_segments:True",
+      "peak_gpu_mb": 20360.0,
+      "condition": "expandable"
+    },
+    {
+      "label": "control_w6_r6",
+      "alloc_conf": "",
+      "returncode": 0,
+      "driver_wall_s": 66.97,
+      "ok": true,
+      "end_to_end_s": 65.464,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.898,
+      "effective_alloc_conf": "",
+      "peak_gpu_mb": 27836.0,
+      "condition": "control"
+    },
+    {
+      "label": "expandable_w6_r6",
+      "alloc_conf": "expandable_segments:True",
+      "returncode": 0,
+      "driver_wall_s": 68.47,
+      "ok": true,
+      "end_to_end_s": 66.98,
+      "stats": {
+        "success": 137,
+        "skipped": 439
+      },
+      "n_tiles": 576,
+      "peak_rss_gb": 16.838,
+      "effective_alloc_conf": "expandable_segments:True",
+      "peak_gpu_mb": 20380.0,
+      "condition": "expandable"
+    }
+  ]
+}

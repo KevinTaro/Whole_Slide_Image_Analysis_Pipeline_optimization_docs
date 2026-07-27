@@ -1,0 +1,9 @@
+# env stamp round 6 (2026-07-25T15:56:13+08:00)
+git: a4a6254
+NVIDIA GeForce RTX 5090, 580.173.02, 32607 MiB
+cpu cores: 20 / affinity 20
+torch 2.11.0+cu130 cellpose 4.2.1.1 numpy 1.26.4 skimage 0.24.0 joblib 1.5.3
+checkpoints:
+  best_model_unet_b4.pth 76943268569ddc54
+  cellpose_ihc_dish_best febfa4d2e123c6b1
+  cellpose_dish_best 6855a1d02a7b10de

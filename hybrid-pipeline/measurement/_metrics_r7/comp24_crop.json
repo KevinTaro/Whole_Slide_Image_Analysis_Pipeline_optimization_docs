@@ -1,0 +1,19 @@
+{
+  "map_shape": [
+    149,
+    185
+  ],
+  "bg_level": 188.0,
+  "slide_background_share": 0.5514,
+  "slide_tissue_share": 0.4486,
+  "grid": 24,
+  "n_tiles": 576,
+  "crop": {
+    "x": 96768,
+    "y": 1536,
+    "size": 18688
+  },
+  "window_background_share": 0.5521,
+  "window_tissue_share": 0.4479,
+  "target_bg": 0.5525
+}

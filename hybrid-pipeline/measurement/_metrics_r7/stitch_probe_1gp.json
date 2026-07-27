@@ -1,0 +1,27 @@
+{
+  "slide": [
+    35840,
+    28928
+  ],
+  "gigapixels": 1.037,
+  "grid": [
+    47,
+    38
+  ],
+  "n_tiles": 1786,
+  "build": {
+    "n_positions": 1786,
+    "n_annotated": 896,
+    "annotated_share": 0.5017,
+    "n_encoded_templates": 85,
+    "build_s": 0.21,
+    "input_bytes": 142517887
+  },
+  "stitch_s": 13.828,
+  "s_per_gigapixel": 13.337,
+  "output_bytes": 313104683,
+  "rlimit_nofile": [
+    1048576,
+    1048576
+  ]
+}

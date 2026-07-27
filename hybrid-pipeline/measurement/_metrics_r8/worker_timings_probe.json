@@ -1,0 +1,368 @@
+{
+  "label": "wt_probe",
+  "n_tiles": 25,
+  "mp_workers": 2,
+  "grid": {
+    "cols": 5,
+    "rows": 5
+  },
+  "wall": {
+    "end_to_end_total_s": 16.884,
+    "phaseA_precut_s": 0.004,
+    "runbatch_BCD_s": 16.88
+  },
+  "disk_bytes": {
+    "precut_scratch": 0,
+    "analysis_output": 362615005
+  },
+  "stats": {
+    "success": 22,
+    "skipped": 3
+  },
+  "timings": {
+    "G_mkdir_other": {
+      "n": 6,
+      "t": 0.0001456139434594661
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.0015344549901783466
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.0001621719857212156
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 0.40702216199133545
+    }
+  },
+  "worker_timings": [
+    {
+      "worker": "tile-worker-1",
+      "timings": {
+        "init_unet": {
+          "n": 1,
+          "t": 1.3928216080239508
+        },
+        "G_mkdir_other": {
+          "n": 37,
+          "t": 0.0010869250108953565
+        },
+        "init_cellpose_m2": {
+          "n": 1,
+          "t": 0.6655454659776296
+        },
+        "init_cellpose_m3b": {
+          "n": 1,
+          "t": 0.5193794480001088
+        },
+        "B2r_tile_read": {
+          "n": 24,
+          "t": 0.18508165096864104
+        },
+        "B1_unet_coremask": {
+          "n": 12,
+          "t": 1.9787923000112642
+        },
+        "BM1_apply_mask": {
+          "n": 12,
+          "t": 0.17435827403096482
+        },
+        "BM1_overlay_dish": {
+          "n": 12,
+          "t": 0.14861704199574888
+        },
+        "BM1_fuse": {
+          "n": 12,
+          "t": 0.12934227497316897
+        },
+        "B1_m3b_cellpose": {
+          "n": 24,
+          "t": 8.578847701952327
+        },
+        "Bs_clear_edge": {
+          "n": 12,
+          "t": 0.161053382063983
+        },
+        "B4_empty_cache": {
+          "n": 12,
+          "t": 0.04282559809507802
+        },
+        "B4_gc_collect": {
+          "n": 12,
+          "t": 0.004991312976926565
+        },
+        "B3_build_results": {
+          "n": 12,
+          "t": 0.3230032419669442
+        },
+        "B3_enlarge_cells": {
+          "n": 12,
+          "t": 0.5776487259427086
+        },
+        "B3_detect_dots": {
+          "n": 12,
+          "t": 2.7970478710194584
+        },
+        "B3_merge_dots": {
+          "n": 12,
+          "t": 7.816500146873295e-05
+        },
+        "Bs_filter_absolutize": {
+          "n": 12,
+          "t": 0.0005055280344095081
+        },
+        "G_mkdir_fixed_outdir": {
+          "n": 72,
+          "t": 0.0013656790542881936
+        },
+        "B2_png_encode": {
+          "n": 36,
+          "t": 1.8538186058285646,
+          "bytes": 11779382
+        },
+        "B2_tiff_encode": {
+          "n": 36,
+          "t": 0.033115267870016396,
+          "bytes": 124020288
+        },
+        "B2_render_overlay": {
+          "n": 12,
+          "t": 0.2937774490274023
+        },
+        "B2_percell_crops": {
+          "n": 12,
+          "t": 0.11094280797988176
+        }
+      }
+    },
+    {
+      "worker": "tile-worker-0",
+      "timings": {
+        "init_unet": {
+          "n": 1,
+          "t": 1.3881411110050976
+        },
+        "G_mkdir_other": {
+          "n": 39,
+          "t": 0.001198682002723217
+        },
+        "init_cellpose_m2": {
+          "n": 1,
+          "t": 0.6736945119919255
+        },
+        "init_cellpose_m3b": {
+          "n": 1,
+          "t": 0.518129970994778
+        },
+        "B2r_tile_read": {
+          "n": 26,
+          "t": 0.18969037194619887
+        },
+        "B1_unet_coremask": {
+          "n": 13,
+          "t": 1.9884125489916187
+        },
+        "BM1_apply_mask": {
+          "n": 12,
+          "t": 0.17362406101892702
+        },
+        "BM1_overlay_dish": {
+          "n": 12,
+          "t": 0.1449298579536844
+        },
+        "BM1_fuse": {
+          "n": 12,
+          "t": 0.12932354302029125
+        },
+        "B1_m3b_cellpose": {
+          "n": 24,
+          "t": 8.727969459083397
+        },
+        "Bs_clear_edge": {
+          "n": 12,
+          "t": 0.16783232701709494
+        },
+        "B4_empty_cache": {
+          "n": 13,
+          "t": 0.04498161099036224
+        },
+        "B4_gc_collect": {
+          "n": 13,
+          "t": 0.005690516059985384
+        },
+        "B3_build_results": {
+          "n": 12,
+          "t": 0.3481761080038268
+        },
+        "B3_enlarge_cells": {
+          "n": 12,
+          "t": 0.5557536090200301
+        },
+        "B3_detect_dots": {
+          "n": 12,
+          "t": 3.0702374130196404
+        },
+        "B3_merge_dots": {
+          "n": 12,
+          "t": 8.056097431108356e-05
+        },
+        "Bs_filter_absolutize": {
+          "n": 12,
+          "t": 0.0006217100017238408
+        },
+        "G_mkdir_fixed_outdir": {
+          "n": 78,
+          "t": 0.001715813996270299
+        },
+        "B2_png_encode": {
+          "n": 36,
+          "t": 2.1617044988961425,
+          "bytes": 13598440
+        },
+        "B2_tiff_encode": {
+          "n": 36,
+          "t": 0.030172653059707955,
+          "bytes": 125593152
+        },
+        "B2_render_overlay": {
+          "n": 12,
+          "t": 0.25790840800618753
+        },
+        "B2_percell_crops": {
+          "n": 12,
+          "t": 0.15041500196093693
+        },
+        "B2_png_encode_blank": {
+          "n": 3,
+          "t": 0.027445140993222594,
+          "bytes": 11765
+        },
+        "B2_tiff_encode_blank": {
+          "n": 3,
+          "t": 0.0020127080206293613,
+          "bytes": 10453808
+        },
+        "F_write_blank_tile": {
+          "n": 1,
+          "t": 0.031106131995329633
+        }
+      }
+    }
+  ],
+  "worker_timings_total": {
+    "init_unet": {
+      "n": 2,
+      "t": 2.781
+    },
+    "G_mkdir_other": {
+      "n": 76,
+      "t": 0.002
+    },
+    "init_cellpose_m2": {
+      "n": 2,
+      "t": 1.339
+    },
+    "init_cellpose_m3b": {
+      "n": 2,
+      "t": 1.038
+    },
+    "B2r_tile_read": {
+      "n": 50,
+      "t": 0.375
+    },
+    "B1_unet_coremask": {
+      "n": 25,
+      "t": 3.967
+    },
+    "BM1_apply_mask": {
+      "n": 24,
+      "t": 0.348
+    },
+    "BM1_overlay_dish": {
+      "n": 24,
+      "t": 0.294
+    },
+    "BM1_fuse": {
+      "n": 24,
+      "t": 0.259
+    },
+    "B1_m3b_cellpose": {
+      "n": 48,
+      "t": 17.307
+    },
+    "Bs_clear_edge": {
+      "n": 24,
+      "t": 0.329
+    },
+    "B4_empty_cache": {
+      "n": 25,
+      "t": 0.088
+    },
+    "B4_gc_collect": {
+      "n": 25,
+      "t": 0.011
+    },
+    "B3_build_results": {
+      "n": 24,
+      "t": 0.671
+    },
+    "B3_enlarge_cells": {
+      "n": 24,
+      "t": 1.133
+    },
+    "B3_detect_dots": {
+      "n": 24,
+      "t": 5.867
+    },
+    "B3_merge_dots": {
+      "n": 24,
+      "t": 0.0
+    },
+    "Bs_filter_absolutize": {
+      "n": 24,
+      "t": 0.001
+    },
+    "G_mkdir_fixed_outdir": {
+      "n": 150,
+      "t": 0.003
+    },
+    "B2_png_encode": {
+      "n": 72,
+      "t": 4.016,
+      "bytes": 25377822
+    },
+    "B2_tiff_encode": {
+      "n": 72,
+      "t": 0.063,
+      "bytes": 249613440
+    },
+    "B2_render_overlay": {
+      "n": 24,
+      "t": 0.552
+    },
+    "B2_percell_crops": {
+      "n": 24,
+      "t": 0.261
+    },
+    "B2_png_encode_blank": {
+      "n": 3,
+      "t": 0.027,
+      "bytes": 11765
+    },
+    "B2_tiff_encode_blank": {
+      "n": 3,
+      "t": 0.002,
+      "bytes": 10453808
+    },
+    "F_write_blank_tile": {
+      "n": 1,
+      "t": 0.031
+    }
+  },
+  "cuda_alloc_conf": "",
+  "config_hash": "b147f01b",
+  "peak_cuda_reserved_gb": 0.0,
+  "peak_rss_gb": 6.241
+}

@@ -1,0 +1,147 @@
+{
+  "label": "candidate_w1_r2",
+  "n_tiles": 576,
+  "mp_workers": 1,
+  "grid": {
+    "cols": 24,
+    "rows": 24
+  },
+  "wall": {
+    "end_to_end_total_s": 134.883,
+    "phaseA_precut_s": 0.004,
+    "runbatch_BCD_s": 134.879
+  },
+  "disk_bytes": {
+    "precut_scratch": 0,
+    "analysis_output": 7084914503
+  },
+  "stats": {
+    "success": 137,
+    "skipped": 439
+  },
+  "timings": {
+    "G_mkdir_other": {
+      "n": 468,
+      "t": 0.01870157296070829
+    },
+    "G_mkdir_fixed_outdir": {
+      "n": 6,
+      "t": 5.5563985370099545e-05
+    },
+    "init_unet": {
+      "n": 1,
+      "t": 1.197724953002762
+    },
+    "init_cellpose_m2": {
+      "n": 1,
+      "t": 0.6802028170059202
+    },
+    "init_cellpose_m3b": {
+      "n": 1,
+      "t": 0.5167376769968541
+    },
+    "B2r_tile_read": {
+      "n": 1152,
+      "t": 5.358248604941764
+    },
+    "B1_unet_coremask": {
+      "n": 576,
+      "t": 15.97401513173827
+    },
+    "B4_empty_cache": {
+      "n": 576,
+      "t": 1.6910810520348605
+    },
+    "B4_gc_collect": {
+      "n": 576,
+      "t": 0.5925429959024768
+    },
+    "B2_png_encode_blank": {
+      "n": 1269,
+      "t": 8.891261304932414,
+      "bytes": 4976595
+    },
+    "B2_tiff_encode_blank": {
+      "n": 1269,
+      "t": 0.7988605599530274,
+      "bytes": 4316234832
+    },
+    "F_write_blank_tile": {
+      "n": 423,
+      "t": 10.088850845961133
+    },
+    "BM1_apply_mask": {
+      "n": 153,
+      "t": 1.9080093508964637
+    },
+    "BM1_overlay_dish": {
+      "n": 153,
+      "t": 1.4748007290327223
+    },
+    "BM1_fuse": {
+      "n": 153,
+      "t": 1.2811329580581514
+    },
+    "B1_m3b_cellpose": {
+      "n": 306,
+      "t": 84.26664017095754
+    },
+    "Bs_clear_edge": {
+      "n": 153,
+      "t": 2.2492909328866517
+    },
+    "B3_build_results": {
+      "n": 153,
+      "t": 4.175881476970972
+    },
+    "B3_enlarge_cells": {
+      "n": 153,
+      "t": 6.694073238031706
+    },
+    "B3_detect_dots": {
+      "n": 153,
+      "t": 24.488484758985578
+    },
+    "B3_merge_dots": {
+      "n": 153,
+      "t": 0.0013842420012224466
+    },
+    "Bs_filter_absolutize": {
+      "n": 153,
+      "t": 0.008496093025314622
+    },
+    "B2_png_encode": {
+      "n": 459,
+      "t": 25.280404183155042,
+      "bytes": 157284098
+    },
+    "B2_tiff_encode": {
+      "n": 459,
+      "t": 0.35729079000884667,
+      "bytes": 1563797424
+    },
+    "B2_render_overlay": {
+      "n": 153,
+      "t": 3.170268313973793
+    },
+    "B2_percell_crops": {
+      "n": 153,
+      "t": 1.67067638989829
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.003938786001526751
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.00026309599343221635
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 4.310321953991661
+    }
+  },
+  "config_hash": "3d1087f2",
+  "peak_cuda_reserved_gb": 2.164,
+  "peak_rss_gb": 4.371
+}

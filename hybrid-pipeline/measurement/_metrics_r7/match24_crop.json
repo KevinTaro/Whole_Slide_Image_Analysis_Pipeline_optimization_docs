@@ -1,0 +1,19 @@
+{
+  "map_shape": [
+    149,
+    185
+  ],
+  "label_rule": "empty core mask (measured)",
+  "slide_background_share": 0.5582,
+  "slide_tissue_share": 0.4418,
+  "grid": 24,
+  "n_tiles": 576,
+  "crop": {
+    "x": 46080,
+    "y": 768,
+    "size": 18688
+  },
+  "window_background_share": 0.559,
+  "window_tissue_share": 0.441,
+  "target_bg": 0.5582
+}

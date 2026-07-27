@@ -1,0 +1,143 @@
+{
+  "root": "/data/taro_Projects/tsgh/output/_fs_probe",
+  "tile": 1024,
+  "crop": 768,
+  "background_fill_value": 255,
+  "runs": [
+    {
+      "procs": 1,
+      "iters_per_proc": 80,
+      "per_proc": [
+        {
+          "rank": 0,
+          "mkdir_us_per_call": 2.601,
+          "mkdir_ms_per_tile": 0.0156,
+          "blank_ms_per_tile": 20.253,
+          "hardlink_ms_per_tile": 0.0497
+        }
+      ],
+      "mkdir_us_per_call_mean": 2.601,
+      "mkdir_ms_per_tile_mean": 0.0156,
+      "blank_ms_per_tile_mean": 20.253,
+      "hardlink_ms_per_tile_mean": 0.0497,
+      "bytes_written": 1637476421
+    },
+    {
+      "procs": 2,
+      "iters_per_proc": 80,
+      "per_proc": [
+        {
+          "rank": 0,
+          "mkdir_us_per_call": 2.59,
+          "mkdir_ms_per_tile": 0.0155,
+          "blank_ms_per_tile": 20.677,
+          "hardlink_ms_per_tile": 0.0562
+        },
+        {
+          "rank": 1,
+          "mkdir_us_per_call": 2.569,
+          "mkdir_ms_per_tile": 0.0154,
+          "blank_ms_per_tile": 20.724,
+          "hardlink_ms_per_tile": 0.0561
+        }
+      ],
+      "mkdir_us_per_call_mean": 2.5795,
+      "mkdir_ms_per_tile_mean": 0.0155,
+      "blank_ms_per_tile_mean": 20.7005,
+      "hardlink_ms_per_tile_mean": 0.0561,
+      "bytes_written": 3274952842
+    },
+    {
+      "procs": 4,
+      "iters_per_proc": 80,
+      "per_proc": [
+        {
+          "rank": 0,
+          "mkdir_us_per_call": 2.863,
+          "mkdir_ms_per_tile": 0.0172,
+          "blank_ms_per_tile": 23.101,
+          "hardlink_ms_per_tile": 0.1428
+        },
+        {
+          "rank": 1,
+          "mkdir_us_per_call": 2.789,
+          "mkdir_ms_per_tile": 0.0167,
+          "blank_ms_per_tile": 23.099,
+          "hardlink_ms_per_tile": 0.0646
+        },
+        {
+          "rank": 2,
+          "mkdir_us_per_call": 2.893,
+          "mkdir_ms_per_tile": 0.0174,
+          "blank_ms_per_tile": 23.185,
+          "hardlink_ms_per_tile": 0.0651
+        },
+        {
+          "rank": 3,
+          "mkdir_us_per_call": 11.896,
+          "mkdir_ms_per_tile": 0.0714,
+          "blank_ms_per_tile": 23.227,
+          "hardlink_ms_per_tile": 0.0655
+        }
+      ],
+      "mkdir_us_per_call_mean": 5.1103,
+      "mkdir_ms_per_tile_mean": 0.0307,
+      "blank_ms_per_tile_mean": 23.153,
+      "hardlink_ms_per_tile_mean": 0.0845,
+      "bytes_written": 6549905684
+    },
+    {
+      "procs": 6,
+      "iters_per_proc": 80,
+      "per_proc": [
+        {
+          "rank": 0,
+          "mkdir_us_per_call": 12.249,
+          "mkdir_ms_per_tile": 0.0735,
+          "blank_ms_per_tile": 23.877,
+          "hardlink_ms_per_tile": 0.0714
+        },
+        {
+          "rank": 1,
+          "mkdir_us_per_call": 2.849,
+          "mkdir_ms_per_tile": 0.0171,
+          "blank_ms_per_tile": 23.758,
+          "hardlink_ms_per_tile": 0.0711
+        },
+        {
+          "rank": 2,
+          "mkdir_us_per_call": 8.433,
+          "mkdir_ms_per_tile": 0.0506,
+          "blank_ms_per_tile": 23.779,
+          "hardlink_ms_per_tile": 0.0721
+        },
+        {
+          "rank": 3,
+          "mkdir_us_per_call": 2.795,
+          "mkdir_ms_per_tile": 0.0168,
+          "blank_ms_per_tile": 23.941,
+          "hardlink_ms_per_tile": 0.0713
+        },
+        {
+          "rank": 4,
+          "mkdir_us_per_call": 2.799,
+          "mkdir_ms_per_tile": 0.0168,
+          "blank_ms_per_tile": 23.925,
+          "hardlink_ms_per_tile": 0.1444
+        },
+        {
+          "rank": 5,
+          "mkdir_us_per_call": 2.854,
+          "mkdir_ms_per_tile": 0.0171,
+          "blank_ms_per_tile": 23.554,
+          "hardlink_ms_per_tile": 0.0723
+        }
+      ],
+      "mkdir_us_per_call_mean": 5.3298,
+      "mkdir_ms_per_tile_mean": 0.032,
+      "blank_ms_per_tile_mean": 23.8057,
+      "hardlink_ms_per_tile_mean": 0.0838,
+      "bytes_written": 9824858526
+    }
+  ]
+}

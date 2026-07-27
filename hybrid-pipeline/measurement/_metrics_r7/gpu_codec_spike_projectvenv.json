@@ -1,0 +1,41 @@
+{
+  "env": {
+    "nvidia_smi": "NVIDIA GeForce RTX 5090, 580.173.02, 32607 MiB",
+    "python": "3.11.15"
+  },
+  "buffer": [
+    4096,
+    4096,
+    3
+  ],
+  "vram_used_mb": {
+    "baseline": 41,
+    "after_pyvips": 41,
+    "after_cupy_context": 41,
+    "after_nvimgcodec": 41,
+    "after_all": 41
+  },
+  "pyvips": {
+    "import": "ok",
+    "version": 8,
+    "encode_s": 0.2106,
+    "megapixels_per_s": 79.7,
+    "output_bytes": 2649310,
+    "note": "tile+pyramid+lzw, exactly what _stitch_overlay_slide calls"
+  },
+  "cupy": {
+    "import": "FAIL: ModuleNotFoundError(\"No module named 'cupy'\")"
+  },
+  "nvimgcodec": {
+    "import": "FAIL: ImportError(\"cannot import name 'nvimgcodec' from 'nvidia' (unknown location)\")"
+  },
+  "nvtiff": {
+    "import": "FAIL: ModuleNotFoundError(\"No module named 'nvtiff'\")"
+  },
+  "nvcomp": {
+    "import": "FAIL: ImportError(\"cannot import name 'nvcomp' from 'nvidia' (unknown location)\")"
+  },
+  "cucim": {
+    "import": "FAIL: ModuleNotFoundError(\"No module named 'cucim'\")"
+  }
+}

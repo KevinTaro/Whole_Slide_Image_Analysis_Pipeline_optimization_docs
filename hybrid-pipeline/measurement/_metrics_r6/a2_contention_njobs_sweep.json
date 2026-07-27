@@ -1,0 +1,653 @@
+{
+  "cpu_affinity_cores": 20,
+  "os_cpu_count": 20,
+  "state_dir": "/tmp/claude-1004/-data-taro-Projects-tsgh/0655a6e7-235a-4eea-aab5-4fff5c03d39b/scratchpad/a2_states",
+  "passes": 3,
+  "results": {
+    "P1_njobs-1": {
+      "procs": 1,
+      "n_jobs_arg": -1,
+      "threads_per_proc": 20,
+      "threads_total": 20,
+      "wall_s": 20.002,
+      "detect_median_s": 0.6805,
+      "arm_median_s": 0.7567,
+      "detect_calls_total": 24,
+      "detect_throughput_calls_per_s": 1.2,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 50863,
+          "wall_s": 18.3508,
+          "detect_calls": 24,
+          "detect_median_s": 0.6805,
+          "detect_mean_s": 0.6881,
+          "arm_median_s": 0.7567
+        }
+      ]
+    },
+    "P1_njobs1": {
+      "procs": 1,
+      "n_jobs_arg": 1,
+      "threads_per_proc": 1,
+      "threads_total": 1,
+      "wall_s": 9.371,
+      "detect_median_s": 0.2524,
+      "arm_median_s": 0.3219,
+      "detect_calls_total": 24,
+      "detect_throughput_calls_per_s": 2.561,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 51703,
+          "wall_s": 7.8634,
+          "detect_calls": 24,
+          "detect_median_s": 0.2524,
+          "detect_mean_s": 0.2567,
+          "arm_median_s": 0.3219
+        }
+      ]
+    },
+    "P1_njobs2": {
+      "procs": 1,
+      "n_jobs_arg": 2,
+      "threads_per_proc": 2,
+      "threads_total": 2,
+      "wall_s": 10.243,
+      "detect_median_s": 0.2886,
+      "arm_median_s": 0.3618,
+      "detect_calls_total": 24,
+      "detect_throughput_calls_per_s": 2.343,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 51856,
+          "wall_s": 8.7262,
+          "detect_calls": 24,
+          "detect_median_s": 0.2886,
+          "detect_mean_s": 0.2896,
+          "arm_median_s": 0.3618
+        }
+      ]
+    },
+    "P1_njobs4": {
+      "procs": 1,
+      "n_jobs_arg": 4,
+      "threads_per_proc": 4,
+      "threads_total": 4,
+      "wall_s": 11.036,
+      "detect_median_s": 0.3155,
+      "arm_median_s": 0.3929,
+      "detect_calls_total": 24,
+      "detect_throughput_calls_per_s": 2.175,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 52139,
+          "wall_s": 9.4938,
+          "detect_calls": 24,
+          "detect_median_s": 0.3155,
+          "detect_mean_s": 0.3189,
+          "arm_median_s": 0.3929
+        }
+      ]
+    },
+    "P1_njobs8": {
+      "procs": 1,
+      "n_jobs_arg": 8,
+      "threads_per_proc": 8,
+      "threads_total": 8,
+      "wall_s": 11.596,
+      "detect_median_s": 0.343,
+      "arm_median_s": 0.4182,
+      "detect_calls_total": 24,
+      "detect_throughput_calls_per_s": 2.07,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 52471,
+          "wall_s": 10.0087,
+          "detect_calls": 24,
+          "detect_median_s": 0.343,
+          "detect_mean_s": 0.3422,
+          "arm_median_s": 0.4182
+        }
+      ]
+    },
+    "P3_njobs-1": {
+      "procs": 3,
+      "n_jobs_arg": -1,
+      "threads_per_proc": 20,
+      "threads_total": 60,
+      "wall_s": 11.832,
+      "detect_median_s": 0.3343,
+      "arm_median_s": 0.4149,
+      "detect_calls_total": 72,
+      "detect_throughput_calls_per_s": 6.085,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 52921,
+          "wall_s": 9.973,
+          "detect_calls": 24,
+          "detect_median_s": 0.3367,
+          "detect_mean_s": 0.3339,
+          "arm_median_s": 0.4179
+        },
+        {
+          "rank": 1,
+          "pid": 52922,
+          "wall_s": 9.9744,
+          "detect_calls": 24,
+          "detect_median_s": 0.3362,
+          "detect_mean_s": 0.3353,
+          "arm_median_s": 0.4151
+        },
+        {
+          "rank": 2,
+          "pid": 52923,
+          "wall_s": 9.9748,
+          "detect_calls": 24,
+          "detect_median_s": 0.3301,
+          "detect_mean_s": 0.3335,
+          "arm_median_s": 0.4118
+        }
+      ]
+    },
+    "P3_njobs1": {
+      "procs": 3,
+      "n_jobs_arg": 1,
+      "threads_per_proc": 1,
+      "threads_total": 3,
+      "wall_s": 10.324,
+      "detect_median_s": 0.2742,
+      "arm_median_s": 0.3507,
+      "detect_calls_total": 72,
+      "detect_throughput_calls_per_s": 6.974,
+      "per_proc": [
+        {
+          "rank": 2,
+          "pid": 54918,
+          "wall_s": 8.432,
+          "detect_calls": 24,
+          "detect_median_s": 0.2721,
+          "detect_mean_s": 0.2761,
+          "arm_median_s": 0.3472
+        },
+        {
+          "rank": 0,
+          "pid": 54916,
+          "wall_s": 8.5878,
+          "detect_calls": 24,
+          "detect_median_s": 0.2751,
+          "detect_mean_s": 0.2799,
+          "arm_median_s": 0.3513
+        },
+        {
+          "rank": 1,
+          "pid": 54917,
+          "wall_s": 8.5915,
+          "detect_calls": 24,
+          "detect_median_s": 0.2753,
+          "detect_mean_s": 0.2787,
+          "arm_median_s": 0.3538
+        }
+      ]
+    },
+    "P3_njobs2": {
+      "procs": 3,
+      "n_jobs_arg": 2,
+      "threads_per_proc": 2,
+      "threads_total": 6,
+      "wall_s": 11.187,
+      "detect_median_s": 0.3044,
+      "arm_median_s": 0.3881,
+      "detect_calls_total": 72,
+      "detect_throughput_calls_per_s": 6.436,
+      "per_proc": [
+        {
+          "rank": 0,
+          "pid": 55157,
+          "wall_s": 9.3608,
+          "detect_calls": 24,
+          "detect_median_s": 0.3021,
+          "detect_mean_s": 0.3065,
+          "arm_median_s": 0.3877
+        },
+        {
+          "rank": 2,
+          "pid": 55159,
+          "wall_s": 9.4014,
+          "detect_calls": 24,
+          "detect_median_s": 0.3092,
+          "detect_mean_s": 0.3081,
+          "arm_median_s": 0.3905
+        },
+        {
+          "rank": 1,
+          "pid": 55158,
+          "wall_s": 9.4223,
+          "detect_calls": 24,
+          "detect_median_s": 0.3019,
+          "detect_mean_s": 0.3088,
+          "arm_median_s": 0.3861
+        }
+      ]
+    },
+    "P3_njobs4": {
+      "procs": 3,
+      "n_jobs_arg": 4,
+      "threads_per_proc": 4,
+      "threads_total": 12,
+      "wall_s": 11.642,
+      "detect_median_s": 0.3235,
+      "arm_median_s": 0.404,
+      "detect_calls_total": 72,
+      "detect_throughput_calls_per_s": 6.185,
+      "per_proc": [
+        {
+          "rank": 2,
+          "pid": 55778,
+          "wall_s": 9.802,
+          "detect_calls": 24,
+          "detect_median_s": 0.3305,
+          "detect_mean_s": 0.3309,
+          "arm_median_s": 0.4082
+        },
+        {
+          "rank": 0,
+          "pid": 55776,
+          "wall_s": 9.8068,
+          "detect_calls": 24,
+          "detect_median_s": 0.3155,
+          "detect_mean_s": 0.3256,
+          "arm_median_s": 0.3993
+        },
+        {
+          "rank": 1,
+          "pid": 55777,
+          "wall_s": 9.8398,
+          "detect_calls": 24,
+          "detect_median_s": 0.3246,
+          "detect_mean_s": 0.3296,
+          "arm_median_s": 0.4045
+        }
+      ]
+    },
+    "P3_njobs8": {
+      "procs": 3,
+      "n_jobs_arg": 8,
+      "threads_per_proc": 8,
+      "threads_total": 24,
+      "wall_s": 11.645,
+      "detect_median_s": 0.3297,
+      "arm_median_s": 0.41,
+      "detect_calls_total": 72,
+      "detect_throughput_calls_per_s": 6.183,
+      "per_proc": [
+        {
+          "rank": 2,
+          "pid": 56563,
+          "wall_s": 9.8161,
+          "detect_calls": 24,
+          "detect_median_s": 0.3295,
+          "detect_mean_s": 0.3308,
+          "arm_median_s": 0.4075
+        },
+        {
+          "rank": 1,
+          "pid": 56562,
+          "wall_s": 9.8203,
+          "detect_calls": 24,
+          "detect_median_s": 0.3311,
+          "detect_mean_s": 0.3279,
+          "arm_median_s": 0.4108
+        },
+        {
+          "rank": 0,
+          "pid": 56561,
+          "wall_s": 9.8245,
+          "detect_calls": 24,
+          "detect_median_s": 0.3285,
+          "detect_mean_s": 0.3282,
+          "arm_median_s": 0.4116
+        }
+      ]
+    },
+    "P6_njobs-1": {
+      "procs": 6,
+      "n_jobs_arg": -1,
+      "threads_per_proc": 20,
+      "threads_total": 120,
+      "wall_s": 12.964,
+      "detect_median_s": 0.3589,
+      "arm_median_s": 0.4537,
+      "detect_calls_total": 144,
+      "detect_throughput_calls_per_s": 11.108,
+      "per_proc": [
+        {
+          "rank": 1,
+          "pid": 57656,
+          "wall_s": 10.9213,
+          "detect_calls": 24,
+          "detect_median_s": 0.3581,
+          "detect_mean_s": 0.3618,
+          "arm_median_s": 0.4528
+        },
+        {
+          "rank": 3,
+          "pid": 57658,
+          "wall_s": 10.9243,
+          "detect_calls": 24,
+          "detect_median_s": 0.3593,
+          "detect_mean_s": 0.3583,
+          "arm_median_s": 0.4541
+        },
+        {
+          "rank": 4,
+          "pid": 57659,
+          "wall_s": 10.926,
+          "detect_calls": 24,
+          "detect_median_s": 0.3567,
+          "detect_mean_s": 0.3578,
+          "arm_median_s": 0.4539
+        },
+        {
+          "rank": 2,
+          "pid": 57657,
+          "wall_s": 10.9272,
+          "detect_calls": 24,
+          "detect_median_s": 0.3599,
+          "detect_mean_s": 0.3626,
+          "arm_median_s": 0.4522
+        },
+        {
+          "rank": 5,
+          "pid": 57660,
+          "wall_s": 10.9272,
+          "detect_calls": 24,
+          "detect_median_s": 0.3574,
+          "detect_mean_s": 0.3599,
+          "arm_median_s": 0.4533
+        },
+        {
+          "rank": 0,
+          "pid": 57655,
+          "wall_s": 10.9286,
+          "detect_calls": 24,
+          "detect_median_s": 0.3617,
+          "detect_mean_s": 0.3602,
+          "arm_median_s": 0.4559
+        }
+      ]
+    },
+    "P6_njobs1": {
+      "procs": 6,
+      "n_jobs_arg": 1,
+      "threads_per_proc": 1,
+      "threads_total": 6,
+      "wall_s": 11.083,
+      "detect_median_s": 0.2879,
+      "arm_median_s": 0.3707,
+      "detect_calls_total": 144,
+      "detect_throughput_calls_per_s": 12.993,
+      "per_proc": [
+        {
+          "rank": 5,
+          "pid": 61543,
+          "wall_s": 8.8754,
+          "detect_calls": 24,
+          "detect_median_s": 0.2835,
+          "detect_mean_s": 0.2897,
+          "arm_median_s": 0.3638
+        },
+        {
+          "rank": 2,
+          "pid": 61540,
+          "wall_s": 8.9497,
+          "detect_calls": 24,
+          "detect_median_s": 0.2877,
+          "detect_mean_s": 0.2928,
+          "arm_median_s": 0.3684
+        },
+        {
+          "rank": 4,
+          "pid": 61542,
+          "wall_s": 8.9888,
+          "detect_calls": 24,
+          "detect_median_s": 0.2872,
+          "detect_mean_s": 0.2918,
+          "arm_median_s": 0.3684
+        },
+        {
+          "rank": 0,
+          "pid": 61538,
+          "wall_s": 9.0448,
+          "detect_calls": 24,
+          "detect_median_s": 0.2879,
+          "detect_mean_s": 0.2934,
+          "arm_median_s": 0.3706
+        },
+        {
+          "rank": 1,
+          "pid": 61539,
+          "wall_s": 9.2071,
+          "detect_calls": 24,
+          "detect_median_s": 0.2911,
+          "detect_mean_s": 0.2946,
+          "arm_median_s": 0.3769
+        },
+        {
+          "rank": 3,
+          "pid": 61541,
+          "wall_s": 9.2076,
+          "detect_calls": 24,
+          "detect_median_s": 0.29,
+          "detect_mean_s": 0.2962,
+          "arm_median_s": 0.3758
+        }
+      ]
+    },
+    "P6_njobs2": {
+      "procs": 6,
+      "n_jobs_arg": 2,
+      "threads_per_proc": 2,
+      "threads_total": 12,
+      "wall_s": 11.707,
+      "detect_median_s": 0.3132,
+      "arm_median_s": 0.3981,
+      "detect_calls_total": 144,
+      "detect_throughput_calls_per_s": 12.3,
+      "per_proc": [
+        {
+          "rank": 3,
+          "pid": 61948,
+          "wall_s": 9.704,
+          "detect_calls": 24,
+          "detect_median_s": 0.3193,
+          "detect_mean_s": 0.3195,
+          "arm_median_s": 0.4012
+        },
+        {
+          "rank": 5,
+          "pid": 61950,
+          "wall_s": 9.7094,
+          "detect_calls": 24,
+          "detect_median_s": 0.3093,
+          "detect_mean_s": 0.3167,
+          "arm_median_s": 0.3922
+        },
+        {
+          "rank": 2,
+          "pid": 61947,
+          "wall_s": 9.714,
+          "detect_calls": 24,
+          "detect_median_s": 0.3101,
+          "detect_mean_s": 0.319,
+          "arm_median_s": 0.3994
+        },
+        {
+          "rank": 1,
+          "pid": 61946,
+          "wall_s": 9.7211,
+          "detect_calls": 24,
+          "detect_median_s": 0.3121,
+          "detect_mean_s": 0.3148,
+          "arm_median_s": 0.4006
+        },
+        {
+          "rank": 4,
+          "pid": 61949,
+          "wall_s": 9.7428,
+          "detect_calls": 24,
+          "detect_median_s": 0.3151,
+          "detect_mean_s": 0.3175,
+          "arm_median_s": 0.4005
+        },
+        {
+          "rank": 0,
+          "pid": 61945,
+          "wall_s": 9.7469,
+          "detect_calls": 24,
+          "detect_median_s": 0.313,
+          "detect_mean_s": 0.3179,
+          "arm_median_s": 0.3949
+        }
+      ]
+    },
+    "P6_njobs4": {
+      "procs": 6,
+      "n_jobs_arg": 4,
+      "threads_per_proc": 4,
+      "threads_total": 24,
+      "wall_s": 12.592,
+      "detect_median_s": 0.346,
+      "arm_median_s": 0.4386,
+      "detect_calls_total": 144,
+      "detect_throughput_calls_per_s": 11.436,
+      "per_proc": [
+        {
+          "rank": 2,
+          "pid": 63072,
+          "wall_s": 10.5578,
+          "detect_calls": 24,
+          "detect_median_s": 0.3476,
+          "detect_mean_s": 0.3485,
+          "arm_median_s": 0.4388
+        },
+        {
+          "rank": 5,
+          "pid": 63075,
+          "wall_s": 10.559,
+          "detect_calls": 24,
+          "detect_median_s": 0.3436,
+          "detect_mean_s": 0.3482,
+          "arm_median_s": 0.4319
+        },
+        {
+          "rank": 0,
+          "pid": 63070,
+          "wall_s": 10.5593,
+          "detect_calls": 24,
+          "detect_median_s": 0.3444,
+          "detect_mean_s": 0.345,
+          "arm_median_s": 0.4408
+        },
+        {
+          "rank": 3,
+          "pid": 63073,
+          "wall_s": 10.5613,
+          "detect_calls": 24,
+          "detect_median_s": 0.3498,
+          "detect_mean_s": 0.3482,
+          "arm_median_s": 0.4385
+        },
+        {
+          "rank": 1,
+          "pid": 63071,
+          "wall_s": 10.5613,
+          "detect_calls": 24,
+          "detect_median_s": 0.3433,
+          "detect_mean_s": 0.3469,
+          "arm_median_s": 0.4371
+        },
+        {
+          "rank": 4,
+          "pid": 63074,
+          "wall_s": 10.5636,
+          "detect_calls": 24,
+          "detect_median_s": 0.3474,
+          "detect_mean_s": 0.3456,
+          "arm_median_s": 0.4444
+        }
+      ]
+    },
+    "P6_njobs8": {
+      "procs": 6,
+      "n_jobs_arg": 8,
+      "threads_per_proc": 8,
+      "threads_total": 48,
+      "wall_s": 12.857,
+      "detect_median_s": 0.3572,
+      "arm_median_s": 0.4513,
+      "detect_calls_total": 144,
+      "detect_throughput_calls_per_s": 11.201,
+      "per_proc": [
+        {
+          "rank": 1,
+          "pid": 64613,
+          "wall_s": 10.8542,
+          "detect_calls": 24,
+          "detect_median_s": 0.3548,
+          "detect_mean_s": 0.3569,
+          "arm_median_s": 0.447
+        },
+        {
+          "rank": 0,
+          "pid": 64612,
+          "wall_s": 10.8547,
+          "detect_calls": 24,
+          "detect_median_s": 0.3577,
+          "detect_mean_s": 0.356,
+          "arm_median_s": 0.4546
+        },
+        {
+          "rank": 4,
+          "pid": 64616,
+          "wall_s": 10.8542,
+          "detect_calls": 24,
+          "detect_median_s": 0.3588,
+          "detect_mean_s": 0.357,
+          "arm_median_s": 0.4522
+        },
+        {
+          "rank": 2,
+          "pid": 64614,
+          "wall_s": 10.8592,
+          "detect_calls": 24,
+          "detect_median_s": 0.353,
+          "detect_mean_s": 0.356,
+          "arm_median_s": 0.4498
+        },
+        {
+          "rank": 5,
+          "pid": 64617,
+          "wall_s": 10.8601,
+          "detect_calls": 24,
+          "detect_median_s": 0.3614,
+          "detect_mean_s": 0.3609,
+          "arm_median_s": 0.4526
+        },
+        {
+          "rank": 3,
+          "pid": 64615,
+          "wall_s": 10.8615,
+          "detect_calls": 24,
+          "detect_median_s": 0.3576,
+          "detect_mean_s": 0.3574,
+          "arm_median_s": 0.4517
+        }
+      ]
+    }
+  }
+}

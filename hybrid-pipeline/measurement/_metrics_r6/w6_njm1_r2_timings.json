@@ -1,0 +1,39 @@
+{
+  "label": "w6_njm1_r2",
+  "n_tiles": 441,
+  "mp_workers": 6,
+  "grid": {
+    "cols": 21,
+    "rows": 21
+  },
+  "wall": {
+    "end_to_end_total_s": 120.391,
+    "phaseA_precut_s": 0.004,
+    "runbatch_BCD_s": 120.387
+  },
+  "disk_bytes": {
+    "precut_scratch": 0,
+    "analysis_output": 6241809943
+  },
+  "stats": {
+    "success": 378,
+    "skipped": 63
+  },
+  "timings": {
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.011814980000053765
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.0007850950005376944
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 5.126803432000088
+    }
+  },
+  "config_hash": "94f8e1ed",
+  "peak_cuda_reserved_gb": 0.0,
+  "peak_rss_gb": 17.299
+}

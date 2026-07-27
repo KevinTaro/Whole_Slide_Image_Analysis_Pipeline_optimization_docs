@@ -1,0 +1,358 @@
+{
+  "device": "NVIDIA GeForce RTX 5090",
+  "cellpose_batch_size": 16,
+  "n_input_tiles": 8,
+  "reps": 3,
+  "m2_cellpose": {
+    "1": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 2.0248,
+        "per_tile_s": 0.2531,
+        "reps_s": [
+          2.0525,
+          2.0248,
+          2.045
+        ],
+        "peak_alloc_mb": 1167.0,
+        "batch_size_arg": 16
+      },
+      "cells": [
+        34,
+        46,
+        73,
+        73,
+        61,
+        72,
+        117,
+        85
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.549,
+        "per_tile_s": 0.1936,
+        "reps_s": [
+          1.549,
+          1.5539,
+          1.5669
+        ],
+        "peak_alloc_mb": 1167.0,
+        "batch_size_arg": 16
+      }
+    },
+    "2": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 1.9092,
+        "per_tile_s": 0.2386,
+        "reps_s": [
+          2.0452,
+          1.9235,
+          1.9092
+        ],
+        "peak_alloc_mb": 2146.2,
+        "batch_size_arg": 32
+      },
+      "cells": [
+        34,
+        46,
+        73,
+        73,
+        61,
+        72,
+        117,
+        85
+      ],
+      "px_diff_vs_G1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.4745,
+        "per_tile_s": 0.1843,
+        "reps_s": [
+          1.4853,
+          1.4848,
+          1.4745
+        ],
+        "peak_alloc_mb": 2146.2,
+        "batch_size_arg": 32
+      }
+    },
+    "4": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 2.0369,
+        "per_tile_s": 0.2546,
+        "reps_s": [
+          2.1614,
+          2.0588,
+          2.0369
+        ],
+        "peak_alloc_mb": 4102.0,
+        "batch_size_arg": 64
+      },
+      "cells": [
+        34,
+        46,
+        73,
+        73,
+        61,
+        72,
+        117,
+        85
+      ],
+      "px_diff_vs_G1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.588,
+        "per_tile_s": 0.1985,
+        "reps_s": [
+          1.588,
+          1.6392,
+          1.6138
+        ],
+        "peak_alloc_mb": 4102.0,
+        "batch_size_arg": 64
+      }
+    },
+    "8": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 2.0751,
+        "per_tile_s": 0.2594,
+        "reps_s": [
+          2.4143,
+          2.0839,
+          2.0751
+        ],
+        "peak_alloc_mb": 8014.1,
+        "batch_size_arg": 128
+      },
+      "cells": [
+        34,
+        46,
+        73,
+        73,
+        61,
+        72,
+        117,
+        85
+      ],
+      "px_diff_vs_G1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.6325,
+        "per_tile_s": 0.2041,
+        "reps_s": [
+          1.6325,
+          1.6733,
+          1.672
+        ],
+        "peak_alloc_mb": 8014.1,
+        "batch_size_arg": 128
+      }
+    }
+  },
+  "m3b_dish_cellpose": {
+    "1": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 1.9614,
+        "per_tile_s": 0.2452,
+        "reps_s": [
+          2.0118,
+          1.9614,
+          1.9801
+        ],
+        "peak_alloc_mb": 1165.2,
+        "batch_size_arg": 16
+      },
+      "cells": [
+        187,
+        174,
+        158,
+        156,
+        170,
+        165,
+        140,
+        158
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.5683,
+        "per_tile_s": 0.196,
+        "reps_s": [
+          1.5683,
+          1.5762,
+          1.5702
+        ],
+        "peak_alloc_mb": 1165.2,
+        "batch_size_arg": 16
+      }
+    },
+    "2": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 1.9367,
+        "per_tile_s": 0.2421,
+        "reps_s": [
+          1.9703,
+          1.9432,
+          1.9367
+        ],
+        "peak_alloc_mb": 2143.3,
+        "batch_size_arg": 32
+      },
+      "cells": [
+        187,
+        174,
+        158,
+        156,
+        170,
+        165,
+        140,
+        158
+      ],
+      "px_diff_vs_G1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.5045,
+        "per_tile_s": 0.1881,
+        "reps_s": [
+          1.5045,
+          1.5088,
+          1.5194
+        ],
+        "peak_alloc_mb": 2143.3,
+        "batch_size_arg": 32
+      }
+    },
+    "4": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 2.0315,
+        "per_tile_s": 0.2539,
+        "reps_s": [
+          2.0315,
+          2.0454,
+          2.034
+        ],
+        "peak_alloc_mb": 4100.1,
+        "batch_size_arg": 64
+      },
+      "cells": [
+        187,
+        174,
+        158,
+        156,
+        170,
+        165,
+        140,
+        158
+      ],
+      "px_diff_vs_G1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.6177,
+        "per_tile_s": 0.2022,
+        "reps_s": [
+          1.6177,
+          1.6445,
+          1.6384
+        ],
+        "peak_alloc_mb": 4100.1,
+        "batch_size_arg": 64
+      }
+    },
+    "8": {
+      "full": {
+        "n_tiles": 8,
+        "total_s": 2.1219,
+        "per_tile_s": 0.2652,
+        "reps_s": [
+          2.157,
+          2.1262,
+          2.1219
+        ],
+        "peak_alloc_mb": 8012.3,
+        "batch_size_arg": 128
+      },
+      "cells": [
+        187,
+        174,
+        158,
+        156,
+        170,
+        165,
+        140,
+        158
+      ],
+      "px_diff_vs_G1": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "net_only": {
+        "n_tiles": 8,
+        "total_s": 1.6891,
+        "per_tile_s": 0.2111,
+        "reps_s": [
+          1.6891,
+          1.7285,
+          1.7223
+        ],
+        "peak_alloc_mb": 8012.3,
+        "batch_size_arg": 128
+      }
+    }
+  }
+}

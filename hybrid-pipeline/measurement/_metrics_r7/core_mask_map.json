@@ -1,0 +1,15 @@
+{
+  "slide": [
+    141818,
+    114366
+  ],
+  "grid": [
+    185,
+    149
+  ],
+  "n_tiles": 27565,
+  "n_background": 15386,
+  "background_share": 0.5582,
+  "tissue_share": 0.4418,
+  "elapsed_s": 1043.7
+}

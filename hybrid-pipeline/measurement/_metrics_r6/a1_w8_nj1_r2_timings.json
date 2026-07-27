@@ -1,0 +1,39 @@
+{
+  "label": "a1_w8_nj1_r2",
+  "n_tiles": 441,
+  "mp_workers": 8,
+  "grid": {
+    "cols": 21,
+    "rows": 21
+  },
+  "wall": {
+    "end_to_end_total_s": 119.023,
+    "phaseA_precut_s": 0.005,
+    "runbatch_BCD_s": 119.018
+  },
+  "disk_bytes": {
+    "precut_scratch": 0,
+    "analysis_output": 6241812220
+  },
+  "stats": {
+    "success": 378,
+    "skipped": 63
+  },
+  "timings": {
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.011722496999936993
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.0008055090002017096
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 5.096678247000455
+    }
+  },
+  "config_hash": "3d1087f2",
+  "peak_cuda_reserved_gb": 0.0,
+  "peak_rss_gb": 22.455
+}

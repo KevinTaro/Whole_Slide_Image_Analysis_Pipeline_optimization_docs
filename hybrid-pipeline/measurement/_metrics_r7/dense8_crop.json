@@ -1,0 +1,19 @@
+{
+  "map_shape": [
+    149,
+    185
+  ],
+  "label_rule": "cell mean >= 188.0 (brightness proxy)",
+  "slide_background_share": 0.5514,
+  "slide_tissue_share": 0.4486,
+  "grid": 8,
+  "n_tiles": 64,
+  "crop": {
+    "x": 86784,
+    "y": 5376,
+    "size": 6400
+  },
+  "window_background_share": 0.0,
+  "window_tissue_share": 1.0,
+  "target_bg": 0.0
+}

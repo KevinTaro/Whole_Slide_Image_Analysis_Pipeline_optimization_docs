@@ -1,0 +1,46 @@
+{
+  "label": "fullwsi_w4",
+  "n_tiles": 27565,
+  "mp_workers": 4,
+  "grid": {
+    "cols": 185,
+    "rows": 149
+  },
+  "wall": {
+    "end_to_end_total_s": 6211.455,
+    "phaseA_precut_s": 0.08,
+    "runbatch_BCD_s": 6211.375
+  },
+  "disk_bytes": {
+    "precut_scratch": 0,
+    "analysis_output": 346970297218
+  },
+  "stats": {
+    "success": 10800,
+    "skipped": 16765
+  },
+  "timings": {
+    "G_mkdir_other": {
+      "n": 7,
+      "t": 0.0012067350617144257
+    },
+    "C_export_csv": {
+      "n": 1,
+      "t": 0.24592545797349885
+    },
+    "C_export_summary": {
+      "n": 1,
+      "t": 0.022847212007036433
+    },
+    "D_stitch_overlay": {
+      "n": 1,
+      "t": 1200.8184745260223
+    }
+  },
+  "worker_timings": [],
+  "worker_timings_total": {},
+  "cuda_alloc_conf": "",
+  "config_hash": "3d1087f2",
+  "peak_cuda_reserved_gb": 0.0,
+  "peak_rss_gb": 61.672
+}

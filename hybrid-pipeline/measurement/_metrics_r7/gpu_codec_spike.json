@@ -1,0 +1,73 @@
+{
+  "env": {
+    "nvidia_smi": "NVIDIA GeForce RTX 5090, 580.173.02, 32607 MiB",
+    "python": "3.11.15"
+  },
+  "buffer": [
+    4096,
+    4096,
+    3
+  ],
+  "vram_used_mb": {
+    "baseline": 41,
+    "after_pyvips": 41,
+    "after_cupy_context": 41,
+    "after_nvimgcodec": 557,
+    "after_all": 557
+  },
+  "pyvips": {
+    "import": "ok",
+    "version": 8,
+    "encode_s": 0.2075,
+    "megapixels_per_s": 80.9,
+    "output_bytes": 2649310,
+    "note": "tile+pyramid+lzw, exactly what _stitch_overlay_slide calls"
+  },
+  "cupy": {
+    "import": "FAIL: ImportError(\"\\n================================================================\\nFailed to import CuPy.\\n\\nIf you installed CuPy via wheels (cupy-cudaXXX or cupy-rocm-X-X), make sure that the package matches with the version of CUDA or ROCm installed.\\n\\nOn Linux, you may need to set LD_LIBRARY_PATH environment variable depending on how you installed CUDA/ROCm.\\nOn Windows, try setting CUDA_PATH environment variable.\\n\\nCheck the Installation Guide for details:\\n  https://docs.cupy.dev/en/latest/install.html\\n\\nOriginal error:\\n  ImportError: numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()' after cimporting numpy; use '<void>numpy._import_array' to disable if you are certain you don't need it).\\n================================================================\\n\")"
+  },
+  "nvimgcodec": {
+    "import": "ok",
+    "version": "0.8.0",
+    "encoder": "constructed",
+    "tiff_encode": "FAIL: ImportError(\"\\n================================================================\\nFailed to import CuPy.\\n\\nIf you installed CuPy via wheels (cupy-cudaXXX or cupy-rocm-X-X), make sure that the package matches with the version of CUDA or ROCm installed.\\n\\nOn Linux, you may need to set LD_LIBRARY_PATH environment variable depending on how you installed CUDA/ROCm.\\nOn Windows, try setting CUDA_PATH environment variable.\\n\\nCheck the Installation Guide for details:\\n  https://docs.cupy.dev/en/latest/install.html\\n\\nOriginal error:\\n  ImportError: numpy.core.multiarray failed to import (auto-generated because you didn't call 'numpy.import_array()' after cimporting numpy; use '<void>numpy._import_array' to disable if you are certain you don't need it).\\n================================================================\\n\")"
+  },
+  "nvtiff": {
+    "import": "FAIL: ModuleNotFoundError(\"No module named 'nvtiff'\")"
+  },
+  "nvcomp": {
+    "import": "ok",
+    "version": "5.3.0",
+    "algorithms": [
+      "Array",
+      "ArrayBufferKind",
+      "BitshuffleMode",
+      "BitstreamKind",
+      "COMPUTE_AND_NO_VERIFY",
+      "COMPUTE_AND_VERIFY",
+      "COMPUTE_AND_VERIFY_IF_PRESENT",
+      "ChecksumPolicy",
+      "Codec",
+      "CompressConfig",
+      "CudaStream",
+      "DecompressBackend",
+      "DecompressConfig",
+      "NO_COMPUTE_AND_VERIFY_IF_PRESENT",
+      "NO_COMPUTE_NO_VERIFY",
+      "NVCOMP_BITSHUFFLE_LSB_FIRST",
+      "NVCOMP_BITSHUFFLE_MSB_FIRST",
+      "NVCOMP_BITSHUFFLE_NONE",
+      "NVCOMP_DECOMPRESS_BACKEND_CUDA",
+      "NVCOMP_DECOMPRESS_BACKEND_DEFAULT",
+      "NVCOMP_DECOMPRESS_BACKEND_HARDWARE",
+      "STRIDED_DEVICE",
+      "STRIDED_HOST"
+    ]
+  },
+  "cucim": {
+    "import": "ok",
+    "version": "26.06.00",
+    "CuImage": "ok",
+    "has_write": false
+  }
+}

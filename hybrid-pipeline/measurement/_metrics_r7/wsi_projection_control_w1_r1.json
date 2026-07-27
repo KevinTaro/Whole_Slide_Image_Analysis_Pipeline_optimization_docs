@@ -1,0 +1,173 @@
+{
+  "source": "control_w1_r1",
+  "run_population": {
+    "tiles": 576,
+    "tissue": 153,
+    "background": 423
+  },
+  "slide_population": {
+    "tiles": 27565,
+    "tissue": 12178,
+    "background": 15387,
+    "background_share": 0.5582
+  },
+  "rows": [
+    {
+      "bucket": "B1_m3b_cellpose",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 85.867,
+      "rate_s": 0.56122,
+      "wsi_s": 6834.6
+    },
+    {
+      "bucket": "B3_detect_dots",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 26.063,
+      "rate_s": 0.17034,
+      "wsi_s": 2074.5
+    },
+    {
+      "bucket": "B2_png_encode",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 25.623,
+      "rate_s": 0.16747,
+      "wsi_s": 2039.5
+    },
+    {
+      "bucket": "B1_unet_coremask",
+      "arm": "MAIN",
+      "population": "all",
+      "run_s": 16.121,
+      "rate_s": 0.02799,
+      "wsi_s": 771.5
+    },
+    {
+      "bucket": "B3_enlarge_cells",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 6.766,
+      "rate_s": 0.04422,
+      "wsi_s": 538.5
+    },
+    {
+      "bucket": "F_write_blank_tile",
+      "arm": "BG",
+      "population": "background",
+      "run_s": 10.181,
+      "rate_s": 0.02407,
+      "wsi_s": 370.3
+    },
+    {
+      "bucket": "B3_build_results",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 4.189,
+      "rate_s": 0.02738,
+      "wsi_s": 333.4
+    },
+    {
+      "bucket": "B2_render_overlay",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 3.173,
+      "rate_s": 0.02074,
+      "wsi_s": 252.5
+    },
+    {
+      "bucket": "B2r_tile_read",
+      "arm": "MAIN",
+      "population": "all",
+      "run_s": 5.073,
+      "rate_s": 0.00881,
+      "wsi_s": 242.8
+    },
+    {
+      "bucket": "Bs_clear_edge",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 2.285,
+      "rate_s": 0.01494,
+      "wsi_s": 181.9
+    },
+    {
+      "bucket": "BM1_apply_mask",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 1.964,
+      "rate_s": 0.01284,
+      "wsi_s": 156.4
+    },
+    {
+      "bucket": "B2_percell_crops",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 1.719,
+      "rate_s": 0.01123,
+      "wsi_s": 136.8
+    },
+    {
+      "bucket": "BM1_overlay_dish",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 1.515,
+      "rate_s": 0.0099,
+      "wsi_s": 120.6
+    },
+    {
+      "bucket": "BM1_fuse",
+      "arm": "MAIN",
+      "population": "tissue",
+      "run_s": 1.323,
+      "rate_s": 0.00865,
+      "wsi_s": 105.3
+    },
+    {
+      "bucket": "B4_empty_cache",
+      "arm": "MAIN",
+      "population": "all",
+      "run_s": 1.691,
+      "rate_s": 0.00294,
+      "wsi_s": 80.9
+    },
+    {
+      "bucket": "B2_tiff_encode",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 0.429,
+      "rate_s": 0.00281,
+      "wsi_s": 34.2
+    },
+    {
+      "bucket": "B4_gc_collect",
+      "arm": "MAIN",
+      "population": "all",
+      "run_s": 0.601,
+      "rate_s": 0.00104,
+      "wsi_s": 28.7
+    },
+    {
+      "bucket": "Bs_filter_absolutize",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 0.008,
+      "rate_s": 5e-05,
+      "wsi_s": 0.6
+    },
+    {
+      "bucket": "B3_merge_dots",
+      "arm": "BG",
+      "population": "tissue",
+      "run_s": 0.001,
+      "rate_s": 1e-05,
+      "wsi_s": 0.1
+    }
+  ],
+  "main_s": 9394.6,
+  "bg_s": 4908.5,
+  "outside_s": 325.1,
+  "wall_s": 9719.7,
+  "wall_h": 2.7
+}
