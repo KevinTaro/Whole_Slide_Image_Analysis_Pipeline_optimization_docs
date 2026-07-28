@@ -1,0 +1,773 @@
+{
+  "tiles": 27565,
+  "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+  "bg_share": 0.558,
+  "cells_per_tissue_tile": 29.24,
+  "resident_objects": 300000,
+  "exp0_climb": {
+    "frozen_once": {
+      "n_tiles": 27565,
+      "n_tiles_recorded": 27565,
+      "accumulated_cells": 353336,
+      "n_freezes": 0,
+      "collect_total_s": 369.4081,
+      "collect_first_ms": 0.0008,
+      "collect_last5pct_mean_ms": 31.2185,
+      "collect_mean_ms": 13.4013,
+      "freeze_total_s": 0.0,
+      "freeze_mean_ms": 0.0,
+      "freeze_max_ms": 0.0,
+      "combined_total_s": 369.4081,
+      "curve": [
+        [
+          0,
+          0.0008
+        ],
+        [
+          5887,
+          0.1828
+        ],
+        [
+          11774,
+          0.3793
+        ],
+        [
+          17661,
+          0.6216
+        ],
+        [
+          23548,
+          0.8261
+        ],
+        [
+          29406,
+          1.0549
+        ],
+        [
+          35293,
+          1.3086
+        ],
+        [
+          41180,
+          1.6208
+        ],
+        [
+          47067,
+          1.7856
+        ],
+        [
+          52954,
+          2.2344
+        ],
+        [
+          58841,
+          2.4689
+        ],
+        [
+          64728,
+          2.7929
+        ],
+        [
+          70615,
+          3.2721
+        ],
+        [
+          76473,
+          3.5998
+        ],
+        [
+          82360,
+          4.1253
+        ],
+        [
+          88247,
+          5.3717
+        ],
+        [
+          94134,
+          5.3517
+        ],
+        [
+          100021,
+          5.5635
+        ],
+        [
+          105908,
+          7.0444
+        ],
+        [
+          111795,
+          7.0663
+        ],
+        [
+          117682,
+          7.2293
+        ],
+        [
+          123540,
+          7.7643
+        ],
+        [
+          129427,
+          9.0111
+        ],
+        [
+          135314,
+          8.8534
+        ],
+        [
+          141201,
+          9.5831
+        ],
+        [
+          147088,
+          10.521
+        ],
+        [
+          152975,
+          10.6072
+        ],
+        [
+          158862,
+          11.0007
+        ],
+        [
+          164749,
+          11.3768
+        ],
+        [
+          170636,
+          12.0063
+        ],
+        [
+          176494,
+          12.566
+        ],
+        [
+          182381,
+          12.2286
+        ],
+        [
+          188268,
+          12.7288
+        ],
+        [
+          194155,
+          14.2167
+        ],
+        [
+          200042,
+          14.4735
+        ],
+        [
+          205929,
+          15.194
+        ],
+        [
+          211816,
+          15.1337
+        ],
+        [
+          217703,
+          17.0071
+        ],
+        [
+          223561,
+          17.5195
+        ],
+        [
+          229448,
+          17.4527
+        ],
+        [
+          235335,
+          17.3535
+        ],
+        [
+          241222,
+          19.8324
+        ],
+        [
+          247109,
+          19.3567
+        ],
+        [
+          252996,
+          19.0069
+        ],
+        [
+          258883,
+          21.3161
+        ],
+        [
+          264770,
+          20.6837
+        ],
+        [
+          270628,
+          22.8099
+        ],
+        [
+          276515,
+          22.1597
+        ],
+        [
+          282402,
+          23.6854
+        ],
+        [
+          288289,
+          24.0148
+        ],
+        [
+          294176,
+          23.7702
+        ],
+        [
+          300063,
+          24.3309
+        ],
+        [
+          305950,
+          25.6373
+        ],
+        [
+          311837,
+          26.3984
+        ],
+        [
+          317695,
+          26.287
+        ],
+        [
+          323582,
+          27.0804
+        ],
+        [
+          329469,
+          27.785
+        ],
+        [
+          335356,
+          28.3591
+        ],
+        [
+          341243,
+          29.355
+        ],
+        [
+          347130,
+          33.9126
+        ],
+        [
+          353017,
+          31.3813
+        ]
+      ]
+    },
+    "never_frozen_control": {
+      "n_tiles": 5000,
+      "n_tiles_recorded": 5000,
+      "accumulated_cells": 64090,
+      "n_freezes": 0,
+      "collect_total_s": 81.1978,
+      "collect_first_ms": 12.3184,
+      "collect_last5pct_mean_ms": 21.2091,
+      "collect_mean_ms": 16.2396,
+      "freeze_total_s": 0.0,
+      "freeze_mean_ms": 0.0,
+      "freeze_max_ms": 0.0,
+      "combined_total_s": 81.1978,
+      "curve": [
+        [
+          0,
+          12.3184
+        ],
+        [
+          1073,
+          12.3864
+        ],
+        [
+          2117,
+          12.3335
+        ],
+        [
+          3190,
+          12.6275
+        ],
+        [
+          4263,
+          12.9735
+        ],
+        [
+          5307,
+          12.8752
+        ],
+        [
+          6380,
+          13.0214
+        ],
+        [
+          7453,
+          13.078
+        ],
+        [
+          8526,
+          13.1936
+        ],
+        [
+          9570,
+          13.3055
+        ],
+        [
+          10643,
+          13.4796
+        ],
+        [
+          11716,
+          14.4768
+        ],
+        [
+          12760,
+          13.8358
+        ],
+        [
+          13833,
+          13.7055
+        ],
+        [
+          14906,
+          13.9081
+        ],
+        [
+          15950,
+          14.0731
+        ],
+        [
+          17023,
+          14.0557
+        ],
+        [
+          18096,
+          14.7571
+        ],
+        [
+          19140,
+          14.4107
+        ],
+        [
+          20213,
+          14.7975
+        ],
+        [
+          21286,
+          14.8783
+        ],
+        [
+          22330,
+          14.886
+        ],
+        [
+          23403,
+          14.7817
+        ],
+        [
+          24476,
+          14.899
+        ],
+        [
+          25549,
+          15.0841
+        ],
+        [
+          26593,
+          15.237
+        ],
+        [
+          27666,
+          15.2683
+        ],
+        [
+          28739,
+          15.785
+        ],
+        [
+          29783,
+          15.5421
+        ],
+        [
+          30856,
+          16.3819
+        ],
+        [
+          31929,
+          15.7955
+        ],
+        [
+          32973,
+          15.9579
+        ],
+        [
+          34046,
+          15.8628
+        ],
+        [
+          35119,
+          17.3789
+        ],
+        [
+          36163,
+          16.094
+        ],
+        [
+          37236,
+          17.0859
+        ],
+        [
+          38309,
+          16.382
+        ],
+        [
+          39353,
+          17.2509
+        ],
+        [
+          40426,
+          16.8524
+        ],
+        [
+          41499,
+          17.2987
+        ],
+        [
+          42543,
+          17.035
+        ],
+        [
+          43616,
+          24.0814
+        ],
+        [
+          44689,
+          17.7483
+        ],
+        [
+          45762,
+          20.7319
+        ],
+        [
+          46806,
+          18.9126
+        ],
+        [
+          47879,
+          18.8109
+        ],
+        [
+          48952,
+          17.6099
+        ],
+        [
+          49996,
+          18.1439
+        ],
+        [
+          51069,
+          18.4052
+        ],
+        [
+          52142,
+          17.8708
+        ],
+        [
+          53186,
+          17.9448
+        ],
+        [
+          54259,
+          18.1255
+        ],
+        [
+          55332,
+          20.4092
+        ],
+        [
+          56376,
+          18.6919
+        ],
+        [
+          57449,
+          18.8706
+        ],
+        [
+          58522,
+          18.5876
+        ],
+        [
+          59566,
+          18.7101
+        ],
+        [
+          60639,
+          18.7648
+        ],
+        [
+          61712,
+          18.8702
+        ],
+        [
+          62785,
+          24.5628
+        ],
+        [
+          63829,
+          23.8285
+        ]
+      ]
+    },
+    "climb_factor_first_to_last": 39023.1
+  },
+  "exp1_freeze_cost": {
+    "runs": {
+      "every_1_tiles": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 27565,
+        "collect_total_s": 0.0023,
+        "collect_first_ms": 0.0005,
+        "collect_last5pct_mean_ms": 0.0001,
+        "collect_mean_ms": 0.0001,
+        "freeze_total_s": 0.001189,
+        "freeze_mean_ms": 4.3e-05,
+        "freeze_max_ms": 0.001875,
+        "combined_total_s": 0.0035
+      },
+      "every_10_tiles": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 2756,
+        "collect_total_s": 0.0415,
+        "collect_first_ms": 0.0003,
+        "collect_last5pct_mean_ms": 0.0015,
+        "collect_mean_ms": 0.0015,
+        "freeze_total_s": 0.000151,
+        "freeze_mean_ms": 5.5e-05,
+        "freeze_max_ms": 0.000227,
+        "combined_total_s": 0.0417
+      },
+      "every_100_tiles": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 275,
+        "collect_total_s": 0.5777,
+        "collect_first_ms": 0.0004,
+        "collect_last5pct_mean_ms": 0.0171,
+        "collect_mean_ms": 0.021,
+        "freeze_total_s": 2.4e-05,
+        "freeze_mean_ms": 8.8e-05,
+        "freeze_max_ms": 0.000265,
+        "combined_total_s": 0.5777
+      },
+      "every_1000_tiles": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 27,
+        "collect_total_s": 6.5127,
+        "collect_first_ms": 0.0005,
+        "collect_last5pct_mean_ms": 0.2104,
+        "collect_mean_ms": 0.2363,
+        "freeze_total_s": 1.6e-05,
+        "freeze_mean_ms": 0.000596,
+        "freeze_max_ms": 0.000816,
+        "combined_total_s": 6.5127
+      }
+    },
+    "freeze_mean_ms_by_cadence": {
+      "every_1_tiles": 4.3e-05,
+      "every_10_tiles": 5.5e-05,
+      "every_100_tiles": 8.8e-05,
+      "every_1000_tiles": 0.000596
+    },
+    "max_over_min_freeze_cost": 13.86,
+    "note": "cadence 1 freezes ~29 objects/call, cadence 1000 ~29,000; a flat per-call cost across the four is evidence freeze is O(1) in both the cumulative and the new-object count"
+  },
+  "exp2_cadence_sweep": {
+    "by_tile_count": {
+      "1": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 27565,
+        "collect_total_s": 0.0022,
+        "collect_first_ms": 0.0008,
+        "collect_last5pct_mean_ms": 0.0001,
+        "collect_mean_ms": 0.0001,
+        "freeze_total_s": 0.001232,
+        "freeze_mean_ms": 4.5e-05,
+        "freeze_max_ms": 0.001518,
+        "combined_total_s": 0.0035
+      },
+      "5": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 5513,
+        "collect_total_s": 0.0198,
+        "collect_first_ms": 0.0005,
+        "collect_last5pct_mean_ms": 0.0007,
+        "collect_mean_ms": 0.0007,
+        "freeze_total_s": 0.000289,
+        "freeze_mean_ms": 5.2e-05,
+        "freeze_max_ms": 0.002046,
+        "combined_total_s": 0.0201
+      },
+      "25": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 1102,
+        "collect_total_s": 0.1047,
+        "collect_first_ms": 0.0005,
+        "collect_last5pct_mean_ms": 0.0038,
+        "collect_mean_ms": 0.0038,
+        "freeze_total_s": 7.4e-05,
+        "freeze_mean_ms": 6.7e-05,
+        "freeze_max_ms": 0.002045,
+        "combined_total_s": 0.1047
+      },
+      "100": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 275,
+        "collect_total_s": 0.49,
+        "collect_first_ms": 0.0004,
+        "collect_last5pct_mean_ms": 0.0171,
+        "collect_mean_ms": 0.0178,
+        "freeze_total_s": 2.5e-05,
+        "freeze_mean_ms": 9e-05,
+        "freeze_max_ms": 0.000215,
+        "combined_total_s": 0.49
+      },
+      "500": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 55,
+        "collect_total_s": 2.9415,
+        "collect_first_ms": 0.0004,
+        "collect_last5pct_mean_ms": 0.1176,
+        "collect_mean_ms": 0.1067,
+        "freeze_total_s": 1.9e-05,
+        "freeze_mean_ms": 0.000354,
+        "freeze_max_ms": 0.000894,
+        "combined_total_s": 2.9416
+      },
+      "2000": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 13,
+        "collect_total_s": 12.0718,
+        "collect_first_ms": 0.0005,
+        "collect_last5pct_mean_ms": 0.3699,
+        "collect_mean_ms": 0.4379,
+        "freeze_total_s": 8e-06,
+        "freeze_mean_ms": 0.000634,
+        "freeze_max_ms": 0.000802,
+        "combined_total_s": 12.0718
+      },
+      "none": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 0,
+        "collect_total_s": 416.6925,
+        "collect_first_ms": 0.0005,
+        "collect_last5pct_mean_ms": 34.6491,
+        "collect_mean_ms": 15.1167,
+        "freeze_total_s": 0.0,
+        "freeze_mean_ms": 0.0,
+        "freeze_max_ms": 0.0,
+        "combined_total_s": 416.6925
+      }
+    },
+    "by_cell_count": {
+      "100": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 3046,
+        "collect_total_s": 0.0306,
+        "collect_first_ms": 0.0003,
+        "collect_last5pct_mean_ms": 0.0011,
+        "collect_mean_ms": 0.0011,
+        "freeze_total_s": 0.000169,
+        "freeze_mean_ms": 5.6e-05,
+        "freeze_max_ms": 0.000207,
+        "combined_total_s": 0.0307
+      },
+      "500": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 676,
+        "collect_total_s": 0.1639,
+        "collect_first_ms": 0.0003,
+        "collect_last5pct_mean_ms": 0.006,
+        "collect_mean_ms": 0.0059,
+        "freeze_total_s": 4.4e-05,
+        "freeze_mean_ms": 6.6e-05,
+        "freeze_max_ms": 0.000295,
+        "combined_total_s": 0.164
+      },
+      "2000": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 176,
+        "collect_total_s": 0.7571,
+        "collect_first_ms": 0.0004,
+        "collect_last5pct_mean_ms": 0.0282,
+        "collect_mean_ms": 0.0275,
+        "freeze_total_s": 1.6e-05,
+        "freeze_mean_ms": 9.1e-05,
+        "freeze_max_ms": 0.000353,
+        "combined_total_s": 0.7571
+      },
+      "10000": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 35,
+        "collect_total_s": 4.2918,
+        "collect_first_ms": 0.0002,
+        "collect_last5pct_mean_ms": 0.1625,
+        "collect_mean_ms": 0.1557,
+        "freeze_total_s": 1.9e-05,
+        "freeze_mean_ms": 0.000552,
+        "freeze_max_ms": 0.000842,
+        "combined_total_s": 4.2918
+      },
+      "50000": {
+        "n_tiles": 27565,
+        "n_tiles_recorded": 27565,
+        "accumulated_cells": 353336,
+        "n_freezes": 7,
+        "collect_total_s": 27.8329,
+        "collect_first_ms": 0.0003,
+        "collect_last5pct_mean_ms": 1.5003,
+        "collect_mean_ms": 1.0097,
+        "freeze_total_s": 8e-06,
+        "freeze_mean_ms": 0.001085,
+        "freeze_max_ms": 0.003283,
+        "combined_total_s": 27.8329
+      }
+    }
+  },
+  "probe_wall_s": 926.6
+}

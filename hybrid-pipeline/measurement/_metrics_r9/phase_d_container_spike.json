@@ -1,0 +1,85 @@
+{
+  "side": 16384,
+  "gigapixels": 0.2684,
+  "tile": 128,
+  "workers": 8,
+  "results": {
+    "A_pyvips_tiffsave": {
+      "wall_s": 2.84,
+      "level0_pixel_identical": true,
+      "bigtiff": true,
+      "tiled": true,
+      "compression": "5",
+      "n_pages": 8,
+      "resolution": "(13316915, 524288)",
+      "bytes": 42376880,
+      "mp_per_s": 94.5,
+      "speedup_vs_pyvips": 1.0
+    },
+    "B_tifffile_cpu": {
+      "wall_s": 2.028,
+      "pyramid_s": 1.01,
+      "encode_s": 0.996,
+      "container_s": 0.022,
+      "levels": 8,
+      "level0_pixel_identical": true,
+      "all_levels_pixel_identical": true,
+      "corrupt_levels": [],
+      "bigtiff": true,
+      "tiled": true,
+      "compression": "5",
+      "n_pages": 8,
+      "resolution": "(127, 5)",
+      "bytes": 42097647,
+      "mp_per_s": 132.4,
+      "speedup_vs_pyvips": 1.4004,
+      "shape_vs_baseline": {
+        "baseline_pages": 8,
+        "candidate_pages": 8,
+        "pages_match": true,
+        "baseline_tile": [
+          128,
+          128
+        ],
+        "candidate_tile": [
+          128,
+          128
+        ],
+        "tile_match": true
+      }
+    },
+    "C_tifffile_gpu_pyramid": {
+      "wall_s": 1.323,
+      "pyramid_s": 0.081,
+      "encode_s": 1.222,
+      "container_s": 0.021,
+      "levels": 8,
+      "level0_pixel_identical": true,
+      "all_levels_pixel_identical": true,
+      "corrupt_levels": [],
+      "bigtiff": true,
+      "tiled": true,
+      "compression": "5",
+      "n_pages": 8,
+      "resolution": "(127, 5)",
+      "bytes": 42147023,
+      "mp_per_s": 202.9,
+      "speedup_vs_pyvips": 2.1466,
+      "shape_vs_baseline": {
+        "baseline_pages": 8,
+        "candidate_pages": 8,
+        "pages_match": true,
+        "baseline_tile": [
+          128,
+          128
+        ],
+        "candidate_tile": [
+          128,
+          128
+        ],
+        "tile_match": true
+      }
+    }
+  },
+  "nvimgcodec_finding": "TIFF encoder refuses tiling ('Tiling is not supported with TIFF encoder'); strip layout is internal (~8 KB/strip: RowsPerStrip 10/5/2/1 at 256/512/1024/4096 px). Tiled pre-compressed passthrough is therefore impossible from nvImageCodec output."
+}
