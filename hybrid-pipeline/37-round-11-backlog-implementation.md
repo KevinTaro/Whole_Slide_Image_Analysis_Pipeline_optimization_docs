@@ -493,7 +493,7 @@ This round's own artefacts are kept: `/home/taro/r11_step1{,b,c,d}/_metrics/` (3
 |---|---|
 | Step 1 — `B1_m3b_cellpose` +751 s | **MEASURED — regression does not reproduce at crop scale (+1.24%, not +11.8%).** `d6592c3` exonerated by measurement (`B1_unet_coremask` +0.02% with read placement held fixed); `e806938` was already exonerated by diff. 221 s of the 751 s attributed to Option L contention, confirmed at both scales with a coefficient that transfers within 4%. **530 s remains unattributed** and is inside this machine's measured run-to-run drift band (§4.2) |
 | Step 2 — post-fail-fast hang | **FIXED**, with a stack trace, not a hypothesis. `workers=4` fail-fast exit latency **never → 0.32 s** (`task_q.cancel_join_thread()`). A second defect found and fixed: `PrecutStream` cut the entire slide after the batch was abandoned (576/576 measured). 3 tests, verified to fail pre-fix. **The `workers=1` hang did NOT reproduce** at crop *or* full-slide scale and is not fixed |
-| Step 3 — `expandable_segments` at `workers=4` | **SWEPT — the knob works.** Control **4 OOM / 12** (three byte-identical 24.76 GiB balloons), `expandable_segments:True` **0 / 12**, Fisher p = 0.047. Costs +0.67% wall, nothing in RSS, and raises **peak framebuffer to 92.2% of the card**. Recommended for `workers>1`; `config_example.py` default deliberately **not** flipped by a measurement round |
+| Step 3 — `expandable_segments` at `workers=4` | **SWEPT and SHIPPED (§9).** Control **4 OOM / 12** (three byte-identical 24.76 GiB balloons), `expandable_segments:True` **0 / 12**, Fisher p = 0.047. Costs +0.67% wall, nothing in RSS, and raises **peak framebuffer to 92.2% of the card**. Default flipped in `config_example.py` and the live `config.py`; doc 27 §6.6's hardware floor restated alongside it, not silently inherited |
 | Step 4 — full-slide `--no-prefetch` | **DONE — 10,666.1 s. Option K settled at 1.044×, not 1.208×.** The read bucket is **449.3 s inline, down 81.0% from the baseline's 2,368.5 s at identical placement** — doc 27 §6.4's page-cache diagnosis confirmed, and doc 33's headline "17.2% of wall" shown to belong to a superseded write pattern. Option L hides 448.4 s of a 449.3 s cost: **99.8% of a ceiling that is now 4.21%** |
 | Step 5 — Phase D Phase 2, `depth=2/3`, QuPath pass | **No action**, as doc 36 §2.5 specified. Note §4.1 undercuts the *inputs* to doc 35 §5's `depth=2/3` arithmetic, which strengthens rather than reopens its "not worth building" conclusion |
 | Correctness veto | **PASSED everywhere.** `stats` identical in all 18 step-1 runs, all 20 successful step-3 runs, and the full-slide run (10,800 / 16,765, matching round 10). Overlay pyramid audits clean at every level. 79 tests pass |
@@ -502,11 +502,8 @@ This round's own artefacts are kept: `/home/taro/r11_step1{,b,c,d}/_metrics/` (3
 
 Ordered by what a next round should actually do first.
 
-1. **Decide whether `cuda_alloc_conf = "expandable_segments:True"` becomes the default** (§3). The
-   measurement doc 27 built the knob for now exists and it is one-sided: 4/12 → 0/12 failures for
-   +0.67% wall. What holds it back is not evidence but ownership — it changes production VRAM
-   behaviour, and it raises peak framebuffer to 92.2% of a 32 GB card, so the hardware floor
-   argument in doc 27 §6 needs re-stating alongside it rather than quietly inheriting.
+1. ~~Decide whether `cuda_alloc_conf = "expandable_segments:True"` becomes the default~~ —
+   **done, see §9.**
 2. **`B2r_tile_read` is 4.21% of wall and Option L captures 99.8% of it (§4.1).** Every read-side
    item in the backlog was sized against 17.2%. Re-read doc 30/33/35's read-side reasoning with
    449.3 s in hand before spending anything else there — including doc 35 §5's `depth=2/3`, whose
@@ -531,3 +528,45 @@ Ordered by what a next round should actually do first.
 7. **`scripts/exit_latency_probe.py` is new and belongs in the pre-release checks.** Exit latency is
    invisible to every wall-clock benchmark this project runs, and the defect it found converted a
    correct abort into an unattended job that never returned. Cheap to run: ~90 s.
+
+## 9. Decision — `cuda_alloc_conf` default flipped to `expandable_segments:True`
+
+Follow-up 1 above is closed within this round rather than carried forward, on explicit direction:
+§3's measurement is one-sided (4/12 → 0/12 failures for +0.67% wall) and what was holding the default
+back was ownership of a production VRAM decision, not missing evidence. That ownership question is
+now answered, so the change ships here rather than waiting for a round that would only re-read §3.
+
+**What changed**: `cuda_alloc_conf: str = ""` → `"expandable_segments:True"` in both
+`backend/algorithms/hybrid/config_example.py` and the live, gitignored `config.py` on this machine —
+the latter matters because `config.py` already existed before this round (`cp`'d once, per
+`CLAUDE.md`), so editing only the example would not change what `run_batch(workers>1)` actually does
+here. `tests/test_config_parity.py` (8 tests) still passes: it checks structural parity between the
+two files, not value equality, and both were edited identically. `cuda_alloc_conf` is already outside
+`compute_config_hash`'s `_HASH_EXCLUDE` set (correctly — it changes allocator arena behaviour, never
+output bytes), so this flip does not perturb any config hash or invalidate any `--resume` checkpoint.
+
+**What did *not* change, deliberately**: nothing in `m0_multiprocess.py`. The knob was already wired
+end to end by doc 27 §5 — `_run_tiles_multiprocess` reads `config.cuda_alloc_conf` and writes it to
+`os.environ["PYTORCH_CUDA_ALLOC_CONF"]` immediately before the workers spawn, only if the caller
+hasn't already set it. Flipping the default is a one-line, two-file config change, not a code change.
+
+**The hardware floor argument, restated rather than inherited.** Doc 27 §6.6 set 32 GB as a hard
+floor for `workers=4` on the strength of one full-slide run peaking at 30,439 MB (93.3%, ~2.2 GB
+headroom) — measured with the knob **off**. That number does not carry over silently now that the
+knob is on, because §3 measured the opposite of what a naive reading of "fixes an OOM" would suggest:
+**`expandable_segments` does not reduce peak VRAM — it raises it**, from a max of 18,193 MB (control)
+to 30,061 MB (expandable) on the very same 12-repeat sweep, at `workers=4`. This is consistent with
+round 8's earlier reading at `workers=6` (doc 27 §5.1): the knob doesn't defragment memory *away*, it
+lets the allocator use segments a stricter policy would refuse, which is exactly why a request that
+previously died with "176 MB unavailable, 293 MB reserved but unallocated" now succeeds — and exactly
+why peak occupancy climbs. **So: doc 27 §6.6's 32 GB floor is not relaxed by this change, it is
+tightened.** With the knob on, `workers=4` production runs should be assumed to sit near 92% of a
+32 GB card as routine behaviour, not as a rare peak. The existing rule — no new GPU library or workload
+added inside the worker pool without re-measuring against this number — carries forward unchanged in
+substance, but the number it must clear is now closer to the ceiling than doc 27 measured it.
+`workers≥5` stays off the table for the same reason it always was, more firmly than before.
+
+**Not re-opened**: doc 27 §5's own round-8 decision to leave the default off. That decision was
+correct for the evidence it had (workers=6, n=6, p≈1.0) — round 11 didn't overturn it by finding a
+mistake, it re-asked the question at the shipped worker count with double the sample and got a
+different, resolvable answer. Both rounds' measurements stand as written; only the default changes.
