@@ -39,6 +39,7 @@
 | 10 | [10-viewer-ui-implementation.md](10-viewer-ui-implementation.md) | **實作現況**：tile server + React 切片工作台改了哪些檔 | 想知道現在有什麼 |
 | 11 | [11-runbook-teammate.md](11-runbook-teammate.md) | **照做把 UI 跑起來**（後端 + 前端 + 操作 + 踩雷表） | 要在自己機器上跑 |
 | 12 | [12-env-setup.md](12-env-setup.md) | **從零重建 `tsgh311` 環境**（conda 原生層 + pip 層，Windows） | 機器上還沒有環境時 |
+| 13 | [13-numpy2-migration-and-analysis-ui.md](13-numpy2-migration-and-analysis-ui.md) | **numpy 2 遷移 + Windows 可跑化 + 分析（hybrid）UI 與 ROI**：改了哪些檔、驗證紀錄、還沒做的 | 接手分析 UI 或環境炸掉時 |
 | — | [architecture-diagram.html](architecture-diagram.html) | 視覺化：分層圖、請求流程、座標邊界、護欄紅線 | 想看圖的時候（瀏覽器開） |
 
 ---
