@@ -8,10 +8,14 @@
 > [`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md).
 >
 > **Baseline:** git `96a28ba`, fully serial `run_batch` (one tile at a time, no optimizations),
-> `_metrics/`. **Current:** round 8, config hash `3d1087f2` (unchanged since round 7). Same machine
-> (RTX 5090 / CUDA 13.0, torch 2.11.0+cu130), same `scripts/perf_measure.py` harness. Full round-8
-> record: [`../27-remaining-work-implementation.md`](../27-remaining-work-implementation.md);
-> round-by-round narrative lives in
+> `_metrics/`. **Current:** round 11 (2026-07-29), config hash `3d1087f2` (unchanged since round 7;
+> `cuda_alloc_conf` still defaults to `""` — round 11 recommends `"expandable_segments:True"` for
+> `workers>1` but that default has not been flipped). Same machine (RTX 5090 / CUDA 13.0,
+> torch 2.11.0+cu130), same `scripts/perf_measure.py` harness. Full record: round 8
+> [`../27-remaining-work-implementation.md`](../27-remaining-work-implementation.md), round 9
+> [`../31`](../31-gc-collect-round2-implementation.md)–[`../33`](../33-tile-read-io-implementation.md),
+> round 10 [`../35`](../35-round-10-backlog-implementation.md), round 11
+> [`../37`](../37-round-11-backlog-implementation.md); round-by-round narrative lives in
 > [`current-status-comparison-history.md`](./current-status-comparison-history.md), not here.
 
 ## 1. Headline — end-to-end anchors
@@ -45,44 +49,58 @@ duplicated here to avoid the two files drifting apart.
 | | baseline | current (crop scale) | current (real full slide) |
 |---|--:|--:|--:|
 | VRAM peak | 5159 MB (large/441) | **2787 MB** (single-process; grows superlinearly with `workers`, see `bottleneck-list.md` "Memory") | **2,739 MB (`workers=1`) / 30,439 MB (`workers=4`, 93.3% of the 32,607 MB card)** |
-| peak RSS | 4.04 GB (large/441) | ~3.9 GB (tracks accumulated cell count, not tile count) | **61.13 GB (`workers=1`) / 61.67 GB (`workers=4`)** |
+| peak RSS | 4.04 GB (large/441) | ~3.9 GB (tracks accumulated cell count, not tile count) | **61.13 GB (`workers=1`) / 61.67 GB (`workers=4`), round 8; 60.04–60.17 GB (`workers=1`), rounds 10–11 after `d6592c3` removed 275 GB/slide of per-tile writes** |
 
 Host requirements implied by the real full-slide numbers: ~64 GB RAM, ~32 GB VRAM for `workers=4`,
 ~350 GB disk/slide, `RLIMIT_NOFILE` ≥ ~28,000. Full detail:
-[`27-...`](../27-remaining-work-implementation.md) §6.4/§6.6.
+[`27-...`](../27-remaining-work-implementation.md) §6.4/§6.6. `workers=4` RSS/VRAM have not been
+re-measured since round 8.
 
-## 4. Full-WSI — real measured run (27,565 tiles, 16.2 gigapixels)
+## 4. Full-WSI — real measured runs (27,565 tiles, 16.2 gigapixels)
 
-| | baseline (extrapolated) | current (`workers=1`) | current (`workers=4`) |
-|---|--:|--:|--:|
-| end-to-end wall | ~18.9 h | **13,762 s = 3.82 h** | **6,211 s = 1.73 h** (2.216x speedup) |
-| success / skipped tiles | — | 10,801 / 16,764 | 10,800 / 16,765 |
-| `report.csv` rows | — | 356,255 | 356,221 (**−0.01%**, within the correctness-veto noise floor) |
-| Phase D stitch | — | 1,185.4 s (8.6% of wall) | 1,200.8 s (19.3% of wall) |
+| | baseline (extrapolated) | round 8 (`workers=1`) | round 8 (`workers=4`) | round 10 (`workers=1`, prefetch on) | round 11 (`workers=1`, prefetch off) |
+|---|--:|--:|--:|--:|--:|
+| end-to-end wall | ~18.9 h | **13,762.5 s = 3.82 h** | **6,211 s = 1.73 h** (2.216x speedup) | **10,217.7 s = 2.84 h** (1.347×) | **10,666.1 s = 2.96 h** (1.290×) |
+| success / skipped tiles | — | 10,801 / 16,764 | 10,800 / 16,765 | 10,800 / 16,765 | 10,800 / 16,765 |
+| `report.csv` rows | — | 356,255 | 356,221 (**−0.01%**, within the correctness-veto noise floor) | — | 356,226 |
+| `B4_gc_collect` | — | 2,218.4 s (16.1%) | — | **58.8 s** (−97.3%) | **19.5 s** |
+| `B2r_tile_read` | — | 2,368.5 s (17.2%) | — | 1,581.2 s (confounded, see note) | **449.3 s (4.21%)** — the settled number |
+| Phase D stitch | — | 1,185.4 s (8.6% of wall) | 1,200.8 s (19.3% of wall) | — | 1,239.2 s (11.6% of wall) |
+| peak RSS | — | 61.13 GB | 61.67 GB | 60.04 GB | 60.17 GB |
 
-Baseline is a 3-tile crop extrapolation, upper bound, never run at full scale; current is the real
-measured run — see [`19-open-backlog.md`](../19-open-backlog.md) item 7 (closed) and
-[`27-...`](../27-remaining-work-implementation.md) §6 for the full record. Registration emits a
-different canvas per modality; `scripts/full_wsi_validate.py --conform` crops the pair to their
-intersection (99.86% retained) before a run can start.
+Baseline is a 3-tile crop extrapolation, upper bound, never run at full scale; round 8 is the first
+real measured run — see [`19-open-backlog.md`](../19-open-backlog.md) item 7 (closed) and
+[`27-...`](../27-remaining-work-implementation.md) §6 for the full record. **Rounds 10/11 both run
+on code that already includes `d6592c3`** (removed 275 GB/slide of per-tile intermediate writes
+present in the round-8 baseline) — round 10 had Option L's read prefetch on and its `B2r_tile_read`
+number is confounded by the write removal (an upper bound, 1.208×); round 11 ablated the prefetch
+to isolate Option K cleanly and found the real cost is **4.21% of wall, not 17.2%** — the round-8
+figure was inflated 5.3× by page-cache pressure from the now-removed writes, not intrinsic I/O. See
+[`35-round-10-backlog-implementation.md`](../35-round-10-backlog-implementation.md) §4 and
+[`37-round-11-backlog-implementation.md`](../37-round-11-backlog-implementation.md) §4 for the full
+record. `workers=4` has not been re-run since round 8. Registration emits a different canvas per
+modality; `scripts/full_wsi_validate.py --conform` crops the pair to their intersection
+(99.86% retained) before a run can start.
 
 ## 5. What is still worth optimizing
 
 See [`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md) for the ranked, complete
-list. Top items, current state:
+list. As of round 11, **the three largest items round 8 left open are all closed**: `gc.collect`
+(shipped and confirmed at full scale twice), Phase D GPU port (spiked, reversed at real scale, and
+closed negative), and tile read (shipped and settled — the "17.2%" it was sized against was itself
+5.3× inflated by a confound since removed). What's left with any real size:
 
-1. **`gc.collect` at full-slide scale — 16.1% of wall.** `run_batch`'s accumulating
-   `per_tile_owned` results are created after `gc.freeze()` and fully tracked, so every one of
-   27,565 collections rescans 356,255 objects by the end. Most attractive open target in the
-   pipeline. [`27-...`](../27-remaining-work-implementation.md) §6.4.
-2. **Phase D GPU port — ceiling ~1.24x.** Cheap `tiffsave` knobs are closed negative (the one
-   winner, `zstd`, is unreadable by QuPath/BioFormats and vetoed); the real stitch is 19.3% of wall
-   at `workers=4`. Largest single remaining lever. [`27-...`](../27-remaining-work-implementation.md) §3, §6.6.
-3. **Tile read (`B2r_tile_read`) — 17.2% of wall at full scale.** The ~49 GB precut scratch no
-   longer fits page cache at full-slide scale. [`27-...`](../27-remaining-work-implementation.md) §6.4.
-4. **`workers≥6` allocator-fragmentation OOM** — candidate fix (`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`)
-   does not reduce peak VRAM; root-causing the 24.76 GiB balloon directly is the next step, not
-   more allocator flags. [`19-open-backlog.md`](../19-open-backlog.md) #7b.
+1. **Allocator-fragmentation OOM, mitigated but not defaulted-on.** `expandable_segments:True`
+   eliminates the intermittent 24.76 GiB balloon at the shipped `workers=4` (4/12 → 0/12 OOM,
+   +0.67% wall) but raises peak framebuffer to 92.2% of the card; recommended, not yet the shipped
+   default. [`19-open-backlog.md`](../19-open-backlog.md) #7b, [`37-...`](../37-round-11-backlog-implementation.md) §3.
+2. **`B1_m3b_cellpose`'s 530 s residual** (round 10 vs round 8 baseline) — mostly explained as
+   Option L prefetch-contention accounting (221 s), the rest inside this machine's measured
+   run-to-run drift band; nothing currently depends on resolving it further.
+   [`37-...`](../37-round-11-backlog-implementation.md) §1.
+3. Everything else closed in round 8 or earlier (`gc.collect`, Phase D, tile read, cross-tile
+   multiprocessing) has **no further open engineering** — see
+   [`bottleneck-list.md`](./bottleneck-list.md) for the live, one-row-per-item ledger.
 
 ## 6. Reproduce
 
