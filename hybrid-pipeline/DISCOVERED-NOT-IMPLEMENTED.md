@@ -39,6 +39,26 @@
 > [`34`](./34-round-10-backlog-plan.md)/[`35`](./35-round-10-backlog-implementation.md) (round 10),
 > [`36`](./36-round-11-backlog-plan.md)/[`37`](./37-round-11-backlog-implementation.md) (round 11),
 > and the current-state summary in [`measurement/bottleneck-list.md`](./measurement/bottleneck-list.md).
+>
+> **Rounds 12–15 (2026-07-29 → 2026-08-01)**, also not re-audited item-by-item, reverse or close
+> three more entries: **#6** (Phase D GPU port, closed negative above) is **reopened and shipped**
+> — round 12 built the missing pipelined-read lever, round 13 shipped it as the default
+> (`config.stitch_backend = "tifffile"`), measured at full scale 1.913x on Phase D / 1.200x
+> end-to-end. **#1** (cross-tile multiprocessing)'s round-8 "2.216x" is **revised to 1.745x**
+> (round 12 re-measurement) then to a scale-dependent **2.05x–2.36x** on the corrected canvas
+> (round 15). **A new item**: round 14 systematically closed a GPU↔CPU data-transfer investigation
+> at `workers>1` negative across all three of its candidates (disk read contention, Cellpose
+> `_from_device`, pinned memory) — no code changed, see
+> [`43-round-14-gpu-cpu-transfer-implementation.md`](./43-round-14-gpu-cpu-transfer-implementation.md).
+> Most consequentially, [`44-conform-intersection-shift-investigation.md`](./44-conform-intersection-shift-investigation.md)
+> found every full-slide run this audit's numbers rest on (rounds 8–14) was measured on an
+> **unregistered** canvas (27,565 tiles / 55.8% background) rather than the correct, registered one
+> (35,700 tiles / 20.94 GP / 65.92% background) — round 15
+> ([`46-round-15-eta-estimation-implementation.md`](./46-round-15-eta-estimation-implementation.md))
+> re-measured the full slide on the corrected canvas (`workers=1` 3.023 h, `workers=4` 1.478 h,
+> peak RSS 13.66 GB) and shipped `scripts/eta_estimate.py` as a first ETA-estimation reference
+> implementation for the UI. See [`../BACKLOG.md`](../BACKLOG.md) §2 for the correctness framing of
+> the canvas finding.
 
 ---
 

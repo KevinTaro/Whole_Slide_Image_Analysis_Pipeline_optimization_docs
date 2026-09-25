@@ -1,8 +1,49 @@
 # Open backlog — everything not done or only partially done
 
 > Single place to look for "what's still owed" across the whole `docs/` tree, so it doesn't
-> have to be reconstructed by reading 37+ hybrid-pipeline docs and the UI handoff packet
-> every time. Compiled 2026-07-22, last updated 2026-07-29 for round 13
+> have to be reconstructed by reading 46+ hybrid-pipeline docs and the UI handoff packet
+> every time. Compiled 2026-07-22, last updated 2026-08-01 for round 15
+> ([`hybrid-pipeline/46-round-15-eta-estimation-implementation.md`](hybrid-pipeline/46-round-15-eta-estimation-implementation.md)):
+> **the tile grid and background share every round since 8 has quoted are wrong** —
+> [`hybrid-pipeline/44-conform-intersection-shift-investigation.md`](hybrid-pipeline/44-conform-intersection-shift-investigation.md)
+> found that every full-slide validation from round 8 through round 14 fed the hybrid pipeline
+> `*_processed.tiff` (Module 1's raw, **unregistered** output — VALIS's own input, not its output);
+> `scripts/full_wsi_validate.py`'s `conform_to_intersection()` cropped IHC/DISH to the same size
+> without aligning them, which let `PrecutStream`'s "IHC size != DISH size" guard pass on
+> misaligned tissue. The fix (round 15) points the pipeline at the already-produced
+> `module4_thumbnail.py` warp output (`her2_warped_lv0.tiff` / `dish_warped_lv0.tiff`,
+> `crop="overlap"`, naturally equal-sized) instead; `conform_to_intersection()` and `--conform`
+> are deleted. **On the correct canvas the slide is 156222×134028, 35,700 tiles, 20.94 gigapixels,
+> 65.92% background** — not the 27,565 tiles / 55.8% every prior round quoted. Tissue tile count is
+> almost unchanged (12,167 vs 12,184, −0.14%) — the extra 29.5% of tiles are background from the
+> larger warped canvas, so per-tissue-tile costs transfer, but every full-slide wall-clock,
+> percentage-of-wall, and RAM/VRAM figure dated round 8–14 was measured on the wrong geometry and
+> was **never valid as clinical output** (the seconds/ratios remain valid as *timing* data — see
+> doc 44's note on this). Round 15 re-ran the full slide on the corrected canvas:
+> **`workers=1` 3.023 h, `workers=4` 1.478 h (2.05x end-to-end)**, peak RSS **13.66 GB** (root
+> `README.md`'s "~60 GB" hardware line is now stale by three rounds — item added below). Round 15
+> also delivered the first real ETA-estimation groundwork for the UI: explicit tissue/background
+> per-tile cost coefficients (0.7298 s / 0.0460 s, 15.9x), this project's first error bars (n=3,
+> CV <1%, confirming several previously-unexplained round-to-round deltas were real effects, not
+> noise), and a discovered Phase D page-cache cliff (11.26 s/GP cached vs 60.90 s/GP cold, 5.41x —
+> the model's Phase D submodel is still ~56% biased low outside the cached range it was fit on).
+> Reference implementation: `scripts/eta_estimate.py` (`fit`/`estimate`), not yet wired into
+> `backend/api/`. **Round 14** (2026-07-30,
+> [`hybrid-pipeline/43-round-14-gpu-cpu-transfer-implementation.md`](hybrid-pipeline/43-round-14-gpu-cpu-transfer-implementation.md))
+> ruled out a GPU↔CPU data-transfer bottleneck at `workers>1` entirely — no pipeline code changed:
+> concurrent tile reads get *cheaper* under 4-way contention (ceiling 1.4%), Cellpose
+> `_from_device`'s 24.2%-of-arm share is 96.3% GPU-wait (four processes queuing kernels on one
+> device, not a transfer cost — real D2H copy is 0.18% of wall), and pinned memory is 14.1x faster
+> in isolation but worth only 0.42% end-to-end. One incidental reliability finding: `workers=4`
+> OOM'd 1 run in 10 at crop scale even with `expandable_segments:True` on — combined headroom
+> across all four workers is ~2.5 GB, not per-worker — filed as a new stability item (see §1 below).
+> **Round 12** ([`39`](hybrid-pipeline/39-round-12-multiprocess-scaling-ceiling-implementation.md))
+> re-measured `workers=4` for the first time since round 8 and found **1.745x, not 2.216x** — the
+> tile-parallel arm itself is unchanged (2.279x, inside the composition ceiling), and the entire
+> shortfall is Phase D stitch, which had grown to 32.3% of the `workers=4` wall. **Round 13**
+> ([`41`](hybrid-pipeline/41-round-13-phase-d-pipelined-stitch-implementation.md)) fixed exactly
+> that — see below, unchanged from the prior update.
+> Previously updated 2026-07-29 for round 13
 > ([`hybrid-pipeline/41-round-13-phase-d-pipelined-stitch-implementation.md`](hybrid-pipeline/41-round-13-phase-d-pipelined-stitch-implementation.md)):
 > **item 1b (Phase D stitch) is SHIPPED and closed** — candidate B's pipelined read is ported into
 > `_stitch_overlay_slide`, confirmed on the real full slide (**1.913x on Phase D, 1.200x
@@ -89,6 +130,7 @@ Summary of what's actually open:
 | 7 | **Full real-WSI-scale validation** | ✅ **DONE (round 8) — CLOSED.** First complete slide this project has ever run, both `workers=1` and `workers=4` | n/a | Every round (1–7) measured only 25/121/441/576-tile crops of a real WSI, never a complete slide end-to-end. Round 8 ran it: **`workers=1` 13,762 s = 3.82h (+47% vs the 2.6h projection), `workers=4` 6,211 s = 1.73h (+38% vs 1.25h), measured speedup 2.216x** (inside round 7's predicted 2.06x–2.17x band), correctness veto passed (356,255 vs 356,221 `report.csv` rows, −0.01%). The composition prediction was right to within one tile (15,385 vs predicted 15,386 background tiles), so the overrun is entirely per-tile-rate, not composition — traced to three numbers this project had already measured and closed on crops that don't hold at production scale: `gc.collect` (16.1% of wall, not ~0), tile read (17.2%, not 1.22%), Phase D stitch (8.6%/19.3%, not 3.5%/7.3%). Peak RSS **61.13–61.67 GB** — a new, previously-unstated host requirement (no prior round exceeded ~4 GB). Preflight also found the registration stage emits a **different canvas per modality** (HER2 141818×114366 vs DISH 141658×114415), which `PrecutStream` fail-fasts on; `scripts/full_wsi_validate.py --conform` crops to the intersection (99.86% retained). The `RLIMIT_NOFILE` sub-item below is closed. Full record: [`27-...`](hybrid-pipeline/27-remaining-work-implementation.md) §6. |
 | 7a | **`_stitch_overlay_slide` opens all 27,565 tiles at once; no `RLIMIT_NOFILE` check** | ✅ **CLOSED (round 8)** | Would have failed on a host with the common 1,024 limit, after the whole slide had been analysed | `_ensure_nofile_limit()` raises the soft limit itself when the hard limit permits, else fails loudly before opening anything; 7 tests. Exercised for real on the full-slide run (12,027 open fds observed mid-stitch) and passed silently. See [`27-...`](hybrid-pipeline/27-remaining-work-implementation.md) §1. |
 | 7b | **Allocator balloon: one worker takes exactly 24.76 GiB and OOM-kills the batch** (first seen `workers≥6`, confirmed at shipped `workers=4` too) | ✅ **Root-caused, mitigated (round 11), and the default is now flipped on** (commit `b3fa47d`) | reliability, not speed | Earlier `workers≥6`-scale sweeps found `expandable_segments:True` didn't reduce peak VRAM and cost +2.0% wall. **Round 11 re-swept it properly at the shipped `workers=4` — 12 interleaved reps each**: control **4/12 OOM (33%)**, three of the four byte-identical to the earlier signature; knob **0/12** (Fisher p=0.047), cost **+0.67% wall**, but raises peak GPU framebuffer to **92.2% of the card**. **`config.cuda_alloc_conf` now defaults to `"expandable_segments:True"`** — round 11 deliberately left the flip as a separate deployment decision, and commit `b3fa47d` made it. On the real full slide (round 8), `workers=4` peaked at **93.3% of the card** (~2.2 GB headroom) even without the knob; the knob trades that headroom for the OOM fix, so doc 27 §6's 32 GB hard floor still applies — and `workers≥5` is correspondingly further off the table ([`38-...`](hybrid-pipeline/38-round-12-multiprocess-scaling-ceiling-plan.md) §1.4). See [`23-...`](hybrid-pipeline/23-next-optimization-cycle-implementation.md) §4.6/§6, [`27-...`](hybrid-pipeline/27-remaining-work-implementation.md) §5, [`37-...`](hybrid-pipeline/37-round-11-backlog-implementation.md) §3. |
+| 7c | **`workers=4` OOM'd 1 run in 10 at crop scale, even with `expandable_segments:True` on** | 🟡 **New (round 14), not investigated further** | reliability, not speed | Incidental finding while measuring GPU↔CPU transfer contention (not the round's target): one of eight `workers=4` ablation arms died allocating 48 MiB with three siblings holding 30.15 GiB combined (one ballooned to 11.55 GiB against peers' 9.30 GiB). Confirms doc 42 §1's "~2.5 GB of headroom across all four workers combined, not per worker" and is a production fail-fast risk at the shipped default, on a crop **48× smaller than a full slide**. Not fixed, not sized further — recorded so it isn't lost. See [`43-...`](hybrid-pipeline/43-round-14-gpu-cpu-transfer-implementation.md) §5. |
 | 10 | **Post-fail-fast / post-completion process hang** | ✅ **`workers=4` case FIXED (round 11); `workers=1` case not reproduced** | reliability, not speed | Round 10 hit two unattended hangs (49 min after a `workers=4` fail-fast, 2 h after a clean `workers=1` completion) invisible to every wall-clock benchmark. Round 11's `scripts/exit_latency_probe.py` found the `workers=4` mechanism (a terminated worker's queue feeder thread blocks forever, joined by `multiprocessing`'s atexit handler) and fixed it with `task_q.cancel_join_thread()` — exit latency never → 0.32 s. A second defect found by the same probe (`PrecutStream` kept cutting the whole remaining slide after an abandoned batch) is also fixed. The `workers=1` hang did not reproduce at crop or full-slide scale. See [`37-...`](hybrid-pipeline/37-round-11-backlog-implementation.md) §2. |
 | 11 | **`B1_m3b_cellpose` +751 s / +11.8% regression** (round 10 full-slide run vs. round 8 baseline) | 🟡 **Mostly explained (round 11); 530 s residual unattributed, low priority** | n/a — attribution question | Both named suspects ruled out by direct measurement; the actual driver is Option L's prefetch inflating main-thread wall-clock buckets via GIL contention (not new GPU work) — a measured coefficient explains 221 s (29.5%) of the 751 s. The remaining 530 s sits inside this project's first directly-measured full-slide run-to-run drift band; nothing depends on resolving it further. See [`37-...`](hybrid-pipeline/37-round-11-backlog-implementation.md) §1. |
 | 8 | **Multi-request / concurrent-job behavior of the API layer** | **Never measured** | Flagged, not sized | `bottleneck-list.md` ⑦ notes "concurrent analysis requests each hold a threadpool worker but serialize on the single GPU/CUDA context" as a *future* risk, not a measured one. No load test exists. Relevant once the UI (Phase 3, already shipping) sees real multi-user usage. |
@@ -106,6 +148,7 @@ Summary of what's actually open:
 
 | Item | Status | Source |
 |---|---|---|
+| **Every full-slide run from round 8 through round 14 analyzed unregistered tissue** | ✅ **Root-caused and fixed (round 15).** `scripts/full_wsi_validate.py`'s `conform_to_intersection()` cropped the raw Module-1 output (`*_processed.tiff` — VALIS's *input*, not its aligned output) to equal dimensions without aligning it, which let `PrecutStream`'s size-mismatch guard pass on misaligned IHC/DISH. Every full-slide correctness veto in rounds 8–13 (and round 14, which didn't run a full slide but shared the same script) was measuring internal consistency on the wrong geometry, not clinical validity — the orange DISH-nucleus markers were visibly displaced from their cells as a direct symptom. Fixed by pointing the pipeline at `module4_thumbnail.py`'s already-produced `her2_warped_lv0.tiff` / `dish_warped_lv0.tiff` (`crop="overlap"`, naturally equal-sized, no conform needed); `conform_to_intersection()` and `--conform` are deleted. Round 15 confirmed correctness on the real registered canvas (352,874–352,881 cells, GPU-nondeterminism-scale delta). **Every full-slide tile count, background share, and RSS/VRAM figure dated round 8–14 is on the wrong canvas** (27,565 tiles / 55.8% background instead of the correct 35,700 / 65.92%) — the seconds and ratios those rounds measured remain valid as *timing* data, but were never valid as clinical output. | [`hybrid-pipeline/44-conform-intersection-shift-investigation.md`](hybrid-pipeline/44-conform-intersection-shift-investigation.md), [`hybrid-pipeline/46-round-15-eta-estimation-implementation.md`](hybrid-pipeline/46-round-15-eta-estimation-implementation.md) §1.2 |
 | **Round-3 Cellpose checkpoint retrain needs pathologist/clinical sign-off** | **Pending, unresolved through round 7.** Cell counts shifted +1.8–2.5% and one tile flipped success→skipped between round 2 and round 3; this is a segmentation-quality change, not noise. All performance wins from round 3 onward — including cross-tile multiprocessing and the round-7 composition correction — ride on top of this unvalidated model swap. | [`13-next-optimization-plan.md`](hybrid-pipeline/13-next-optimization-plan.md) §3, `bottleneck-list-history.md` round-3 section |
 | **UI Phase 1–3 shipped while the algorithm is still mid-iteration** | Not a defect, but explicitly noted as a departure from the original two-condition gate ("physician validation passed" + "algorithm in maintenance mode") — see [`UI/07-phase-roadmap.md`](UI/07-phase-roadmap.md) "啟動 Phase 1 的條件". Worth knowing before assuming the pipeline's I/O contract is stable. | `UI/07-phase-roadmap.md` |
 

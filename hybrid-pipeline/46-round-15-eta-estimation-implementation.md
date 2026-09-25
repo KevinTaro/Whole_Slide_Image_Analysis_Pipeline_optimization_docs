@@ -434,7 +434,7 @@ round 1 control（git `96a28ba`、`config_hash db2b7e6a`、完全序列 `run_bat
 | Phase A 探針（doc 45 §4 Set D 授權的薄 wrapper） | `scripts/phase_a_probe.py` |
 | 原始量測資料 | `docs/hybrid-pipeline/measurement/_metrics_r15/` |
 | campaign driver | `/home/taro/r15/*.sh` |
-| Set F 完整輸出 | `/home/taro/r15_fullwsi/` |
+| Set F 完整輸出 | `/home/taro/r1   5_fullwsi/` |
 
 `scripts/eta_estimate.py` **不碰** `backend/api/`、`backend/schemas/`、`frontend/`——
 接進 UI 是下一份落地文件的工作，且需要先過 frontend-backend-boundary 審查（doc 45 §2.2）。

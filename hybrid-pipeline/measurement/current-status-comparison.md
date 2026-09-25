@@ -7,6 +7,19 @@
 > discovered-but-unshipped candidates, see
 > [`../DISCOVERED-NOT-IMPLEMENTED.md`](../DISCOVERED-NOT-IMPLEMENTED.md).
 >
+> ⚠️ **Stale as of round 15 — not yet re-tabulated.** The tables below (full-WSI section
+> especially) are all on the round 8–11 canvas — 27,565 tiles, 55.8% background — which
+> [`../44-conform-intersection-shift-investigation.md`](../44-conform-intersection-shift-investigation.md)
+> found was **unregistered** input. The correct, registered canvas is 35,700 tiles / 20.94 GP /
+> 65.92% background. Round 15
+> ([`../46-round-15-eta-estimation-implementation.md`](../46-round-15-eta-estimation-implementation.md))
+> re-ran the full slide on it: `workers=1` **3.023 h**, `workers=4` **1.478 h** (2.05x end-to-end),
+> peak RSS **13.66 GB** (down from this file's 60+ GB figures, partly from the round-13 stitch
+> backend and partly from the round-8 baseline having been on the wrong canvas). It also shipped
+> the round-13 Phase D fix (default `config.stitch_backend = "tifffile"`, Phase D down to 20.3% of
+> `workers=4` wall on the old canvas / 24.1% on the corrected one) and round 14 ruled out a
+> GPU↔CPU transfer bottleneck at `workers>1` — neither is reflected in the tables below yet.
+>
 > **Baseline:** git `96a28ba`, fully serial `run_batch` (one tile at a time, no optimizations),
 > `_metrics/`. **Current:** round 11 (2026-07-29), config hash `3d1087f2` (unchanged since round 7;
 > `cuda_alloc_conf` still defaults to `""` — round 11 recommends `"expandable_segments:True"` for
