@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hybrid Pipeline 結果儀表板</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1b1f24;--mute:#5c6670;--line:#dde1e6;--a:#2a6df4;--b:#e8590c;--c:#2f9e44;--d:#9c36b5;--e:#f59f00;--bad:#c92a2a}
+@media(prefers-color-scheme:dark){:root{--bg:#12151a;--card:#1b2027;--ink:#e6e9ed;--mute:#9aa4af;--line:#2c333c;--a:#5c94ff;--b:#ff8a4c;--c:#51cf66;--d:#cc5de8;--e:#fcc419;--bad:#ff6b6b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,"Noto Sans TC",sans-serif}
+header{padding:28px 16px 8px;max-width:1100px;margin:auto}h1{margin:0 0 4px;font-size:26px}header p{margin:0;color:var(--mute)}
+nav{max-width:1100px;margin:12px auto;padding:0 16px;display:flex;flex-wrap:wrap;gap:6px}nav a{font-size:13px;padding:4px 10px;border:1px solid var(--line);border-radius:99px;color:var(--ink);text-decoration:none;background:var(--card)}
+main{max-width:1100px;margin:auto;padding:0 16px 60px}
+section{margin-top:28px}h2{font-size:19px;margin:0 0 4px}.sub{color:var(--mute);margin:0 0 12px;font-size:13.5px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px}
+.card h3{margin:0 0 8px;font-size:14.5px}.kpis{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}.kpi b{display:block;font-size:24px}.kpi span{color:var(--mute);font-size:12.5px}
+svg{width:100%;height:auto;display:block}svg text{fill:var(--mute);font-size:11px}svg .v{fill:var(--ink);font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:13px}th,td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{color:var(--mute);font-weight:600}
+.scroll{overflow-x:auto}.note{font-size:12.5px;color:var(--mute);margin-top:6px}.warn{color:var(--bad)}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:4px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+</style>
+</head>
+<body>
+<header><h1>Hybrid Pipeline 效能優化 — 結果儀表板</h1>
+<p>整理自 hybrid-pipeline/ 全部文件（round 1–15，截至 2026-08-01）。⚠️ round 8–14 的整片數字量在未配準畫布（27,565 tile），僅作計時資料；官方現況為 round 15 正確畫布（35,700 tile）。</p></header>
+<nav id="nav"></nav>
+<main id="app"></main>
+
+<script>
+const C=['var(--a)','var(--b)','var(--c)','var(--d)','var(--e)'];
+const app=document.getElementById('app'),nav=document.getElementById('nav');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const fmt=n=>n>=100?Math.round(n).toLocaleString():(n>=10?n.toFixed(1):n.toFixed(2));
+function section(id,title,sub,body){nav.insertAdjacentHTML('beforeend',`<a href="#${id}">${title}</a>`);
+ app.insertAdjacentHTML('beforeend',`<section id="${id}"><h2>${title}</h2><p class="sub">${sub||''}</p>${body}</section>`)}
+function card(t,inner,note){return `<div class="card"><h3>${t}</h3>${inner}${note?`<div class="note">${note}</div>`:''}</div>`}
+function legend(names){return `<div class="legend">${names.map((n,i)=>`<span><i style="background:${C[i%5]}"></i>${esc(n)}</span>`).join('')}</div>`}
+/* grouped horizontal bar chart: rows=[{label,vals:[..]}] */
+function bars(rows,{unit='',series=[''],max}={}){
+ const W=560,lh=22,gap=8,L=150,R=70,n=series.length;const m=max||Math.max(...rows.flatMap(r=>r.vals.filter(v=>v!=null)));
+ let y=6,out='';
+ rows.forEach(r=>{out+=`<text x="${L-6}" y="${y+lh*n/2+4}" text-anchor="end">${esc(r.label)}</text>`;
+  r.vals.forEach((v,i)=>{if(v==null)return;const w=Math.max(1,(W-L-R)*v/m);
+   out+=`<rect x="${L}" y="${y+i*lh}" width="${w}" height="${lh-4}" rx="3" fill="${C[i%5]}"/><text class="v" x="${L+w+5}" y="${y+i*lh+13}">${fmt(v)}${unit}</text>`});
+  y+=lh*n+gap});
+ return `<svg viewBox="0 0 ${W} ${y+4}">${out}</svg>${n>1?legend(series):''}`}
+/* line chart: series=[{name,pts:[[x,y]..]}] */
+function lines(ser,{xl='',yl='',logx=false,xt}={}){
+ const W=560,H=260,L=52,R=14,T=10,B=36;const all=ser.flatMap(s=>s.pts);
+ const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]);const fx=logx?Math.log:x=>x;
+ const x0=fx(Math.min(...xs)),x1=fx(Math.max(...xs)),y1=Math.max(...ys)*1.08;
+ const X=x=>L+(fx(x)-x0)/(x1-x0||1)*(W-L-R),Y=y=>T+(1-y/y1)*(H-T-B);let o='';
+ for(let i=0;i<=4;i++){const v=y1*i/4;o+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${fmt(v)}</text>`}
+ (xt||[...new Set(xs)]).forEach(x=>o+=`<text x="${X(x)}" y="${H-T-6+10}" text-anchor="middle">${x}</text>`);
+ o+=`<text x="${(L+W-R)/2}" y="${H-2}" text-anchor="middle">${xl}</text><text x="10" y="${T+8}">${yl}</text>`;
+ ser.forEach((s,i)=>{o+=`<polyline fill="none" stroke="${C[i%5]}" stroke-width="2.2" points="${s.pts.map(p=>X(p[0])+','+Y(p[1])).join(' ')}"/>`+s.pts.map(p=>`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3.2" fill="${C[i%5]}"><title>${s.name}: ${p[0]} → ${fmt(p[1])}</title></circle>`).join('')});
+ return `<svg viewBox="0 0 ${W} ${H}">${o}</svg>${ser.length>1?legend(ser.map(s=>s.name)):''}`}
+function table(h,rows){return `<div class="scroll"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}</tr>`).join('')}</table></div>`}
+/* stacked bar: parts=[{name,v}] */
+function stack(parts,unit=''){const W=560,t=parts.reduce((a,p)=>a+p.v,0);let x=0,o='';
+ parts.forEach((p,i)=>{const w=W*p.v/t;o+=`<rect x="${x}" y="4" width="${w}" height="30" fill="${C[i%5]}"><title>${p.name}: ${p.v}${unit}</title></rect>`;if(w>40)o+=`<text class="v" x="${x+w/2}" y="24" text-anchor="middle" style="fill:#fff">${(100*p.v/t).toFixed(1)}%</text>`;x+=w});
+ return `<svg viewBox="0 0 ${W} 40">${o}</svg>${legend(parts.map(p=>p.name+' '+p.v+unit))}`}
+
+/* ---------- KPIs ---------- */
+section('kpi','現況總覽','round 15（2026-08-01，RTX 5090 / CUDA 13.0 / torch 2.11.0+cu130，config_hash d2ccc46b）',
+`<div class="kpis">
+<div class="kpi"><b>35,700</b><span>正確畫布 tile 數（156222×134028，20.938 GP）</span></div>
+<div class="kpi"><b>65.92%</b><span>背景比例（組織 tile 12,167）</span></div>
+<div class="kpi"><b>3.023 h</b><span>整片 workers=1</span></div>
+<div class="kpi"><b>1.478 h</b><span>整片 workers=4（2.05x）</span></div>
+<div class="kpi"><b>13.66 GB</b><span>整片 peak RSS（round 8：61.13 GB）</span></div>
+<div class="kpi"><b>12.77x</b><span>對 round 1 投影 18.87 h</span></div>
+<div class="kpi"><b>15.9x</b><span>組織 tile 成本 ÷ 背景 tile（0.7298 / 0.0460 s）</span></div>
+<div class="kpi"><b>&lt;1%</b><span>run-to-run CV（576 tile，n=3）</span></div></div>`);
+
+/* ---------- crop progression ---------- */
+section('crop','large/441 crop 優化進程','同一批 crop（441 tile、14.1% 背景）每一步的 wall-clock（秒）',
+`<div class="grid">${card('workers=1 逐步下降',bars([
+ {label:'R1 控制組（全序列）',vals:[848.0]},{label:'R2 兩段 overlap',vals:[707.4]},{label:'R3 Cellpose 4.2.1.1',vals:[573.7]},
+ {label:'R4 p0 +gc.freeze',vals:[538.5]},{label:'R4 p2 ⑧搬離 MAIN',vals:[495.5]},{label:'R4 p3 precut 串流',vals:[480.3]},
+ {label:'R6 n_jobs=1',vals:[302.7]},{label:'R15 重測同批 crop',vals:[294.6]}],{unit:' s'}),'累積 −64.3%（848.0 → 302.7 s）；round 15 在今日程式碼確認 294.6 s（2.88x）')}
+${card('workers 掃描（round 6，n_jobs=1）',lines([{name:'large/441 wall',pts:[[1,302.7],[3,142.9],[4,128.8],[5,122.7],[6,119.9],[8,119.2]]}],{xl:'workers',yl:'s'}),'5→6 只多 2.3%、6→8 0.6%：GPU-bound，故建議 workers=4（無人看管）/5')}
+${card('round 5 擴展（n_jobs=-1）',table(['workers','wall','speedup','效率','FB peak MB'],[[1,'482.8 s','1.00','100%','2,787'],[2,'208.9','2.31','116%','6,233'],[3,'156.1','3.09','103%','12,354'],[4,'137.4','3.51','88%','20,667']]),'2 worker 超線性 = 回收兩臂 GIL 競爭的簽名')}
+${card('Round 1 vs round 15（同批 crop 檔案）',bars([{label:'small 25 tile',vals:[54.3,22.5,26.3]},{label:'med 121 tile',vals:[243.3,85.2,54.6]},{label:'large 441 tile',vals:[848.0,294.6,143.2]}],{series:['round 1','R15 workers=1','R15 workers=4'],unit:' s'}),'25 tile 時 workers=4 反而比 workers=1 慢（init 攤不掉）；加速比隨規模成長 2.06x → 4.46x → 5.92x')}</div>`);
+
+/* ---------- full slide ---------- */
+section('full','整片 WSI 時間線','小時；⚠️ 標記者為未配準（錯誤）畫布 27,565 tile，僅計時資料',
+`<div class="grid">${card('整片 wall（h）',bars([
+ {label:'R1 投影（從未實跑）',vals:[18.87]},{label:'⚠R8 w1',vals:[3.82]},{label:'⚠R10 w1（prefetch）',vals:[2.84]},{label:'⚠R11 w1（no-prefetch）',vals:[2.96]},
+ {label:'R15 w1 ✔正確畫布',vals:[3.023]},{label:'⚠R8 w4',vals:[1.73]},{label:'⚠R12 w4',vals:[1.626]},{label:'⚠R13 w4',vals:[1.355]},{label:'R15 w4 ✔正確畫布',vals:[1.478]}],{unit:' h'}))}
+${card('12.77x 的來源拆解',stack([{name:'程式碼改進 2.85x',v:2.85},{name:'組成修正 2.19x',v:2.19},{name:'多行程 2.05x',v:2.05}]),'乘積 2.85 × 2.19 × 2.05 ≈ 12.8；只報 12.77x 會誇大工程貢獻（組成修正是當年用組織密集 crop 外推的偏差）')}
+${card('Peak RSS（整片）',bars([{label:'R8',vals:[61.13]},{label:'R10',vals:[60.04]},{label:'R11',vals:[60.17]},{label:'R12 w4',vals:[45.56]},{label:'R13 w4（tifffile）',vals:[16.95]},{label:'R15 w1',vals:[13.66]},{label:'R15 w4',vals:[13.24]}],{unit:' GB'}),'band 串流取代 lazy 整片 join；README 的「64 GB RAM」已過時')}
+${card('每組織 tile 秒數（跨畫布可比）',bars([{label:'R8 w1',vals:[1.1296,null]},{label:'R11 w1',vals:[0.8754]},{label:'R15 w1',vals:[0.8945]},{label:'R8 w4',vals:[0.5098]},{label:'R13 w4',vals:[0.4003]},{label:'R15 w4',vals:[0.4374]}],{unit:' s'}),'R15 略慢 = 多出 8,152 個背景 tile（≈375 s）＋更大畫布 Phase D，非回歸')}</div>
+<div class="card" style="margin-top:14px"><h3>正確畫布 vs 舊畫布</h3>${table(['','舊（round 8–14）','正確（round 15）','變化'],[['尺寸','141658×114366','156222×134028','+10.3% / +17.2%'],['gigapixels','16.20','20.938','+29.3%'],['tile 數','27,565','35,700','+29.5%'],['背景比例','55.8%','65.92%','+10.1 pp'],['組織 tile','12,184','12,167','−0.14%'],['背景 tile','15,381','23,533','+53.0%']])}</div>`);
+
+/* ---------- ETA ---------- */
+section('eta','ETA 模型（round 15）','組成 sweep、尺寸 sweep、workers sweep、Phase A/D 曲線',
+`<div class="grid">${card('Set B：背景比例 vs wall（576 tile，workers=1）',lines([{name:'wall s',pts:[[10.07,381.3],[25,322.3],[50,240.2],[65.97,164.7],[73.44,131.9],[89.93,65.7]]}],{xl:'背景 %',yl:'s'}),'core = 0.7298·n_tissue + 0.0460·n_bg ；R²=0.99694，最大殘差 6.47%')}
+${card('Set A：尺寸 sweep（固定 65.9% 背景）',lines([{name:'wall',pts:[[121,39.8],[441,124.6],[576,164.7],[1024,280.8],[4096,1230.6],[9216,2723.5]]},{name:'Set B 模型預測',pts:[[121,34.4],[441,125.6],[576,164.1],[1024,292.2],[4096,1168.7],[9216,2630.2]]}],{xl:'tile 數',yl:'s',logx:true,xt:[121,441,1024,4096,9216]}),'每 tile 速率跨 21x 尺寸僅 ±5%（可遷移性成立）')}
+${card('Set C：workers scaling',lines([{name:'576 tile',pts:[[1,164.7],[2,110.2],[3,94.8],[4,91.0]]},{name:'4,096 tile（÷10）',pts:[[1,123.06],[2,69.11],[3,55.96],[4,49.97]]}],{xl:'workers',yl:'s'}),'Amdahl serial 比例 36.8%（576）→ 17.1%（4,096），非常數；擬合 serial 比 Phase A+D+init 大 8–10x = GPU 裝置競爭')}
+${card('Set E 誤差棒（n=3）',table(['workers','三次 wall (s)','均值','sd','CV'],[[1,'164.7 / 162.6 / 165.5','164.2','1.48','0.90%'],[4,'91.0 / 91.5 / 91.9','91.5','0.45','0.49%']]),'歷史 n=1 的大幅變動（如 Phase D +52%）不可能是雜訊')}
+${card('Phase D：cached vs 冷讀（s/GP）',bars([{label:'Set D hard-link（cached）',vals:[11.26]},{label:'R13 實跑（冷讀，同幾何）',vals:[60.90]},{label:'a96 5.47 GP 真實 tile',vals:[34.07]}],{unit:' s/GP'}),'5.41x 差距；cached 擬合 Phase D = 10.135·GP^1.0665（R²=0.990）')}
+${card('Phase A 預切（獨立量）',lines([{name:'Phase A s',pts:[[121,5.74],[441,19.58],[576,22.01],[1024,40.86],[4096,156.75],[9216,322.02]]}],{xl:'tile 數',yl:'s',logx:true,xt:[121,441,1024,4096,9216]}),'Phase A = 0.06268·n^0.9364（R²=0.9995）；35,700 tile ≈ 19.1 分鐘；串流化後實測 0.03 s')}
+</div>
+<div class="grid" style="margin-top:14px">${card('Held-out 驗證（Set F，未參與擬合）',table(['','分項','預測','實測','誤差'],[['w1','core','9,962.8','9,551.3','+4.3%'],['','Phase D','569.6','1,332.1','<span class=warn>−57.2%</span>'],['','wall','10,534.9','10,883.4','−3.2%（假象）'],['w4','core','3,770.7','4,039.4','−6.7%'],['','Phase D','569.6','1,282.0','<span class=warn>−55.6%</span>'],['','wall','4,342.8','5,321.4','<span class=warn>−18.4%</span>']]),'core 健全；Phase D 子模型失準（擬合在 page-cache 轉折上）')}
+${card('逐 bucket 係數（s / 組織 tile）',bars([{label:'B1_m3b_cellpose (MAIN)',vals:[0.60168]},{label:'B3_detect_dots (BG)',vals:[0.29984]},{label:'B3_enlarge_cells (MAIN)',vals:[0.05058]},{label:'B1_unet_coremask (all)',vals:[0.04091]},{label:'B3_build_results',vals:[0.03144]},{label:'B2_render_overlay',vals:[0.02346]},{label:'B2r_tile_read',vals:[0.02169]},{label:'Bs_clear_edge',vals:[0.01947]}],{unit:' s'}),'BG/MAIN = 0.405，MAIN 仍是關鍵路徑')}</div>`);
+
+/* ---------- Phase D ---------- */
+section('phased','Phase D 縫合（stitch）演進','pyvips 單次 tiffsave → tifffile 管線化讀取',
+`<div class="grid">${card('4.055 GP 規模各候選（s，越短越好）',bars([{label:'A pyvips（出貨）',vals:[62.4]},{label:'B tifffile_cpu',vals:[79.5]},{label:'B + pipelined read',vals:[45.7]},{label:'C tifffile_gpu_pyramid',vals:[72.9]},{label:'C + pipelined read',vals:[39.5]}],{unit:' s'}),'R10 讀取串行時 B 0.785x、C 0.856x；R12 管線化後 1.365x / 1.581x；出貨移植實測 1.361x')}
+${card('整片 workers=4 Phase D',bars([{label:'R8（舊畫布）',vals:[1200.8]},{label:'R11 w1',vals:[1239.2]},{label:'R12 pyvips',vals:[1889.8]},{label:'R13 tifffile',vals:[987.8]},{label:'R15 w4（正確畫布）',vals:[1282.0]}],{unit:' s'}),'占 w4 wall：19.3% → 32.3% → 20.3%（R13）→ 24.1%（R15）')}
+${card('Phase D 占 wall 比例',lines([{name:'%',pts:[[1,8.6],[2,19.3],[3,11.6],[4,32.3],[5,20.3],[6,24.1]]}],{xl:'1=R8w1 2=R8w4 3=R11w1 4=R12w4 5=R13w4 6=R15w4',yl:'%'}))}
+${card('tiffsave 旋鈕消融（4.055 GP）',table(['config','speedup','大小'],[['tile 256 / 512 / 1024','0.948 / 0.860 / 0.686','~同'],['predictor none','1.014','+29.7%'],['deflate','0.785','−12%'],['zstd_1（QuPath 打不開 → 否決）','1.233','−13.8%'],['BOUND 無 pyramid（否決）','1.258','−35%'],['BOUND 無壓縮（否決）','1.263','8.9x']]))}</div>`);
+
+/* ---------- gc & read ---------- */
+section('gcio','gc.collect 與 tile read','整片 workers=1',
+`<div class="grid">${card('B4_gc_collect（s）',bars([{label:'R8（凍結後累積）',vals:[2218.4]},{label:'R10 週期 re-freeze',vals:[58.8]},{label:'R11',vals:[19.5]}],{unit:' s'}),'-97.3%（37.7x）；freeze 為 O(1)（0.00004–0.0006 ms）；每 5,000 累積細胞 freeze 一次')}
+${card('gc per-call decile 均值（ms）R10',lines([{name:'ms/call',pts:[[1,16.19],[2,0.94],[3,0.41],[4,0.42],[5,0.40],[6,0.39],[7,0.41],[8,0.39],[9,0.75],[10,1.04]]},{name:'R8 爬升（1.2→80.5）',pts:[[1,1.2],[5,20],[10,80.5]]}],{xl:'decile',yl:'ms'}))}
+${card('B2r_tile_read（s）',bars([{label:'R8 baseline（被污染）',vals:[2368.5]},{label:'R10 prefetch',vals:[1581.2]},{label:'R11 inline（乾淨）',vals:[449.3]}],{unit:' s'}),'真實成本 4.21% wall；Option L 隱藏 448.4/449.3 s（99.8%）；Option K = 1.044x')}
+${card('Round 10 vs 11 整片（workers=1）',table(['','R8','R10','R11'],[['wall','13,762.5','10,217.7','10,666.1'],['B1_m3b_cellpose','6,358.9','7,109.9','6,888.7'],['gc_collect','2,218.4','58.8','19.5'],['peak RSS','61.13','60.04','60.17'],['freeze 次數','1','70','70']]),'+751 s 迴歸：221 s 為 prefetch 競爭（係數 0.513 s/s，整片偏差 4%）')}</div>`);
+
+/* ---------- r14 ---------- */
+section('r14','Round 14：GPU↔CPU 搬運（workers=4）','三個候選全部負向，無 code 變更',
+`<div class="grid">${card('_from_device 拆分（4 worker 彙總 107.4 s）',stack([{name:'GPU-wait',v:103.437},{name:'D2H copy',v:0.761},{name:'host cast',v:3.250}],' s'),'96.3% 是 GPU-wait；D2H 僅 wall 的 0.18%；每次呼叫 GPU-wait 38.7 → 101.8 ms（2.63x）')}
+${card('Pinned memory（ms，12.58 MB）',table(['傳輸','隔離','3 siblings'],[['H2D pageable','3.343','3.526'],['H2D pinned','0.237','0.256'],['pinned+non_blocking','0.234','0.239'],['D2H .cpu()','0.718','0.746'],['D2H pinned','0.323','0.341']]),'14.1x 微基準勝利 = 端到端 0.42%')}
+${card('讀取（ms/read，4 路併發 vs 1）',bars([{label:'R14 w1',vals:[6.70]},{label:'R14 w4 彙總',vals:[5.65]}],{unit:' ms'}),'4 路併發反而便宜 ~25%；暴露讀取 = wall 的 1.34–1.39%')}
+${card('Round 12 batch-claiming',table(['claim','wall（零工作）','spread'],[['per_tile','0.356 s','—'],['batch:8','0.291 s','304,512'],['batch:32','0.288 s','1,344,1,011']]),'全 27,565 tile 領取 0.006% wall → 1.00006x')}</div>`);
+
+/* ---------- earlier ---------- */
+section('early','Round 2–7 實驗數據','overlap、GIL、n_jobs、批次、組成')
+;app.lastElementChild.insertAdjacentHTML('beforeend',`<div class="grid">
+${card('detect_all_dots：n_jobs 掃描（ms/tile）',lines([{name:'ms/tile',pts:[[1,260.3],[2,296.7],[3,309.6],[4,319.7],[6,335.4],[8,343.2],[12,527.0],[20,721.5]]}],{xl:'n_jobs',yl:'ms'}),'20 threads 慢 2.77x，結果相同；改 n_jobs=1 → workers=1 1.60x，MAIN 臂 −43.4%')}
+${card('跨 tile Cellpose 批次（ms/tile，M2）',table(['G','1','2','4','8','16'],[['ms/tile','253.1','238.6','254.6','259.4','254.3*'],['peak MB','1,167','2,146','4,102','8,014','15,840']]),'*G=16 另一組 238.5 → 254.3（+6.6%）；UNet++ 批次更差（+5.6~17.5%）')}
+${card('Round 2 overlap（121 tile）',table(['','baseline','overlap'],[['wall','255.0 s','207.9 s（−18.5%）'],['GPU idle','0.494','0.154'],['peak RSS','2.95 GB','3.06 GB']]))}
+${card('GIL 診斷（py-spy）',stack([{name:'主執行緒',v:81.4},{name:'背景',v:18.6}],'%'),'GIL 持有者：gc.collect 33.6%、Cellpose Python 26.1%、UNet++ 14.9%（93% 為一次性 import）')}
+${card('玻片組成（全格 UNet 掃描）',stack([{name:'背景 15,386',v:15386},{name:'組織 12,179',v:12179}]),'舊畫布 55.82% 背景；亮度 proxy 的 39% 錯，閾值敏感 2.4%↔55.1%')}
+${card('Round 8 整片 bucket 占比（w1 wall 13,762 s）',bars([{label:'B1_m3b_cellpose',vals:[46.2]},{label:'B2r_tile_read',vals:[17.2]},{label:'B3_detect_dots',vals:[17.0]},{label:'B4_gc_collect',vals:[16.1]},{label:'B2_png_encode',vals:[14.8]},{label:'D_stitch',vals:[8.6]},{label:'B1_unet_coremask',vals:[5.3]}],{unit:'%'}),'兩臂重疊，不加總為 100%；三個 crop 導出 stop-loss（gc/read/Phase D）在整片不成立')}
+${card('Round 8 tiffsave / allocator',table(['項目','結果'],[['workers=6 OOM（control / expandable）','1/6 vs 0/6（p≈1.0）'],['workers=4（R11）','4/12 vs 0/12（p=0.047）'],['expandable 代價','+0.67% wall，peak FB 92.2%'],['workers=6 vs 4（crop）','65.46 vs 65.55 s']]))}</div>`);
+
+/* ---------- open ---------- */
+section('open','仍開著的事項','',
+ `<div class="card">${table(['#','項目','備註'],[[1,'Round-3 Cellpose checkpoint 臨床簽核','自 round 3 pending，細胞數 +1.8–2.5%；非工程'],[2,'Phase D 冷讀 regime 量測','ETA 子模型 −56%，最高優先'],[3,'整片誤差棒','中型 CV<1%；整片仍 n=1'],[4,'ETA 接進 API/UI','eta_estimate.py 已交付；需邊界審查與逐 tile callback'],[5,'跨玻片驗證','僅一張玻片'],[6,'workers=4 VRAM OOM','crop 1/10；餘裕 ~2.5 GB 四 worker 共用'],[7,'overlay_pyramid_audit 強化','只測亮度'],[8,'QuPath 渲染回報','無法重現，停放'],[9,'解析度校準','佔位 1 px/mm'],[10,'README 硬體需求過時','實測 13.66 GB']])}</div>`);
+</script>
+</body>
+</html>
