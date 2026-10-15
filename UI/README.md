@@ -40,6 +40,9 @@
 | 11 | [11-runbook-teammate.md](11-runbook-teammate.md) | **照做把 UI 跑起來**（後端 + 前端 + 操作 + 踩雷表） | 要在自己機器上跑 |
 | 12 | [12-env-setup.md](12-env-setup.md) | **從零重建 `tsgh311` 環境**（conda 原生層 + pip 層，Windows） | 機器上還沒有環境時 |
 | 13 | [13-numpy2-migration-and-analysis-ui.md](13-numpy2-migration-and-analysis-ui.md) | **numpy 2 遷移 + Windows 可跑化 + 分析（hybrid）UI 與 ROI**：改了哪些檔、驗證紀錄、還沒做的 | 接手分析 UI 或環境炸掉時 |
+| 14 | [14-two-machine-runbook.md](14-two-machine-runbook.md) | **最終呈現方式**：Linux 跑運算 + Windows 呈現前端（SSH tunnel、資料放哪、mockup 三畫面對應的端點、跨機器落差） | 要 demo / 驗收時 |
+| 15 | [15-roi-box-selection.md](15-roi-box-selection.md) | **ROI 改為框選**：照 mockup 畫面 1 做成可拖曳/縮放的選取框，改了哪三個檔、為什麼用 OSD overlay、驗證紀錄 | 要動 ROI / 檢視器互動時 |
+| 16 | [16-heatmap.md](16-heatmap.md) | **分析熱圖的做法**：從 `report.csv` 怎麼算、API 回什麼、擴增填色與異質性外框怎麼畫、多份報告怎麼同時顯示 | 要動熱圖 / 看不懂熱圖在畫什麼時 |
 | — | [architecture-diagram.html](architecture-diagram.html) | 視覺化：分層圖、請求流程、座標邊界、護欄紅線 | 想看圖的時候（瀏覽器開） |
 
 ---
